@@ -18,7 +18,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        neutralGradient: "inline-flex h-12 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-neutral-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 hover:shadow-md hover:shadow-neutral-800",
+        shimer: "inline-flex h-12 animate-shimmer items-center justify-center rounded-md border border-neutral-400 bg-[linear-gradient(110deg,#000403,45%,#1e2631,55%,#000403)] bg-[length:200%_100%] px-6 font-medium text-neutral-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 hover:shadow-md hover:shadow-neutral-600",
       },
       size: {
         default: "h-10 px-4 py-2",
