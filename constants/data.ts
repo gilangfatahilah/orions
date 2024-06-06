@@ -120,24 +120,54 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'User',
-    href: '/dashboard/user',
+    href: '/dashboard/employee',
     icon: 'user',
     label: 'user'
   },
   {
-    title: 'Employee',
+    title: 'Category',
+    href: '/dashboard/user',
+    icon: 'category',
+    label: 'category'
+  },
+  {
+    title: 'Item',
     href: '/dashboard/employee',
-    icon: 'employee',
-    label: 'employee'
+    icon: 'item',
+    label: 'item'
   },
   {
-    title: 'Profile',
-    href: '/dashboard/profile',
-    icon: 'profile',
-    label: 'profile'
+    title: 'Stock',
+    href: '/dashboard/employee',
+    icon: 'stock',
+    label: 'stock'
   },
   {
-    title: 'Kanban',
+    title: 'Supplier',
+    href: '/dashboard/employee',
+    icon: 'supplier',
+    label: 'supplier'
+  },
+  {
+    title: 'Outlet',
+    href: '/dashboard/employee',
+    icon: 'outlet',
+    label: 'outlet'
+  },
+  {
+    title: 'Transaction',
+    href: '/dashboard/employee',
+    icon: 'transaction',
+    label: 'transaction'
+  },
+  {
+    title: 'Report',
+    href: '/dashboard/employee',
+    icon: 'report',
+    label: 'report'
+  },
+  {
+    title: 'Kanban (beta)',
     href: '/dashboard/kanban',
     icon: 'kanban',
     label: 'kanban'
