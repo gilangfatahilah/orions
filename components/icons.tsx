@@ -35,6 +35,8 @@ import {
   User,
   User2Icon,
   UserX2Icon,
+  LogOut,
+  Mail,
   X
 } from 'lucide-react';
 
@@ -73,6 +75,8 @@ export const Icons = {
   stock: Warehouse,
   supplier: Truck,
   moon: Moon,
+  mail: Mail,
+  signout: LogOut,
   laptop: Laptop,
   gitHub: ({ ...props }: LucideProps) => (
     <svg

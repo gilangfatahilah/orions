@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default function AuthenticationPage() {
-  const words = ["simple.", "accessible.", "reliable.", "accurate."];
+  const words = ["Track", "Manage", "Thrive",];
 
   return (
     <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
@@ -31,20 +31,19 @@ export default function AuthenticationPage() {
         <div className="absolute inset-0 bg-black opacity-65 dark:opacity-50" />
 
         <div className="relative z-20 my-auto">
-          <blockquote className="text-[6rem] font-bold mx-auto leading-none text-neutral-200">
-            Make it
-
+          <blockquote className="text-[6rem] font-bold mx-auto leading-none text-neutral-200 drop-shadow-xl">
             <FlipWords words={words} />
+              <br />your stock seamlessly anywhere.
 
-            <p className='text-xs text-neutral-400 dark:text-neutral-200 font-normal mt-1 w-9/12 text-justify'>
+            <p className='text-base tracking-tight leading-tight ml-4 text-neutral-400 dark:text-neutral-200 font-normal mt-10 w-9/12 text-justify'>
               Orion is a fast, accurate, and reliable inventory management app. With an intuitive interface, Orion ensures
-              your inventory data is always current, reducing errors and enhancing efficiency. Simplify inventory control with Orion.
+              your inventory data is always current, reducing errors and enhancing efficiency. Simplify inventory control with orion.
             </p>
 
           </blockquote>
         </div>
 
-        <div className="relative z-20 mt-auto flex items-center gap-[2px]">
+        <div className="relative z-20 mt-auto ml-4 flex items-center gap-[2px]">
           <p className='text-xs font-normal'>
             Built and developed by
           </p>

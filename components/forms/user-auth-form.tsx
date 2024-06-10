@@ -11,37 +11,70 @@ import {
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import GoogleSignInButton from '../github-auth-button';
+import { useToast } from '../ui/use-toast';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
-  password: z.string({ required_error: 'Password is required' })
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters.",
+  })
 });
 
-type UserFormValue = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>;
 
 export default function UserAuthForm() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl');
+  const {toast} = useToast()
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const defaultValues = {
-    email: 'demo@gmail.com',
-    password: '12345',
-  };
-  const form = useForm<UserFormValue>({
+
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues
+    defaultValues: {
+      email: '',
+      password: '',
+    }
   });
 
-  const onSubmit = async (data: UserFormValue) => {
-    signIn('credentials', {
-      email: data.email,
-      callbackUrl: callbackUrl ?? '/dashboard'
-    });
+  const onSubmit = async (data: FormData) => {
+    const { email, password } = data;
+
+    try {
+      setLoading(true);
+      const response = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (response?.error === 'Configuration'){
+        return toast({
+          variant: 'destructive',
+          title: 'Uh oh! Something went wrong.',
+          description: 'Invalid email or password.'
+        })
+      }
+
+      if(response?.status === 200 && response.ok){
+        toast({
+          title: 'Sign in successful.'
+        })
+
+        router.push('/dashboard')
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'There was a problem with your request.'
+      })
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -89,7 +122,7 @@ export default function UserAuthForm() {
             )}
           />
 
-          <Button disabled={loading} className="ml-auto w-full mt-2" type="submit">
+          <Button disabled={loading} className="ml-auto w-full mt-4" type="submit">
             Continue
           </Button>
         </form>

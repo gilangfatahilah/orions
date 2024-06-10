@@ -28,7 +28,7 @@ export function ProfileCard() {
           <div>
             <h4 className="text-sm font-semibold">@gilangf</h4>
             <p className="text-sm font-normal mt-[2px]">
-              money can&apos;t buy happiness, but a lot of money can.
+              i correct autocorrect more than autocorrect corrects me.
             </p>
             <div className="flex items-center pt-2 gap-1">
               <Github className="h-4 w-4 opacity-70" />{" "}

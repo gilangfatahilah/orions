@@ -120,7 +120,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'User',
-    href: '/dashboard/employee',
+    href: '/dashboard/user',
     icon: 'user',
     label: 'user'
   },
@@ -132,37 +132,37 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Item',
-    href: '/dashboard/employee',
+    href: '/dashboard/user',
     icon: 'item',
     label: 'item'
   },
   {
     title: 'Stock',
-    href: '/dashboard/employee',
+    href: '/dashboard/user',
     icon: 'stock',
     label: 'stock'
   },
   {
     title: 'Supplier',
-    href: '/dashboard/employee',
+    href: '/dashboard/user',
     icon: 'supplier',
     label: 'supplier'
   },
   {
     title: 'Outlet',
-    href: '/dashboard/employee',
+    href: '/dashboard/user',
     icon: 'outlet',
     label: 'outlet'
   },
   {
     title: 'Transaction',
-    href: '/dashboard/employee',
+    href: '/dashboard/user',
     icon: 'transaction',
     label: 'transaction'
   },
   {
     title: 'Report',
-    href: '/dashboard/employee',
+    href: '/dashboard/user',
     icon: 'report',
     label: 'report'
   },
