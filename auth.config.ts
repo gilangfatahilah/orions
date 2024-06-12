@@ -1,14 +1,16 @@
 import { NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from 'next-auth/providers/google';
 import * as bcrypt from "bcryptjs";
 import prisma from './lib/db';
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
-  
+
   pages: {
-    signIn: '/'
+    signIn: '/',
+    error: '/'
   },
 
   session: {
@@ -21,6 +23,10 @@ export const authConfig = {
   },
 
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    }),
     CredentialsProvider({
       name: 'credentials',
 
@@ -39,31 +45,31 @@ export const authConfig = {
 
       async authorize(credentials) {
 
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email as string,
-            }
-          });
-
-          if (!user) return null;
-
-          const passwordMatch = await bcrypt.compare(credentials.password as string, user.password);
-
-          if (passwordMatch) {
-            return user
+        const user = await prisma.user.findUnique({
+          where: {
+            email: credentials.email as string,
           }
+        });
 
-          if (!passwordMatch) return null;
-        
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            image: user.image,
-          }
+        if (!user) return null;
+
+        const passwordMatch = await bcrypt.compare(credentials.password as string, user.password as string);
+
+        if (passwordMatch) {
+          return user
+        }
+
+        if (!passwordMatch) return null;
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          image: user.image,
+        }
       }
-    })
+    }),
   ],
 
   callbacks: {
@@ -76,13 +82,67 @@ export const authConfig = {
       return session;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, profile }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role as string;
+        token.role = user.role;
         token.image = user.image;
       }
+      
+      if (account?.provider === 'google' && profile?.picture) {
+        token.image = profile.picture;
+      }
+      
       return token;
-    }
+    },
+
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        const existingUser = await prisma.user.findUnique({
+          where: {
+            email: user.email as string,
+          }
+        });
+
+        if (existingUser) {
+          await prisma.account.upsert({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              }
+            },
+            update: {
+              access_token: account.access_token,
+              refresh_token: account.refresh_token,
+              expires_at: account.expires_at,
+              token_type: account.token_type,
+              scope: account.scope,
+              id_token: account.id_token,
+              session_state: account.session_state as string,
+            },
+            create: {
+              userId: existingUser.id,
+              type: account.type,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+              access_token: account.access_token,
+              refresh_token: account.refresh_token,
+              expires_at: account.expires_at,
+              token_type: account.token_type,
+              scope: account.scope,
+              id_token: account.id_token,
+              session_state: account.session_state as string,
+            },
+          });
+
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      return true;
+    },
   },
 } satisfies NextAuthConfig;

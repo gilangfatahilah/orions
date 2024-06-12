@@ -11,13 +11,40 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { signOutAuth } from '@/lib/action';
+
+import { useToast } from '../ui/use-toast';
 import { LogOut, User2Icon, Settings } from 'lucide-react';
-import { signOut, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+
 export function UserNav() {
   const { data: session } = useSession();
+  const { toast } = useToast();
+  const [openDialog, setOpenDialog] = useState(false);
 
-  if (session) {
-    return (
+  const handleSignOutClick = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  if (!session) { return null };
+
+  return (
+    <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -53,15 +80,33 @@ export function UserNav() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => signOut({
-            redirect: true,
-            callbackUrl: '/'
-          })}>
-            Log out
-            <DropdownMenuShortcut><LogOut className='w-4 h-4' /></DropdownMenuShortcut>
+          <DropdownMenuItem onClick={handleSignOutClick}>
+            Sign Out
+            <DropdownMenuShortcut>
+              <LogOut className='w-4 h-4' />
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    );
-  }
+
+      <AlertDialog open={openDialog} onOpenChange={handleCloseDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you want to sign out?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will redirect you to the sign in page.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => {
+              await signOutAuth();
+            }}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 }

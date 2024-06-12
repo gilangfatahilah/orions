@@ -37,8 +37,10 @@ import {
   UserX2Icon,
   LogOut,
   Mail,
+  KeyRound,
   X
 } from 'lucide-react';
+import google from '@/public/logo/google.svg'
 
 export type Icon = LucideIcon;
 
@@ -75,9 +77,11 @@ export const Icons = {
   stock: Warehouse,
   supplier: Truck,
   moon: Moon,
+  google: google,
   mail: Mail,
   signout: LogOut,
   laptop: Laptop,
+  key: KeyRound,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"
