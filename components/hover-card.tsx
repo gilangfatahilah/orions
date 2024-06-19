@@ -17,7 +17,7 @@ export function ProfileCard() {
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <p className="text-xs font-medium underline-offset-4 hover:underline">@gilangf</p>
+        <p className="text-xs font-medium font-sans underline-offset-4 hover:underline">@gilangf.</p>
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
         <div className="flex justify-between gap-2">
@@ -26,8 +26,8 @@ export function ProfileCard() {
             <AvatarFallback>GF</AvatarFallback>
           </Avatar>
           <div>
-            <h4 className="text-sm font-semibold">@gilangf</h4>
-            <p className="text-sm font-normal mt-[2px]">
+            <h4 className="text-sm font-semibold">Gilang Fatahilah</h4>
+            <p className="text-sm font-normal mt-[2px] tracking-tight">
               i correct autocorrect more than autocorrect corrects me.
             </p>
             <div className="flex items-center pt-2 gap-1">

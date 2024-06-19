@@ -1,6 +1,6 @@
 'use client';
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, Legend, XAxis, YAxis } from 'recharts';
 
 const data = [
   {
@@ -54,6 +54,29 @@ const data = [
 ];
 
 export function Overview() {
+  const contentStyle = {
+    width: '150%',
+    backgroundColor: '#000000',
+    padding: 'none',
+    border: '2px solid #27272A',
+    borderRadius: '6px',
+  }
+
+  const labelStyle = {
+    fontSize: '14px',
+    padding: '6px',
+    color: '#fff',
+    fontWeight: '700',
+    borderBottom: '2px solid #27272A'
+  }
+
+  const itemStyle = {
+    fontSize: '12px',
+    padding: '6px',
+    color: '#fff',
+    fontWeight: '500',
+  }
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={data}>
@@ -71,6 +94,8 @@ export function Overview() {
           axisLine={false}
           tickFormatter={(value) => `$${value}`}
         />
+
+        <Tooltip animationEasing='ease-out' animationDuration={400} itemStyle={itemStyle} contentStyle={contentStyle} labelStyle={labelStyle} />
         <Bar dataKey="total" fill="#adfa1d" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
