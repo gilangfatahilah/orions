@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import UserAuthForm from '@/components/forms/user-auth-form';
 import { ProfileCard } from '@/components/hover-card';
 import { buttonVariants } from '@/components/ui/button';

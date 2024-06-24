@@ -1,16 +1,9 @@
 "use server"
 import { signOut, signIn } from '@/auth';
-
-// interface User {
-//   id: string;
-//   name: string | null;
-//   email: string;
-//   password: string;
-//   role: string;
-//   image: string;
-//   createdAt: Date;
-//   updatedAt: Date | null;
-// }
+import prisma from './db';
+import { User } from '@prisma/client';
+import { sendMail, compileWelcomeTemplate } from './mail';
+import { SentMessageInfo } from 'nodemailer';
 
 export const signOutAuth = async () => {
   const response = await signOut({
@@ -34,3 +27,33 @@ export const googleSignIn = async () => {
     callbackUrl: '/dashboard'
   });
 }
+
+export const send = async (email: string, name: string, subject: string, url: string): Promise<SentMessageInfo | undefined> => {
+  return await sendMail({
+    to: email,
+    name: name,
+    subject: subject,
+    body: compileWelcomeTemplate(name, url)
+  })
+}; 
+
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  return await prisma.user.findUnique({
+    where: { email: email },
+  })
+};
+
+export const updateUser = async (id: string, data: Partial<User>): Promise<User | null> => {
+  return await prisma.user.update({
+    where: { id: id },
+    data: data,
+  })
+}
+
+export const deleteUser = async (id: string) => {
+  await prisma.user.delete({
+    where: {
+      id: id,
+    }
+  })
+};

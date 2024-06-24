@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Icons } from '../icons';
 import { useToast } from '../ui/use-toast';
+import { Icon } from '@radix-ui/react-select';
 
 const credentialSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
@@ -34,6 +35,7 @@ export default function UserAuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
+  const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
   const credentialForm = useForm<credentialFormData>({
     resolver: zodResolver(credentialSchema),
@@ -64,13 +66,13 @@ export default function UserAuthForm() {
 
     try {
       setLoading(true);
-      const response =   await signIn('credentials', {
+      const response = await signIn('credentials', {
         email,
         password,
         redirect: false,
       })
 
-      if (response?.error === 'Configuration' || response?.error === 'Credentials' ) {
+      if (response?.error === 'Configuration' || response?.error === 'Credentials') {
         return toast({
           variant: 'destructive',
           title: 'Uh oh! Something went wrong.',
@@ -96,15 +98,15 @@ export default function UserAuthForm() {
     }
   };
 
-  const handleGoogleSignIn = async() => {
+  const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
-  
+
       const response = await signIn('google', {
         callbackUrl: '/dashboard',
         redirect: false
       });
-      
+
       if (response?.ok) {
         toast({
           title: 'Sign in successful.',
@@ -120,7 +122,10 @@ export default function UserAuthForm() {
       setLoading(false);
     }
   };
-  
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
 
   return (
     <>
@@ -136,12 +141,16 @@ export default function UserAuthForm() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    disabled={loading}
-                    {...field}
-                  />
+                  <div className='relative'>
+                    <Icons.mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      disabled={loading}
+                      className='pl-10'
+                      {...field}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -155,12 +164,28 @@ export default function UserAuthForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    disabled={loading}
-                    {...field}
-                  />
+                  <div className='relative'>
+                    <Icons.lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      type={passwordVisible ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      disabled={loading}
+                      className="pl-10"
+                      {...field}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                    >
+                      {passwordVisible ? (
+                        <Icons.eyeOff className="w-4 h-4" />
+                      ) : (
+                        <Icons.eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -3,6 +3,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Employee } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export const columns: ColumnDef<Employee>[] = [
   {
@@ -25,24 +26,26 @@ export const columns: ColumnDef<Employee>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'first_name',
-    header: 'NAME'
+    accessorKey: 'image',
+    header: 'PHOTO',
+    cell: ({ row }) => { return (
+    <Avatar>
+      <AvatarImage src={row.original.image as string} alt={row.original.name as string} />
+      <AvatarFallback> {row.original.name?.substring(0, 1).toUpperCase()} </AvatarFallback>
+    </Avatar>
+  )},
   },
   {
-    accessorKey: 'country',
-    header: 'COUNTRY'
+    accessorKey: 'name',
+    header: 'NAME'
   },
   {
     accessorKey: 'email',
     header: 'EMAIL'
   },
   {
-    accessorKey: 'job',
-    header: 'COMPANY'
-  },
-  {
-    accessorKey: 'gender',
-    header: 'GENDER'
+    accessorKey: 'role',
+    header: 'ROLE'
   },
   {
     id: 'actions',

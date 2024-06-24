@@ -12,17 +12,36 @@ import { Employee } from '@/constants/data';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useToast } from '@/components/ui/use-toast';
+import { deleteUser } from '@/lib/action';
 
 interface CellActionProps {
   data: Employee;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    try {
+      await deleteUser(data.id);
+
+      toast({
+        title: "Success, user has been deleted."
+      })
+
+      setOpen(false)
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: "Uh oh! Something went wrong.",
+        description: "Sorry, failed to delete user please check your connection and try again.",
+      })
+    }
+  };  
 
   return (
     <>

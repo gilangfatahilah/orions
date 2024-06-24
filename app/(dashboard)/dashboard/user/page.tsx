@@ -4,7 +4,6 @@ import { EmployeeTable } from '@/components/tables/employee-tables/employee-tabl
 import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import { Employee } from '@/constants/data';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
 import prisma from '@/lib/db';
@@ -21,13 +20,23 @@ type paramsProps = {
 export default async function page({ searchParams }: paramsProps) {
   const page = Number(searchParams.page) || 1;
   const pageLimit = Number(searchParams.limit) || 10;
-  // const country = searchParams.search || null;
   const offset = (page - 1) * pageLimit;
+  const search = searchParams.search ? String(searchParams.search) : '';
 
   const user = await prisma.user.findMany({
-    skip: 0,
-    take: 10,
+    skip: offset,
+    take: pageLimit,
+    where: search
+    ? {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { role: { contains: search, mode: 'insensitive' } },
+        ],
+      }
+    : {},
     select: {
+      id: true,
       name: true,
       email: true,
       role: true, 
@@ -35,31 +44,18 @@ export default async function page({ searchParams }: paramsProps) {
     }
   });
 
-  // const res = await fetch(
-  //   `https://api.slingacademy.com/v1/sample-data/users?offset=${offset}&limit=${pageLimit}` +
-  //     (country ? `&search=${country}` : '')
-  // );
-  // const employeeRes = await res.json();
-  // const totalUsers = employeeRes.length; //1000
-  // const pageCount = Math.ceil(totalUsers / pageLimit);
-  // const employee: Employee[] = employeeRes;
+  const totalCount = await prisma.user.count();
+
+  const pageCount = Math.ceil(totalCount / pageLimit);
   return (
     <div className="flex-1 space-y-4  p-4 pt-6 md:p-8">
       <BreadCrumb items={breadcrumbItems} />
 
       <div className="flex items-start justify-between">
         <Heading
-          title={`Employee (${user.length})`}
+          title={`Users (${totalCount})`}
           description="Manage employees (Server side table functionalities.)"
         />
-
-        {
-          user.map((u, index) => {return (
-            <p key={index}>
-              {u.name}
-            </p>
-          )})
-        }
 
         <Link
           href={'/dashboard/employee/new'}
@@ -70,14 +66,13 @@ export default async function page({ searchParams }: paramsProps) {
       </div>
       <Separator />
 
-      {/* <EmployeeTable
-        searchKey="country"
+      <EmployeeTable
         pageNo={page}
         columns={columns}
-        totalUsers={totalUsers}
-        data={employee}
+        totalUsers={totalCount}
+        data={user}
         pageCount={pageCount}
-      /> */}
+      />
     </div>
   );
 }
