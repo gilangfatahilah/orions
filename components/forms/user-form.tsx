@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue
@@ -20,66 +21,72 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { AlertModal } from '../modal/alert-modal';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { Icons } from '../icons';
 import FileUpload from '../file-upload';
 import { useToast } from '../ui/use-toast';
-const ImgSchema = z.object({
-  fileName: z.string(),
-  name: z.string(),
-  fileSize: z.number(),
-  size: z.number(),
-  fileKey: z.string(),
-  key: z.string(),
-  fileUrl: z.string(),
-  url: z.string()
-});
+import { createUser, updateUser, send, deleteUser } from '@/lib/action';
+import Link from 'next/link';
+import { SelectLabel } from '@radix-ui/react-select';
+
 export const IMG_MAX_LIMIT = 1;
 const formSchema = z.object({
+  email: z.string().email({ message: 'Enter a valid email address' }),
   name: z
     .string()
-    .min(3, { message: 'Product Name must be at least 3 characters' }),
-  imgUrl: z
-    .array(ImgSchema)
-    .max(IMG_MAX_LIMIT, { message: 'You can only add up to 3 images' })
-    .min(1, { message: 'At least one image must be added.' }),
-  description: z
-    .string()
-    .min(3, { message: 'Product description must be at least 3 characters' }),
-  price: z.coerce.number(),
-  category: z.string().min(1, { message: 'Please select a category' })
+    .min(5, { message: 'Product Name must be at least 5 characters' }),
+  image: z.string().nullable(),
+  role: z.string().min(1, { message: 'Please select a role' })
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
 
-interface ProductFormProps {
-  initialData: any | null;
+interface UserFormProps {
+  initialData?: {
+    id: string;
+    name: string | null;
+    email: string;
+    role: string;
+    image: string | null;
+  }
+  role: string;
 }
 
-export const UserForm: React.FC<ProductFormProps> = ({
-  initialData,
-}) => {
-  const params = useParams();
+export const UserForm = (
+  { initialData, role }: UserFormProps
+) => {
   const router = useRouter();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const title = initialData ? 'Edit User' : 'Create User';
-  const description = initialData ? 'Edit a User.' : 'Add a new User';
-  const toastMessage = initialData ? 'User updated.' : 'User created.';
-  const action = initialData ? 'Save changes' : 'Create';
+  const description = initialData ? 'This action will update the user data, you can delete the user also by click the trash button.' : 'This action will add a new user, the new user will be invited via email that included in this form.';
+  const action = initialData ? 'Save changes' : 'Create user';
+
+  const renderPlaceholderWithIcon = () => (
+    <div className="flex items-center gap-4">
+      <Icons.role className="w-4 h-4 text-gray-400" />
+      <span className='text-gray-400'>Select a role</span>
+    </div>
+  );
 
   const defaultValues = initialData
-    ? initialData
+    ? {
+      name: initialData.name ?? '',
+      email: initialData.email ?? '',
+      image: initialData.image === 'unknown' ? null : initialData.image,
+      role: initialData.role ?? '',
+    }
     : {
-        name: '',
-        description: '',
-        price: 0,
-        imgUrl: [],
-        category: ''
-      };
+      name: '',
+      email: '',
+      image: null,
+      role: '',
+    };
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
@@ -89,19 +96,71 @@ export const UserForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
+      const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+      const image = data.image ?? null;
+
       if (initialData) {
-        // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
+        const response = await updateUser(initialData.id, {
+          email: data.email,
+          name: data.name,
+          role: data.role,
+          image: data.image ?? null,
+        })
+
+        if (response) {
+          router.push('/dashboard/user');
+
+          return toast({
+            title: 'Success, user successfully updated.',
+            description: `User successfully updated with new data.`,
+          })
+        }
+
+        if (!response) {
+          return toast({
+            variant: 'destructive',
+            title: 'Uh oh! Something went wrong.',
+            description: 'Something went wrong with your request, please check your connection and try again.',
+          })
+        }
       } else {
-        // const res = await axios.post(`/api/products/create-product`, data);
-        // console.log("product", res);
+        const response = await createUser({
+          email: data.email,
+          name: data.name,
+          role: data.role,
+          image: image as string,
+        });
+
+        if (!response) {
+          return toast({
+            variant: 'destructive',
+            title: 'Uh oh! Something went wrong.',
+            description: 'Something went wrong with your request, please check your connection and try again.',
+          })
+        }
+
+        const email = data.email;
+        const name = data.name;
+        const subject = 'Invitation User';
+        const url = `${BASE_URL}/reset-password/${response.id}`;
+
+        const sendMail = await send(email, name, subject, url);
+
+        if (sendMail.accepted.length) {
+          router.push('/dashboard/user');
+
+          return toast({
+            title: 'Success, user successfully created',
+            description: `User successfully created, invitation email was sent to ${data.email}`,
+          })
+        }
+
+        return toast({
+          variant: 'destructive',
+          title: 'Uh oh! Something went wrong.',
+          description: 'There was a problem with your request.'
+        });
       }
-      router.refresh();
-      router.push(`/dashboard/products`);
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -116,26 +175,41 @@ export const UserForm: React.FC<ProductFormProps> = ({
   const onDelete = async () => {
     try {
       setLoading(true);
-      //   await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
-      router.refresh();
-      router.push(`/${params.storeId}/products`);
-    } catch (error: any) {
+
+      const response = await deleteUser(initialData?.id as string);
+
+      if (!response) {
+        return toast({
+          variant: 'destructive',
+          title: 'Uh oh! Something went wrong.',
+          description: 'There was a problem with your request.'
+        });
+      }
+
+      router.push('/dashboard/user');
+      return toast({
+        title: "Success, user has been deleted."
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'There was a problem with your request.'
+      });
     } finally {
       setLoading(false);
-      setOpen(false);
     }
   };
 
-  const triggerImgUrlValidation = () => form.trigger('imgUrl');
-
   return (
     <>
-      {/* <AlertModal
+      <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={onDelete}
         loading={loading}
-      /> */}
+        description={`Are you sure you want to delete user ${initialData?.name}`}
+      />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
         {initialData && (
@@ -153,77 +227,152 @@ export const UserForm: React.FC<ProductFormProps> = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-8"
+          className="w-full flex flex-col justify-between space-y-8"
         >
-          <FormField
-            control={form.control}
-            name="imgUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Images</FormLabel>
-                <FormControl>
-                  <FileUpload
-                    onChange={field.onChange}
-                    value={field.value}
-                    onRemove={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="gap-8 md:grid md:grid-cols-3">
+          <div className='w-full grid md:grid-cols-4 gap-8'>
+
             <FormField
               control={form.control}
-              name="name"
+              name="image"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
+                <FormItem className='md:col-span-1'>
+                  <FormLabel>Image</FormLabel>
                   <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Product name"
-                      {...field}
+                    <FileUpload
+                      onChange={field.onChange}
+                      value={field.value}
+                      onRemove={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input
+
+            <div className="md:col-span-3 flex flex-col space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <div className='relative'>
+                        <Icons.mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          type="email"
+                          placeholder="Enter user email"
+                          disabled={loading}
+                          className='pl-10'
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <div className='relative'>
+                        <Icons.user className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          type="text"
+                          placeholder="Enter user name"
+                          disabled={loading}
+                          className='pl-10'
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
                       disabled={loading}
-                      placeholder="Product description"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input type="number" disabled={loading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      onValueChange={field.onChange}
+                      value={field.value === '' ? undefined : field.value}
+                      defaultValue={field.value === '' ? undefined : field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue>
+                            {field.value === '' ? renderPlaceholderWithIcon() : field.value}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <>
+                          {
+                            role === 'Manager' && (
+                              <SelectGroup className='px-2'>
+                                <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>Role</SelectLabel>
+                                <SelectItem value='Staff'>
+                                  Staff
+                                </SelectItem>
+                              </SelectGroup>
+                            )
+                          }
+                          {
+                            role === 'Superadmin' && (
+                              <SelectGroup className='px-2'>
+                                <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>Role</SelectLabel>
+                                <SelectItem value='Superadmin'>
+                                  Superadmin
+                                </SelectItem>
+                                <SelectItem value='Manager'>
+                                  Manager
+                                </SelectItem>
+                                <SelectItem value='Staff'>
+                                  Staff
+                                </SelectItem>
+                              </SelectGroup>
+                            )
+                          }
+                        </>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
           </div>
-          <Button disabled={loading} className="ml-auto" type="submit">
-            {action}
-          </Button>
+
+          <div className='flex justify-end space-x-4'>
+            <Link href={'/dashboard/user'}>
+              <Button disabled={false} className="ml-auto" variant={'outline'} type="submit">
+                Cancel
+              </Button>
+            </Link>
+
+            {
+              loading ? (
+                <Button disabled={true} className="ml-auto" type="submit">
+                  <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> {action}
+                </Button>
+              ) : (
+                <Button disabled={false} className="ml-auto" type="submit">
+                  {action}
+                </Button>
+              )
+            }
+          </div>
         </form>
       </Form>
     </>

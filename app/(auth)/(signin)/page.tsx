@@ -69,7 +69,7 @@ export default function AuthenticationPage() {
           <p className="px-8 text-center text-sm text-muted-foreground">
             Forget your password ?{' '}
             <Link
-              href="/forget-password"
+              href="/reset-password"
               className="underline underline-offset-4 hover:text-primary"
             >
               Click here

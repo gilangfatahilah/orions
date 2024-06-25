@@ -6,8 +6,10 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
+import useSessionStore from '@/lib/store';
 import prisma from '@/lib/db';
 import Link from 'next/link';
+import { auth } from '@/auth';
 
 const breadcrumbItems = [{ title: 'User', link: '/dashboard/user' }];
 
@@ -18,6 +20,8 @@ type paramsProps = {
 };
 
 export default async function page({ searchParams }: paramsProps) {
+  const session = await auth();
+  
   const page = Number(searchParams.page) || 1;
   const pageLimit = Number(searchParams.limit) || 10;
   const offset = (page - 1) * pageLimit;
@@ -26,20 +30,25 @@ export default async function page({ searchParams }: paramsProps) {
   const user = await prisma.user.findMany({
     skip: offset,
     take: pageLimit,
-    where: search
-    ? {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } },
-          { role: { contains: search, mode: 'insensitive' } },
-        ],
-      }
-    : {},
+    where: {
+      ...(
+        search
+          ? {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' } },
+              { email: { contains: search, mode: 'insensitive' } },
+              { role: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+          : {}
+      ),
+      id: { not: session?.user.id },
+    },
     select: {
       id: true,
       name: true,
       email: true,
-      role: true, 
+      role: true,
       image: true
     }
   });
@@ -54,15 +63,19 @@ export default async function page({ searchParams }: paramsProps) {
       <div className="flex items-start justify-between">
         <Heading
           title={`Users (${totalCount})`}
-          description="Manage employees (Server side table functionalities.)"
+          description="Users table, you can manage users data here."
         />
 
-        <Link
-          href={'/dashboard/user/create'}
-          className={cn(buttonVariants({ variant: 'default' }))}
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add New
-        </Link>
+        {
+          session?.user.role !== 'Staff' && (
+            <Link
+              href={'/dashboard/user/create'}
+              className={cn(buttonVariants({ variant: 'default' }))}
+            >
+              <Plus className="mr-2 h-4 w-4" /> Create user
+            </Link>
+          )
+        }
       </div>
       <Separator />
 
@@ -71,6 +84,7 @@ export default async function page({ searchParams }: paramsProps) {
         columns={columns}
         totalUsers={totalCount}
         data={user}
+        role={session?.user.role as string}
         pageCount={pageCount}
       />
     </div>

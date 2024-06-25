@@ -63,7 +63,7 @@ export const ForgetPassword = () => {
 
       const name = emailExist.name ?? 'Unknown user';
       const subject = "Get Back To Your Account";
-      const url = `${BASE_URL}/forget-password/${emailExist.id}`;
+      const url = `${BASE_URL}/reset-password/${emailExist.id}`;
 
       const response = await send(email, name, subject, url);
 

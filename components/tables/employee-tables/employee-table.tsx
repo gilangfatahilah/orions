@@ -31,28 +31,35 @@ import {
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon
 } from '@radix-ui/react-icons';
+import useSessionStore from '@/lib/store';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
-interface DataTableProps<TData, TValue> {
+interface UserData {
+  role: string;
+}
+
+interface DataTableProps<TData extends UserData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   totalUsers: number;
   pageSizeOptions?: number[];
   pageNo: number;
+  role: string;
   pageCount: number;
   searchParams?: {
     [key: string]: string | string[] | undefined;
   };
 }
 
-export function EmployeeTable<TData, TValue>({
+export function EmployeeTable<TData extends UserData, TValue>({
   columns,
   data,
   pageCount,
   pageNo,
   totalUsers,
+  role,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
@@ -91,6 +98,8 @@ export function EmployeeTable<TData, TValue>({
     [searchParams]
   );
 
+  const { setSessionRole } = useSessionStore();
+
   // Handle server-side pagination
   const [{ pageIndex, pageSize }, setPagination] =
     React.useState<PaginationState>({
@@ -98,10 +107,14 @@ export function EmployeeTable<TData, TValue>({
       pageSize: fallbackPerPage
     });
 
-    React.useEffect(() => {
-      setGlobalFilter(initialSearch);
-    }, [initialSearch]);
-  
+  React.useEffect(() => {
+    setSessionRole(role);
+  }, [setSessionRole, role]);
+
+  React.useEffect(() => {
+    setGlobalFilter(initialSearch);
+  }, [initialSearch]);
+
 
   React.useEffect(() => {
     router.push(
@@ -164,9 +177,9 @@ export function EmployeeTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
@@ -180,14 +193,27 @@ export function EmployeeTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {role === 'Manager' && row.original.role !== 'Staff' ? (
+                    row.getVisibleCells().map((cell) => (
+                      !cell.id.includes('actions') && (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      )
+                    ))
+                  ) : (
+                    row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))
+                  )}
                 </TableRow>
               ))
             ) : (
@@ -201,6 +227,7 @@ export function EmployeeTable<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
+
         </Table>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>

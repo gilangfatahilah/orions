@@ -39,6 +39,16 @@ export type Actions = {
   updateCol: (id: UniqueIdentifier, newName: string) => void;
 };
 
+interface SessionState {
+  role: string;
+  setSessionRole: (newRole: string) => void;
+}
+
+const useSessionStore = create<SessionState>((set) => ({
+  role: '',
+  setSessionRole: (newRole: string) => set({ role: newRole }),
+}));
+
 export const useTaskStore = create<State & Actions>()(
   persist(
     (set) => ({
@@ -77,3 +87,5 @@ export const useTaskStore = create<State & Actions>()(
     { name: 'task-store', skipHydration: true }
   )
 );
+
+export default useSessionStore;

@@ -2,19 +2,22 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import { Icons } from '../icons';
 
 interface AlertModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   loading: boolean;
+  description?: string;
 }
 
 export const AlertModal: React.FC<AlertModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  loading
+  loading,
+  description,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -29,7 +32,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   return (
     <Modal
       title="Are you sure?"
-      description="This action cannot be undone."
+      description={description ?? "This action cannot be undone."}
       isOpen={isOpen}
       onClose={onClose}
     >
@@ -37,9 +40,17 @@ export const AlertModal: React.FC<AlertModalProps> = ({
         <Button disabled={loading} variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button disabled={loading} variant="destructive" onClick={onConfirm}>
-          Continue
-        </Button>
+        {
+          loading ? (
+            <Button disabled={loading} variant="destructive" onClick={onConfirm}>
+              <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Continue
+            </Button>
+          ) : (
+            <Button disabled={loading} variant="destructive" onClick={onConfirm}>
+              Continue
+            </Button>
+          )
+        }
       </div>
     </Modal>
   );

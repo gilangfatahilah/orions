@@ -3,6 +3,7 @@ import * as React from "react"
 import * as z from 'zod';
 import * as bcrypt from 'bcryptjs';
 import Link from "next/link"
+import { useRouter } from "next/navigation";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
@@ -44,6 +45,7 @@ type formData = z.infer<typeof formSchema>;
 
 export const ResetPassword = ({ id }: { id: string }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const [loading, setLoading] = React.useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = React.useState<boolean>(false);
 
@@ -64,6 +66,8 @@ export const ResetPassword = ({ id }: { id: string }) => {
       const response = await updateUser(id, { password: hashedPassword });
 
       if (response) {
+        router.push('/')
+
         return toast({
           title: 'Success, your password has been updated.',
           description: 'Your password has successfully updated, Now you can sign in with your new password.'
@@ -189,7 +193,7 @@ export const ResetPassword = ({ id }: { id: string }) => {
       </CardContent>
       <CardFooter className="w-full mt-4">
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Remember your password ?{' '}
+          don&apos;t want to set password ?{' '}
           <Link
             href="/"
             className="underline underline-offset-4 hover:text-primary"
