@@ -72,7 +72,7 @@ export default async function page({ searchParams }: paramsProps) {
               href={'/dashboard/user/create'}
               className={cn(buttonVariants({ variant: 'default' }))}
             >
-              <Icons.add className="mr-2 h-4 w-4" /> Add user
+              <Icons.add className="mr-2 h-4 w-4" /> User
             </Link>
           )
         }

@@ -2,12 +2,12 @@ import React from 'react'
 import BreadCrumb from '@/components/breadcrumb';
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation';
-import { OutletForm } from '@/components/forms/outlet-form';
+import { ItemForm } from '@/components/forms/item-form';
 
 const AddCategoryPage = async () => {
   const breadcrumbItems = [
-    { title: 'Outlet', link: '/dashboard/outlet' },
-    { title: 'Create', link: '/dashboard/outlet/create' }
+    { title: 'Item', link: '/dashboard/item' },
+    { title: 'Create', link: '/dashboard/item/create' }
   ];
   const session = await auth();
   const role = session?.user.role;
@@ -19,7 +19,7 @@ const AddCategoryPage = async () => {
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <OutletForm />
+      <ItemForm />
     </div>
   )
 }

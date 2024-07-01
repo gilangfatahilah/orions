@@ -2,6 +2,18 @@
 import prisma from '@/lib/db';
 import { Category } from '@prisma/client';
 
+export const getCategory = async (): Promise<Category[] | null> => {
+  return await prisma.category.findMany({
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      createdAt: true,
+      updatedAt: true
+    }
+  })
+}
+
 export const createCategory = async (data: { name: string, code?: string }): Promise<Category | null> => {
   return await prisma.category.create({
     data: data,

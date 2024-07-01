@@ -1,6 +1,6 @@
 import BreadCrumb from '@/components/breadcrumb';
-import { columns } from '@/components/tables/supplier-tables/columns';
-import { SupplierTable } from '@/components/tables/supplier-tables/supplier-table';
+import { columns } from '@/components/tables/outlet-tables/columns';
+import { OutletTable } from '@/components/tables/outlet-tables/outlet-table';
 import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
@@ -10,7 +10,7 @@ import prisma from '@/lib/db';
 import Link from 'next/link';
 import { auth } from '@/auth';
 
-const breadcrumbItems = [{ title: 'Category', link: '/dashboard/category' }];
+const breadcrumbItems = [{ title: 'Outlet', link: '/dashboard/outlet' }];
 
 type paramsProps = {
   searchParams: {
@@ -26,7 +26,7 @@ export default async function page({ searchParams }: paramsProps) {
   const offset = (page - 1) * pageLimit;
   const search = searchParams.search ? String(searchParams.search) : '';
 
-  const supplier = await prisma.supplier.findMany({
+  const outlet = await prisma.outlet.findMany({
     skip: offset,
     take: pageLimit,
     where: {
@@ -49,7 +49,12 @@ export default async function page({ searchParams }: paramsProps) {
       email: true,
     }
   });
-  const totalCount = await prisma.supplier.count();
+
+  outlet.map((o) => {
+    if(!o.email) o.email = "-"
+  })
+
+  const totalCount = await prisma.outlet.count();
 
   const pageCount = Math.ceil(totalCount / pageLimit);
   return (
@@ -58,26 +63,26 @@ export default async function page({ searchParams }: paramsProps) {
 
       <div className="flex items-start justify-between">
         <Heading
-          title={`Suppliers (${totalCount})`}
-          description="List of all suppliers."
+          title={`Outlets (${totalCount})`}
+          description="List of all outlet."
         />
 
         {
           session?.user.role !== 'Staff' && (
             <Link
-              href={'/dashboard/supplier/create'}
+              href={'/dashboard/outlet/create'}
               className={cn(buttonVariants({ variant: 'default' }))}
             >
-              <Icons.add className="mr-2 h-4 w-4" /> Add Supplier
+              <Icons.add className="mr-2 h-4 w-4" /> Outlet
             </Link>
           )
         }
       </div>
       <Separator />
 
-      <SupplierTable
+      <OutletTable
         columns={columns}
-        data={supplier}
+        data={outlet}
         role={session?.user.role as string}
         pageCount={pageCount}
       />

@@ -35,22 +35,24 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Category } from '@/constants/data';
-import { deleteSeveralCategory } from '@/services/category.service';
+import { Outlet } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
+import { deleteSeveralOutlet } from '@/services/outlet.service';
 
 
-interface DataTableProps<TData extends Category, TValue> {
+interface DataTableProps<TData extends Outlet, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageSizeOptions?: number[];
+  role: string;
   pageCount: number;
 }
 
-export function CategoryTable<TData extends Category, TValue>({
+export function OutletTable<TData extends Outlet, TValue>({
   columns,
   data,
   pageCount,
+  role,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
@@ -141,7 +143,7 @@ export function CategoryTable<TData extends Category, TValue>({
     try {
       setLoading(true);
       const idToDelete = selectedData.map((data) => data.original.id);
-      const response = await deleteSeveralCategory(idToDelete);
+      const response = await deleteSeveralOutlet(idToDelete);
 
       if (!response) {
         return toast({
@@ -156,7 +158,7 @@ export function CategoryTable<TData extends Category, TValue>({
       router.refresh();
 
       return toast({
-        title: `Success, ${idToDelete.length} categories has successfully deleted.`,
+        title: `Success, ${idToDelete.length} outlets has successfully deleted.`,
       });
 
     } catch (error) {
@@ -173,7 +175,7 @@ export function CategoryTable<TData extends Category, TValue>({
   return (
     <>
       <AlertModal
-        description='Do you want to delete all of the selected categories ? This action can&apos;t be undone'
+        description='Do you want to delete all of the selected outlets ? This action can&apos;t be undone'
         isOpen={alertOpen}
         onClose={() => setAlertOpen(false)}
         onConfirm={onConfirmDelete}

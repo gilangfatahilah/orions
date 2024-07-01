@@ -1,14 +1,14 @@
 import React from 'react';
 import BreadCrumb from '@/components/breadcrumb';
-import { getSupplierById } from '@/services/supplier.service';
+import { getItemById } from '@/services/item.service';
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation';
-import { SupplierForm } from '@/components/forms/supplier-form';
+import { ItemForm } from '@/components/forms/item-form';
 
 const EditSupplierPage = async ({ params }: { params: { id: string } }) => {
   const breadcrumbItems = [
-    { title: 'Outlet', link: '/dashboard/outlet' },
-    { title: 'Update', link: `/dashboard/outlet/${params.id}` }
+    { title: 'Item', link: '/dashboard/item' },
+    { title: 'Update', link: `/dashboard/item/${params.id}` }
   ];
 
   const session = await auth();
@@ -18,20 +18,20 @@ const EditSupplierPage = async ({ params }: { params: { id: string } }) => {
     redirect('/not-found');
   }
 
-  const initialData = await getSupplierById(params.id);
+  const initialData = await getItemById(params.id);
 
   const data = {
     id: initialData?.id ?? '',
-    name: initialData?.name ?? 'unknown',
-    address: initialData?.address ?? 'unknown',
-    phone: initialData?.phone ?? 'unknown',
-    email: initialData?.email ?? 'unknown',
+    name: initialData?.name ?? '',
+    price: initialData?.price ?? 0,
+    image: initialData?.image ?? undefined,
+    categoryId: initialData?.categoryId ?? '',
   }
 
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <SupplierForm initialData={data}/>
+      <ItemForm initialData={data}/>
     </div>
   )
 }

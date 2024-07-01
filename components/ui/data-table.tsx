@@ -30,7 +30,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey
-}: DataTableProps<TData, TValue>) {
+}: Readonly<DataTableProps<TData, TValue>>) {
   const table = useReactTable({
     data,
     columns,

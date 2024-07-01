@@ -115,6 +115,24 @@ export type Supplier = {
   email: string | null,
 }
 
+export type Outlet = {
+  id: string,
+  name: string,
+  address: string,
+  phone: string,
+  email: string | null,
+}
+
+export type Item = {
+  id: string,
+  name: string,
+  price: number,
+  image: string | null,
+  category: {
+    name: string,
+  }
+}
+
 export const navItems: NavItem[] = [
   {
     title: 'Dashboard',

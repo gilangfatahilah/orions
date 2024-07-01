@@ -35,19 +35,19 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Category } from '@/constants/data';
-import { deleteSeveralCategory } from '@/services/category.service';
+import { Item } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
+import { deleteSeveralItem } from '@/services/item.service';
 
 
-interface DataTableProps<TData extends Category, TValue> {
+interface DataTableProps<TData extends Item, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageSizeOptions?: number[];
   pageCount: number;
 }
 
-export function CategoryTable<TData extends Category, TValue>({
+export function ItemTable<TData extends Item, TValue>({
   columns,
   data,
   pageCount,
@@ -141,7 +141,7 @@ export function CategoryTable<TData extends Category, TValue>({
     try {
       setLoading(true);
       const idToDelete = selectedData.map((data) => data.original.id);
-      const response = await deleteSeveralCategory(idToDelete);
+      const response = await deleteSeveralItem(idToDelete);
 
       if (!response) {
         return toast({
@@ -156,7 +156,7 @@ export function CategoryTable<TData extends Category, TValue>({
       router.refresh();
 
       return toast({
-        title: `Success, ${idToDelete.length} categories has successfully deleted.`,
+        title: `Success, ${idToDelete.length} items has successfully deleted.`,
       });
 
     } catch (error) {
@@ -173,7 +173,7 @@ export function CategoryTable<TData extends Category, TValue>({
   return (
     <>
       <AlertModal
-        description='Do you want to delete all of the selected categories ? This action can&apos;t be undone'
+        description='Do you want to delete all of the selected items ? This action can&apos;t be undone'
         isOpen={alertOpen}
         onClose={() => setAlertOpen(false)}
         onConfirm={onConfirmDelete}

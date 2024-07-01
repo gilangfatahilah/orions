@@ -62,7 +62,7 @@ export default async function page({ searchParams }: paramsProps) {
       <div className="flex items-start justify-between">
         <Heading
           title={`Categories (${totalCount})`}
-          description="All user list excluded your self, you can update your user information on profile menu."
+          description="List of all categories."
         />
 
         {
@@ -71,7 +71,7 @@ export default async function page({ searchParams }: paramsProps) {
               href={'/dashboard/category/create'}
               className={cn(buttonVariants({ variant: 'default' }))}
             >
-              <Icons.add className="mr-2 h-4 w-4" /> Add category
+              <Icons.add className="mr-2 h-4 w-4" /> Category
             </Link>
           )
         }
@@ -79,11 +79,8 @@ export default async function page({ searchParams }: paramsProps) {
       <Separator />
 
       <CategoryTable
-        pageNo={page}
         columns={columns}
-        totalUsers={totalCount}
         data={category}
-        role={session?.user.role as string}
         pageCount={pageCount}
       />
     </div>

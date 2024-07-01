@@ -46,6 +46,7 @@ import {
   Mail,
   PenSquare,
   MapPin,
+  BadgeDollarSign,
   MoveLeft,
   KeyRound,
   X
@@ -63,6 +64,7 @@ export const Icons = {
   phone: Phone,
   asterisk: Asterisk,
   eyeOff: EyeOff,
+  dollar: BadgeDollarSign,
   profile: User2Icon,
   spinner: Loader2,
   kanban: CircuitBoardIcon,

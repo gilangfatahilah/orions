@@ -1,6 +1,6 @@
 import BreadCrumb from '@/components/breadcrumb';
-import { columns } from '@/components/tables/supplier-tables/columns';
-import { SupplierTable } from '@/components/tables/supplier-tables/supplier-table';
+import { ItemTable } from '@/components/tables/item-tables/item-table';
+import { columns } from '@/components/tables/item-tables/columns';
 import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
@@ -10,7 +10,7 @@ import prisma from '@/lib/db';
 import Link from 'next/link';
 import { auth } from '@/auth';
 
-const breadcrumbItems = [{ title: 'Supplier', link: '/dashboard/supplier' }];
+const breadcrumbItems = [{ title: 'Item', link: '/dashboard/item' }];
 
 type paramsProps = {
   searchParams: {
@@ -20,13 +20,13 @@ type paramsProps = {
 
 export default async function page({ searchParams }: paramsProps) {
   const session = await auth();
-  
+
   const page = Number(searchParams.page) || 1;
   const pageLimit = Number(searchParams.limit) || 10;
   const offset = (page - 1) * pageLimit;
   const search = searchParams.search ? String(searchParams.search) : '';
 
-  const supplier = await prisma.supplier.findMany({
+  const item = await prisma.item.findMany({
     skip: offset,
     take: pageLimit,
     where: {
@@ -35,7 +35,7 @@ export default async function page({ searchParams }: paramsProps) {
           ? {
             OR: [
               { name: { contains: search, mode: 'insensitive' } },
-              { address: { contains: search, mode: 'insensitive' } },
+              { category: { name: { contains: search, mode: 'insensitive' } } },
             ],
           }
           : {}
@@ -44,17 +44,17 @@ export default async function page({ searchParams }: paramsProps) {
     select: {
       id: true,
       name: true,
-      address: true,
-      phone: true,
-      email: true,
+      price: true,
+      image: true,
+      category: {
+        select: {
+          name: true,
+        }
+      }
     }
   });
 
-  supplier.map((s) => {
-    if(!s.email) s.email = "-";
-  })
-
-  const totalCount = await prisma.supplier.count();
+  const totalCount = await prisma.item.count();
 
   const pageCount = Math.ceil(totalCount / pageLimit);
   return (
@@ -63,27 +63,26 @@ export default async function page({ searchParams }: paramsProps) {
 
       <div className="flex items-start justify-between">
         <Heading
-          title={`Suppliers (${totalCount})`}
-          description="List of all suppliers."
+          title={`Items (${totalCount})`}
+          description="List of all items."
         />
 
         {
           session?.user.role !== 'Staff' && (
             <Link
-              href={'/dashboard/supplier/create'}
+              href={'/dashboard/item/create'}
               className={cn(buttonVariants({ variant: 'default' }))}
             >
-              <Icons.add className="mr-2 h-4 w-4" /> Supplier
+              <Icons.add className="mr-2 h-4 w-4" /> Item
             </Link>
           )
         }
       </div>
       <Separator />
 
-      <SupplierTable
+      <ItemTable
         columns={columns}
-        data={supplier}
-        role={session?.user.role as string}
+        data={item}
         pageCount={pageCount}
       />
     </div>
