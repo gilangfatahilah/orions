@@ -1,6 +1,7 @@
 'use client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { useToast } from '../ui/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,38 +12,52 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { signOutAuth } from '@/lib/action';
+import { signOutAuth } from '@/services/auth.service';
 
 import { LogOut, User2Icon, Settings } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import Link from 'next/link';
+import { AlertModal } from '../modal/alert-modal';
 
 export function UserNav() {
   const { data: session } = useSession();
+  const {toast} = useToast();
   const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSignOutClick = () => {
     setOpenDialog(true);
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
+  const handleSignOut = async () => {
+    try {
+      setLoading(true);
+
+      const response = await signOutAuth();
+
+      if (response === undefined) {
+        toast({
+          title: 'Sign out success.',
+        })
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'There was a problem with your request.'
+      });
+    }finally {
+      setLoading(false);
+    }
+  }
 
   if (!session) { return null };
 
   return (
     <>
+  <AlertModal isOpen={openDialog} onClose={() => setOpenDialog(false)} onConfirm={handleSignOut} loading={loading} description='This action can not be undone, you will redirected to sign in page.' />
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -68,10 +83,12 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
+            <Link href={'/dashboard/profile'}>
             <DropdownMenuItem>
               Profile
               <DropdownMenuShortcut><User2Icon className='w-4 h-4' /></DropdownMenuShortcut>
             </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem>
               Settings
               <DropdownMenuShortcut><Settings className='w-4 h-4' /></DropdownMenuShortcut>
@@ -86,25 +103,6 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <AlertDialog open={openDialog} onOpenChange={handleCloseDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you want to sign out?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will redirect you to the sign in page.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={async () => {
-              await signOutAuth();
-            }}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

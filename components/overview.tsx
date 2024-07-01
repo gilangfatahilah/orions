@@ -96,7 +96,7 @@ export function Overview() {
         />
 
         <Tooltip animationEasing='ease-out' animationDuration={400} itemStyle={itemStyle} contentStyle={contentStyle} labelStyle={labelStyle} />
-        <Bar dataKey="total" fill="#adfa1d" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="total" fill="#1D24CA" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

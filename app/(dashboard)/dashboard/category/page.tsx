@@ -1,5 +1,6 @@
 import BreadCrumb from '@/components/breadcrumb';
-import { EmployeeTable } from '@/components/tables/employee-tables/employee-table';
+import { columns } from '@/components/tables/category-tables/columns';
+import { CategoryTable } from '@/components/tables/category-tables/category-table';
 import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
@@ -9,7 +10,7 @@ import prisma from '@/lib/db';
 import Link from 'next/link';
 import { auth } from '@/auth';
 
-const breadcrumbItems = [{ title: 'User', link: '/dashboard/user' }];
+const breadcrumbItems = [{ title: 'Category', link: '/dashboard/category' }];
 
 type paramsProps = {
   searchParams: {
@@ -25,7 +26,7 @@ export default async function page({ searchParams }: paramsProps) {
   const offset = (page - 1) * pageLimit;
   const search = searchParams.search ? String(searchParams.search) : '';
 
-  const user = await prisma.user.findMany({
+  const category = await prisma.category.findMany({
     skip: offset,
     take: pageLimit,
     where: {
@@ -34,26 +35,24 @@ export default async function page({ searchParams }: paramsProps) {
           ? {
             OR: [
               { name: { contains: search, mode: 'insensitive' } },
-              { email: { contains: search, mode: 'insensitive' } },
-              { role: { contains: search, mode: 'insensitive' } },
+              { code: { contains: search, mode: 'insensitive' } },
             ],
           }
           : {}
       ),
-      id: { not: session?.user.id },
     },
     select: {
       id: true,
       name: true,
-      email: true,
-      role: true,
-      image: true,
-      createdAt: true,
+      code: true,
     }
   });
 
-
-  const totalCount = await prisma.user.count();
+  // If no code show -
+  category.map((c) => {
+    if(!c.code) c.code = '-'
+  })
+  const totalCount = await prisma.category.count();
 
   const pageCount = Math.ceil(totalCount / pageLimit);
   return (
@@ -62,27 +61,28 @@ export default async function page({ searchParams }: paramsProps) {
 
       <div className="flex items-start justify-between">
         <Heading
-          title={`Users (${totalCount})`}
+          title={`Categories (${totalCount})`}
           description="All user list excluded your self, you can update your user information on profile menu."
         />
 
         {
           session?.user.role !== 'Staff' && (
             <Link
-              href={'/dashboard/user/create'}
+              href={'/dashboard/category/create'}
               className={cn(buttonVariants({ variant: 'default' }))}
             >
-              <Icons.add className="mr-2 h-4 w-4" /> Add user
+              <Icons.add className="mr-2 h-4 w-4" /> Add category
             </Link>
           )
         }
       </div>
       <Separator />
 
-      <EmployeeTable
+      <CategoryTable
         pageNo={page}
+        columns={columns}
         totalUsers={totalCount}
-        data={user}
+        data={category}
         role={session?.user.role as string}
         pageCount={pageCount}
       />

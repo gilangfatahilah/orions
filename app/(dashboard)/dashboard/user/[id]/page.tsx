@@ -1,7 +1,7 @@
 import React from 'react';
 import BreadCrumb from '@/components/breadcrumb';
 import { UserForm } from '@/components/forms/user-form';
-import { getUserById } from '@/lib/action';
+import { getUserById } from '@/services/user.service';
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation';
 

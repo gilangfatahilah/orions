@@ -93,12 +93,27 @@ export const users: User[] = [
 ];
 
 export type Employee = {
-id: string,
-name: string | null,
-email: string,
-role: string,
-image: string | null,
+  id: string,
+  name: string | null,
+  email: string,
+  role: string,
+  image: string | null,
+  createdAt: Date,
 };
+
+export type Category = {
+  id: string,
+  name: string,
+  code: string | null,
+}
+
+export type Supplier = {
+  id: string,
+  name: string,
+  address: string,
+  phone: string,
+  email: string | null,
+}
 
 export const navItems: NavItem[] = [
   {
@@ -115,43 +130,43 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Category',
-    href: '/dashboard/user',
+    href: '/dashboard/category',
     icon: 'category',
     label: 'category'
   },
   {
-    title: 'Item',
-    href: '/dashboard/user',
-    icon: 'item',
-    label: 'item'
-  },
-  {
-    title: 'Stock',
-    href: '/dashboard/user',
-    icon: 'stock',
-    label: 'stock'
-  },
-  {
     title: 'Supplier',
-    href: '/dashboard/user',
+    href: '/dashboard/supplier',
     icon: 'supplier',
     label: 'supplier'
   },
   {
     title: 'Outlet',
-    href: '/dashboard/user',
+    href: '/dashboard/outlet',
     icon: 'outlet',
     label: 'outlet'
   },
   {
+    title: 'Item',
+    href: '/dashboard/item',
+    icon: 'item',
+    label: 'item'
+  },
+  {
+    title: 'Stock',
+    href: '/dashboard/stock',
+    icon: 'stock',
+    label: 'stock'
+  },
+  {
     title: 'Transaction',
-    href: '/dashboard/user',
+    href: '/dashboard/transaction',
     icon: 'transaction',
     label: 'transaction'
   },
   {
     title: 'Report',
-    href: '/dashboard/user',
+    href: '/dashboard/report',
     icon: 'report',
     label: 'report'
   },
@@ -161,10 +176,4 @@ export const navItems: NavItem[] = [
     icon: 'kanban',
     label: 'kanban'
   },
-  {
-    title: 'Login',
-    href: '/',
-    icon: 'login',
-    label: 'login'
-  }
 ];

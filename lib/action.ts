@@ -1,8 +1,8 @@
 "use server"
-import { signOut, signIn } from '@/auth';
 import prisma from './db';
-import { User } from '@prisma/client';
-import { sendMail, compileWelcomeTemplate } from './mail';
+import { signOut, signIn } from '@/auth';
+import { Category, User } from '@prisma/client';
+import { sendMail, compileWelcomeTemplate, compileInvitationEmail } from './mail';
 import { SentMessageInfo } from 'nodemailer';
 
 export const signOutAuth = async () => {
@@ -35,7 +35,25 @@ export const send = async (email: string, name: string, subject: string, url: st
     subject: subject,
     body: compileWelcomeTemplate(name, url)
   })
-}; 
+};
+
+export const sendInvitationMail = async(email: string, name: string, subject: string, role: string, invitedByEmail: string, inviteLink: string, image?: string,): Promise<SentMessageInfo | undefined> => {
+  const getInfo = await fetch('https://geolocation-db.com/json/');
+  const userInfo = await getInfo.json();
+  const {IPv4, country_name, city} = userInfo;
+  const location = `${city}, ${country_name}`;
+
+  return await sendMail({
+    to: email,
+    name: name,
+    subject: subject,
+    body: compileInvitationEmail(name, role, invitedByEmail, inviteLink, IPv4, location, image)
+  })
+}
+
+/**
+ *  User Actions 
+ */
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
   return await prisma.user.findUnique({
@@ -49,7 +67,7 @@ export const getUserById = async (id: string): Promise<User | null> => {
   })
 };
 
-export const createUser = async (data: {name?: string, email: string, role: string, image?: string}): Promise<User | null> =>{
+export const createUser = async (data: { name?: string, email: string, role: string, image?: string }): Promise<User | null> => {
   return await prisma.user.create({
     data: data
   });
@@ -69,3 +87,52 @@ export const deleteUser = async (id: string): Promise<User | null> => {
     }
   })
 };
+
+export const deleteSeveralUser = async (id: string[]) => {
+  return await prisma.user.deleteMany({
+    where: {
+      id: {
+        in: id,
+      },
+    }
+  })
+};
+
+/**
+ * Category actions
+ */
+
+export const createCategory = async (data: { name: string, code?: string }): Promise<Category | null> => {
+  return await prisma.category.create({
+    data: data,
+  })
+};
+
+export const getCategoryById = async (id: string): Promise<Category | null> => {
+  return await prisma.category.findUnique({
+    where: { id }
+  })
+}
+
+export const updateCategory = async (id: string, data: Partial<Category>): Promise<Category | null> => {
+  return await prisma.category.update({
+    where: { id },
+    data
+  });
+}
+
+export const deleteSeveralCategory = async (id: string[]) => {
+  return await prisma.category.deleteMany({
+    where: {
+      id: {
+        in: id,
+      },
+    }
+  });
+}
+
+export const deleteCategory = async (id: string): Promise<Category | null> => {
+  return await prisma.category.delete({
+    where: { id }
+  });
+}

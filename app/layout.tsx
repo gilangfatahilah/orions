@@ -24,7 +24,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} overflow-hidden`}>
-        <NextTopLoader color='#adfa1d' showSpinner={false} />
+        <NextTopLoader color='#1D24CA' showSpinner={false} />
         <Providers session={session}>
           <Toaster />
           {children}

@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Icons } from "../icons"
 import { useToast } from "../ui/use-toast";
-import { updateUser } from "@/lib/action";
+import { updateUser } from "@/services/user.service";
 
 const formSchema = z.object({
   password: z.string().min(6, {
@@ -181,7 +181,7 @@ export const ResetPassword = ({ id }: { id: string }) => {
 
             {loading ? (
               <Button disabled={true} className="ml-auto w-full mt-2" type="submit">
-                <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Set new password
+                <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
               </Button>
             ) : (
               <Button className="ml-auto w-full mt-2" type="submit">

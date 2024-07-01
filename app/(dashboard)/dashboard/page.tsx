@@ -16,12 +16,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default async function page() {
   const session = await auth();
 
+  const getFirstWord= (str: string): string => {
+    // Split the string by spaces
+    const words = str.split(' ');
+    // Return the first word, if there is one
+    return words.length > 0 ? words[0] : '';
+}
+
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">
-            Hi, Welcome back {session?.user.name} 👋
+            Hi, Welcome back {getFirstWord(session?.user.name as string) ?? ''} 👋
           </h2>
           <div className="hidden items-center space-x-2 md:flex">
             <CalendarDateRangePicker />

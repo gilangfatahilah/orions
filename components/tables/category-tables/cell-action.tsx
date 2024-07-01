@@ -9,34 +9,34 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
-import { Employee } from '@/constants/data';
+import { Category } from '@/constants/data';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { deleteUser } from '@/services/user.service';
-import { useSession } from 'next-auth/react';
+import useSessionStore from '@/lib/store';
+import { deleteCategory } from '@/services/category.service';
 
 interface CellActionProps {
-  data: Employee;
+  data: Category;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const { data: session } = useSession();
+  const { role } = useSessionStore();
 
   const router = useRouter();
   const { toast } = useToast();
-  const isStaff = session?.user.role === 'Staff';
+  const isStaff = role === 'Staff';
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await deleteUser(data.id);
+      await deleteCategory(data.id);
 
       toast({
-        title: "Success, user has been deleted."
+        title: "Success, category has been deleted."
       })
 
       setOpen(false)
@@ -72,7 +72,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-              <Link href={`/dashboard/user/${data.id}`}>
+              <Link href={`/dashboard/category/${data.id}`}>
+
                 <DropdownMenuItem>
                   <Edit className="mr-2 h-4 w-4" /> Update
                 </DropdownMenuItem>

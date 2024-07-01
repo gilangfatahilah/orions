@@ -24,7 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Icons } from "../icons";
 import Link from "next/link";
-import { getUserByEmail, send } from "@/lib/action";
+import { send } from "@/services/auth.service";
+import { getUserByEmail } from "@/services/user.service";
 import { useToast } from "../ui/use-toast";
 
 const formSchema = z.object({
@@ -144,7 +145,7 @@ export const ForgetPassword = () => {
 
                 {loading ? (
                   <Button disabled className="ml-auto w-full" type="submit">
-                    <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Send Verification Link
+                    <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
                   </Button>
                 ) : (
                   <Button className="ml-auto w-full" type="submit">

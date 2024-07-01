@@ -1,5 +1,11 @@
 'use client';
-import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn, } from 'next-auth/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 import {
   Form,
   FormControl,
@@ -8,18 +14,10 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from 'next-auth/react';
-import Image from 'next/image';
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { Icons } from '../icons';
 import { useToast } from '../ui/use-toast';
-import { Icon } from '@radix-ui/react-select';
+import { Icons } from '../icons';
 
 const credentialSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
@@ -31,7 +29,7 @@ const credentialSchema = z.object({
 type credentialFormData = z.infer<typeof credentialSchema>;
 
 export default function UserAuthForm() {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
@@ -45,9 +43,6 @@ export default function UserAuthForm() {
     }
   });
 
-  /**
-   * Use effect to check error by params.
-   */
   useEffect(() => {
     const error = searchParams.get('error');
     if (error) {
@@ -57,7 +52,7 @@ export default function UserAuthForm() {
         description: 'Hmm… that google account doesn\'t look valid'
       });
 
-      router.push('/')
+      router.push('/');
     }
   }, [searchParams, toast, router]);
 
@@ -70,29 +65,29 @@ export default function UserAuthForm() {
         email,
         password,
         redirect: false,
-      })
+      });
 
       if (response?.error === 'Configuration' || response?.error === 'Credentials') {
         return toast({
           variant: 'destructive',
           title: 'Uh oh! Something went wrong.',
           description: 'Invalid email or password, please check your email or password and try again.'
-        })
+        });
       }
 
       if (response?.status === 200 && response.ok) {
         toast({
           title: 'Sign in successful.'
-        })
+        });
 
-        router.push('/dashboard')
+        router.push('/dashboard');
       }
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.',
         description: 'There was a problem with your request.'
-      })
+      });
     } finally {
       setLoading(false);
     }
@@ -101,17 +96,8 @@ export default function UserAuthForm() {
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
-
-      const response = await signIn('google', {
-        callbackUrl: '/dashboard',
-        redirect: false
-      });
-
-      if (response?.ok) {
-        toast({
-          title: 'Sign in successful.',
-        });
-      }
+      await signIn('google', {callbackUrl: '/dashboard'});
+      
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -194,7 +180,7 @@ export default function UserAuthForm() {
 
           {loading ? (
             <Button disabled={true} className="ml-auto w-full mt-4" type="submit">
-              <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Continue
+              <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
             </Button>
           ) : (
             <Button className="ml-auto w-full mt-4" type="submit">

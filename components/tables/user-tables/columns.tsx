@@ -4,11 +4,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { User } from '@/constants/data';
 import { Checkbox } from '@/components/ui/checkbox';
-import { auth } from '@/auth';
 
-export const columns = async(): Promise<ColumnDef<User>[]> => {
-  const session = await auth();
-  const isStaff = session?.user.role === 'Staff';
+export const columns = (): ColumnDef<User>[] => {
 
   return [
     {
@@ -23,6 +20,7 @@ export const columns = async(): Promise<ColumnDef<User>[]> => {
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
+          disabled={row.original.role === 'Superadmin'}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
@@ -48,7 +46,7 @@ export const columns = async(): Promise<ColumnDef<User>[]> => {
     },
     {
       id: 'actions',
-      cell: ({ row }) => {isStaff ? '' : <CellAction data={row.original} />}
+      cell: ({ row }) => <CellAction data={row.original} /> 
     }
   ];
 } 

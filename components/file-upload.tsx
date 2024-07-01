@@ -1,7 +1,7 @@
 'use client';
 import { OurFileRouter } from '@/app/api/uploadthing/core';
 import { UploadDropzone } from '@uploadthing/react';
-import { Trash } from 'lucide-react';
+import { Icons } from './icons';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
@@ -39,7 +39,7 @@ export default function FileUpload({
                   variant="destructive"
                   size="sm"
                 >
-                  <Trash className="h-4 w-4" />
+                  <Icons.trash className="h-4 w-4" />
                 </Button>
               </div>
               <div>

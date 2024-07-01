@@ -43,7 +43,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
         {
           loading ? (
             <Button disabled={loading} variant="destructive" onClick={onConfirm}>
-              <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Continue
+              <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
             </Button>
           ) : (
             <Button disabled={loading} variant="destructive" onClick={onConfirm}>

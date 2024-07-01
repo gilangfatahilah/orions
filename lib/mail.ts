@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import {render} from '@react-email/render';
 import EmailTemplate from "@/components/emails";
+import InvitationMail from "@/components/emails/invitation";
 
 export async function sendMail({
   to,
@@ -45,5 +46,10 @@ export async function sendMail({
 
 export function compileWelcomeTemplate(name: string, url: string) {
   const template = render(EmailTemplate({name, url}));
+  return template;
+}
+
+export function compileInvitationEmail(username: string, userRole: string, invitedByEmail: string, inviteLink: string, IPv4: string, location: string,  userImage?: string) {
+  const template = render(InvitationMail({username, userImage, userRole, invitedByEmail, inviteLink, ipAddress: IPv4, location}));
   return template;
 }

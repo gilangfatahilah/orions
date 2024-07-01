@@ -12,6 +12,7 @@ import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import {
   Select,
+  SelectLabel,
   SelectContent,
   SelectGroup,
   SelectItem,
@@ -20,18 +21,17 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Trash } from 'lucide-react';
+import { Icons } from '../icons';
 import { AlertModal } from '../modal/alert-modal';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Icons } from '../icons';
 import FileUpload from '../file-upload';
 import { useToast } from '../ui/use-toast';
-import { createUser, updateUser, send, deleteUser } from '@/lib/action';
+import { createUser, updateUser, deleteUser } from '@/services/user.service';
+import { sendInvitationMail } from '@/services/auth.service';
 import Link from 'next/link';
-import { SelectLabel } from '@radix-ui/react-select';
 
 export const IMG_MAX_LIMIT = 1;
 const formSchema = z.object({
@@ -54,10 +54,11 @@ interface UserFormProps {
     image: string | null;
   }
   role: string;
+  sessionEmail?: string;
 }
 
 export const UserForm = (
-  { initialData, role }: UserFormProps
+  { initialData, role, sessionEmail }: UserFormProps
 ) => {
   const router = useRouter();
   const { toast } = useToast();
@@ -67,10 +68,16 @@ export const UserForm = (
   const description = initialData ? 'This action will update the user data, you can delete the user also by click the trash button.' : 'This action will add a new user, the new user will be invited via email that included in this form.';
   const action = initialData ? 'Save changes' : 'Create user';
 
-  const renderPlaceholderWithIcon = () => (
+  const renderPlaceholderWithIcon = (value?: string) => (
     <div className="flex items-center gap-4">
       <Icons.role className="w-4 h-4 text-gray-400" />
-      <span className='text-gray-400'>Select a role</span>
+      {
+        value ? (
+          <span>{value}</span>
+        ) : (
+          <span className='text-gray-400'>Select a role</span>
+        )
+      }
     </div>
   );
 
@@ -141,12 +148,14 @@ export const UserForm = (
 
         const email = data.email;
         const name = data.name;
-        const subject = 'Invitation User';
+        const subject = 'Invitation user on Orion';
+        const role = data.role;
+        const userImage = data.image ?? undefined;
         const url = `${BASE_URL}/reset-password/${response.id}`;
 
-        const sendMail = await send(email, name, subject, url);
+        const sendMail = await sendInvitationMail(email, name, subject, role, sessionEmail as string, url, userImage);
 
-        if (sendMail.accepted.length) {
+        if (sendMail.accepted.length) { 
           router.push('/dashboard/user');
 
           return toast({
@@ -219,7 +228,7 @@ export const UserForm = (
             size="sm"
             onClick={() => setOpen(true)}
           >
-            <Trash className="h-4 w-4" />
+            <Icons.trash className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -311,7 +320,7 @@ export const UserForm = (
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue>
-                            {field.value === '' ? renderPlaceholderWithIcon() : field.value}
+                            {field.value === '' ? renderPlaceholderWithIcon() : renderPlaceholderWithIcon(field.value)}
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>
@@ -356,7 +365,7 @@ export const UserForm = (
 
           <div className='flex justify-end space-x-4'>
             <Link href={'/dashboard/user'}>
-              <Button disabled={false} className="ml-auto" variant={'outline'} type="submit">
+              <Button disabled={loading} className="ml-auto" variant={'outline'} type="submit">
                 Cancel
               </Button>
             </Link>
@@ -364,7 +373,7 @@ export const UserForm = (
             {
               loading ? (
                 <Button disabled={true} className="ml-auto" type="submit">
-                  <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> {action}
+                  <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
                 </Button>
               ) : (
                 <Button disabled={false} className="ml-auto" type="submit">

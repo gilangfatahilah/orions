@@ -1,5 +1,6 @@
 import BreadCrumb from '@/components/breadcrumb';
-import { EmployeeTable } from '@/components/tables/employee-tables/employee-table';
+import { columns } from '@/components/tables/supplier-tables/columns';
+import { SupplierTable } from '@/components/tables/supplier-tables/supplier-table';
 import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
@@ -9,7 +10,7 @@ import prisma from '@/lib/db';
 import Link from 'next/link';
 import { auth } from '@/auth';
 
-const breadcrumbItems = [{ title: 'User', link: '/dashboard/user' }];
+const breadcrumbItems = [{ title: 'Category', link: '/dashboard/category' }];
 
 type paramsProps = {
   searchParams: {
@@ -25,7 +26,7 @@ export default async function page({ searchParams }: paramsProps) {
   const offset = (page - 1) * pageLimit;
   const search = searchParams.search ? String(searchParams.search) : '';
 
-  const user = await prisma.user.findMany({
+  const supplier = await prisma.supplier.findMany({
     skip: offset,
     take: pageLimit,
     where: {
@@ -34,26 +35,21 @@ export default async function page({ searchParams }: paramsProps) {
           ? {
             OR: [
               { name: { contains: search, mode: 'insensitive' } },
-              { email: { contains: search, mode: 'insensitive' } },
-              { role: { contains: search, mode: 'insensitive' } },
+              { address: { contains: search, mode: 'insensitive' } },
             ],
           }
           : {}
       ),
-      id: { not: session?.user.id },
     },
     select: {
       id: true,
       name: true,
+      address: true,
+      phone: true,
       email: true,
-      role: true,
-      image: true,
-      createdAt: true,
     }
   });
-
-
-  const totalCount = await prisma.user.count();
+  const totalCount = await prisma.supplier.count();
 
   const pageCount = Math.ceil(totalCount / pageLimit);
   return (
@@ -62,27 +58,26 @@ export default async function page({ searchParams }: paramsProps) {
 
       <div className="flex items-start justify-between">
         <Heading
-          title={`Users (${totalCount})`}
-          description="All user list excluded your self, you can update your user information on profile menu."
+          title={`Suppliers (${totalCount})`}
+          description="List of all suppliers."
         />
 
         {
           session?.user.role !== 'Staff' && (
             <Link
-              href={'/dashboard/user/create'}
+              href={'/dashboard/supplier/create'}
               className={cn(buttonVariants({ variant: 'default' }))}
             >
-              <Icons.add className="mr-2 h-4 w-4" /> Add user
+              <Icons.add className="mr-2 h-4 w-4" /> Add Supplier
             </Link>
           )
         }
       </div>
       <Separator />
 
-      <EmployeeTable
-        pageNo={page}
-        totalUsers={totalCount}
-        data={user}
+      <SupplierTable
+        columns={columns}
+        data={supplier}
         role={session?.user.role as string}
         pageCount={pageCount}
       />
