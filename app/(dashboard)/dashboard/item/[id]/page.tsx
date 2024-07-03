@@ -31,7 +31,7 @@ const EditSupplierPage = async ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <ItemForm initialData={data}/>
+      <ItemForm initialData={data} user={session?.user.name as string} />
     </div>
   )
 }

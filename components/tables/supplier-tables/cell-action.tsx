@@ -15,17 +15,17 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { deleteSupplier } from '@/services/supplier.service';
-import useSessionStore from '@/lib/store';
+import { useSession } from 'next-auth/react';
 interface CellActionProps {
   data: Supplier;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const { role } = useSessionStore();
+  const { data: session } = useSession();
 
   const router = useRouter();
   const { toast } = useToast();
-  const isStaff = role === 'Staff';
+  const isStaff = session?.user.role === 'Staff';
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 

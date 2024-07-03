@@ -15,24 +15,24 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { deleteItem } from '@/services/item.service';
-import useSessionStore from '@/lib/store';
+import { useSession } from 'next-auth/react';
 interface CellActionProps {
   data: Item;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const { role } = useSessionStore();
+  const { data: session } = useSession();
 
   const router = useRouter();
   const { toast } = useToast();
-  const isStaff = role === 'Staff';
+  const isStaff = session?.user.role === 'Staff';
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await deleteItem(data.id);
+      await deleteItem(data.id, session?.user.name as string);
 
       toast({
         title: "Success, item has been deleted."

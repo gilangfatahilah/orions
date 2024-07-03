@@ -1,4 +1,7 @@
 'use client';
+import * as z from 'zod';
+import Link from 'next/link';
+import FileUpload from '../file-upload';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -26,12 +29,10 @@ import { AlertModal } from '../modal/alert-modal';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import FileUpload from '../file-upload';
 import { useToast } from '../ui/use-toast';
 import { createItem, updateItem, deleteItem } from '@/services/item.service';
 import { getCategory } from '@/services/category.service';
-import Link from 'next/link';
+import { NumericFormat } from 'react-number-format';
 
 export const IMG_MAX_LIMIT = 1;
 const formSchema = z.object({
@@ -40,7 +41,7 @@ const formSchema = z.object({
     .min(1, { message: 'Item Name must be at least 1 characters' }),
   price: z.coerce.number().gte(100),
   category: z.string({ message: 'You must select item category' }),
-  image: z.string().nullable(),
+  image: z.string().nullable().optional(),
 });
 
 type ItemFormValues = z.infer<typeof formSchema>;
@@ -53,10 +54,11 @@ interface ItemFormProps {
     image?: string;
     categoryId: string;
   }
+  user: string;
 }
 
 export const ItemForm = (
-  { initialData }: ItemFormProps
+  { initialData, user }: ItemFormProps
 ) => {
   const router = useRouter();
   const { toast } = useToast();
@@ -69,19 +71,20 @@ export const ItemForm = (
 
   const renderPlaceholderWithIcon = (value?: string) => {
     const data = categoryOption?.find((option) => option.value === value);
-    
+
     return (
-    <div className="flex items-center gap-4">
-      <Icons.category className="w-4 h-4 text-gray-400" />
-      {
-        value ? (
-          <span>{data?.label}</span>
-        ) : (
-          <span className='text-gray-400'>Select a category</span>
-        )
-      }
-    </div>
-  )};
+      <div className="flex items-center gap-4">
+        <Icons.category className="w-4 h-4 text-gray-400" />
+        {
+          value ? (
+            <span>{data?.label}</span>
+          ) : (
+            <span className='text-gray-400'>Select a category</span>
+          )
+        }
+      </div>
+    )
+  };
 
   // get option data from category
   useEffect(() => {
@@ -122,7 +125,7 @@ export const ItemForm = (
           price: Number(data.price),
           image: data.image ?? null,
           categoryId: data.category,
-        })
+        }, user )
 
         if (response) {
           router.push('/dashboard/item');
@@ -146,7 +149,7 @@ export const ItemForm = (
           price: Number(data.price),
           image: data.image ?? undefined,
           categoryId: data.category,
-        });
+        }, user);
 
         if (!response) {
           return toast({
@@ -177,7 +180,7 @@ export const ItemForm = (
     try {
       setLoading(true);
 
-      const response = await deleteItem(initialData?.id as string);
+      const response = await deleteItem(initialData?.id as string, user);
 
       if (!response) {
         return toast({
@@ -200,6 +203,17 @@ export const ItemForm = (
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatNumber = (value: string) => {
+    return value.replace(/,/g, '');
+  };
+
+  const handleChange = (event: string) => {
+      const value = event.replace(/,/g, '');
+    
+      const formattedNumber =  formatNumber(value);
+      return Number(formattedNumber)
   };
 
   return (
@@ -283,12 +297,23 @@ export const ItemForm = (
                     <FormControl>
                       <div className='relative'>
                         <Icons.dollar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          type="number"
+                        <p className="absolute left-10 top-1/2 text-sm transform -translate-y-1/2" >
+                          Rp
+                        </p>
+
+                        <NumericFormat
+                          {...field}
+                          thousandSeparator
+                          value={field.value}
                           placeholder="Enter item price"
                           disabled={loading}
-                          className='pl-10'
-                          {...field}
+                          className='pl-[3.75rem]'
+                          customInput={Input}
+                          onChange={(e) => {
+                            const value = handleChange(e.target.value);
+
+                            field.onChange(value);
+                          }}
                         />
                       </div>
                     </FormControl>

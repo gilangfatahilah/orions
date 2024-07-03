@@ -12,6 +12,7 @@ const AddUser = async () => {
   const session = await auth();
   const role = session?.user.role;
   const email = session?.user.email;
+  const name = session?.user.name;
 
   if (role === 'Staff') {
     redirect('/not-found');
@@ -20,7 +21,7 @@ const AddUser = async () => {
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <UserForm role={role as string} sessionEmail={email as string} />
+      <UserForm role={role as string} sessionEmail={email as string} sessionUser={name as string} />
     </div>
   )
 }

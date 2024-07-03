@@ -16,7 +16,7 @@ datasource db {
 
 model User {
   id          String        @id @default(cuid())
-  name        String?
+  name        String
   email       String        @unique
   password    String?
   role        String
@@ -24,6 +24,7 @@ model User {
   accounts    Account[]
   sessions    Session[]
   Transaction Transaction[]
+  history     History[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
@@ -73,26 +74,52 @@ model Category {
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
   Item      Item[]
+  history   History[]
 }
 
 model Item {
   id           String            @id @default(uuid())
   name         String
   category     Category          @relation(fields: [categoryId], references: [id])
-  categoryId   String            @unique
+  categoryId   String
   price        Int
   image        String?
   stock        Stock?
   createdAt    DateTime          @default(now())
   updatedAt    DateTime?         @updatedAt
   transactions ItemTransaction[]
+  history      History[]
+}
+
+model History {
+  id         String    @id @default(uuid())
+  field      String
+  name       String
+  table      String
+  oldValue   String
+  newValue   String
+  modifiedBy String
+  user       User?      @relation(fields: [userId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id])
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+  outlet     Outlet?   @relation(fields: [outletId], references: [id])
+  item       Item?     @relation(fields: [itemId], references: [id])
+  stock      Stock?    @relation(fields: [stockId], references: [id])
+  userId     String?
+  categoryId String?
+  supplierId String?
+  outletId   String?
+  itemId     String?
+  stockId    String?
+  createdAt  DateTime  @default(now())
 }
 
 model Stock {
   id        String    @id @unique
   quantity  Int
   status    String?
-  Item      Item      @relation(fields: [itemId], references: [id])
+  item      Item      @relation(fields: [itemId], references: [id])
+  history   History[]
   itemId    String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
@@ -107,6 +134,7 @@ model Supplier {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime?     @updatedAt
   Transaction Transaction[]
+  history     History[]
 }
 
 model Outlet {
@@ -118,6 +146,7 @@ model Outlet {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime?     @updatedAt
   Transaction Transaction[]
+  history     History[]
 }
 
 model Transaction {
@@ -126,9 +155,9 @@ model Transaction {
   quantity        Int
   totalPrice      Int
   transactionDate DateTime
-  supplier        Supplier          @relation(fields: [supplierId], references: [id])
+  supplier        Supplier?         @relation(fields: [supplierId], references: [id])
   user            User              @relation(fields: [userId], references: [id])
-  supplierId      String
+  supplierId      String?
   userId          String
   createdAt       DateTime          @default(now())
   updatedAt       DateTime?         @updatedAt

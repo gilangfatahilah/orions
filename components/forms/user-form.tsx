@@ -55,10 +55,11 @@ interface UserFormProps {
   }
   role: string;
   sessionEmail?: string;
+  sessionUser: string;
 }
 
 export const UserForm = (
-  { initialData, role, sessionEmail }: UserFormProps
+  { initialData, role, sessionEmail, sessionUser }: UserFormProps
 ) => {
   const router = useRouter();
   const { toast } = useToast();
@@ -112,7 +113,7 @@ export const UserForm = (
           name: data.name,
           role: data.role,
           image: data.image ?? null,
-        })
+        }, sessionUser)
 
         if (response) {
           router.push('/dashboard/user');
@@ -136,7 +137,7 @@ export const UserForm = (
           name: data.name,
           role: data.role,
           image: image as string,
-        });
+        }, sessionUser);
 
         if (!response) {
           return toast({
@@ -185,7 +186,7 @@ export const UserForm = (
     try {
       setLoading(true);
 
-      const response = await deleteUser(initialData?.id as string);
+      const response = await deleteUser(initialData?.id as string, sessionUser);
 
       if (!response) {
         return toast({

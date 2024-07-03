@@ -47,7 +47,15 @@ export const columns: ColumnDef<Item>[] = [
   },
   {
     accessorKey: 'price',
-    header: 'PRICE'
+    header: 'PRICE',
+    cell:({row}) => {
+      const formatCurrency = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+      })
+
+      return formatCurrency.format(row.original.price)
+    }
   },
   {
     id: 'actions',

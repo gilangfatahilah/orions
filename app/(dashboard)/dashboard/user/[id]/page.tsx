@@ -13,6 +13,7 @@ const EditUserPage = async ({ params }: { params: { id: string } }) => {
 
   const session = await auth();
   const role =  session?.user.role
+  const name =  session?.user.name
 
   if (role === 'Staff') {
     redirect('/not-found');
@@ -31,7 +32,7 @@ const EditUserPage = async ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <UserForm initialData={data} role={role as string}/>
+      <UserForm initialData={data} role={role as string} sessionUser={name as string}/>
     </div>
   )
 }

@@ -45,10 +45,9 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface DataTableProps {
   data: Employee[];
-  totalUsers: number;
   pageSizeOptions?: number[];
-  pageNo: number;
   role: string;
+  user: string;
   pageCount: number;
   searchParams?: {
     [key: string]: string | string[] | undefined;
@@ -58,9 +57,8 @@ interface DataTableProps {
 export function EmployeeTable({
   data,
   pageCount,
-  pageNo,
-  totalUsers,
   role,
+  user,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps) {
   const { toast } = useToast();
@@ -252,7 +250,7 @@ export function EmployeeTable({
     try {
       setLoading(true);
       const idToDelete = selectedData.map((data) => data.original.id);
-      const response = await deleteSeveralUser(idToDelete);
+      const response = await deleteSeveralUser(idToDelete, user);
 
       if (!response) {
         return toast({
@@ -306,7 +304,7 @@ export function EmployeeTable({
             setGlobalFilter(search);
             router.push(`${pathname}?${params.toString()}`);
           }}
-          className="w-full md:max-w-sm"
+          className="w-full md:max-w-sm mb-2"
         />
 
         <Button onClick={() => setAlertOpen(true)} className={selectedData.length ? 'block' : 'hidden'} variant={'destructive'}>

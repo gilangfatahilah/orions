@@ -9,7 +9,7 @@ import { useToast } from './ui/use-toast';
 interface ImageUploadProps {
   onChange?: any;
   onRemove: (value: string) => void;
-  value: string | null;
+  value: string | null | undefined;
 }
 
 export default function FileUpload({

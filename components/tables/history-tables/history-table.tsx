@@ -35,23 +35,21 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Item } from '@/constants/data';
+import { History } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
-import { deleteSeveralItem } from '@/services/item.service';
+import { deleteSeveralHistory } from '@/services/history.service';
 
 
-interface DataTableProps<TData extends Item, TValue> {
+interface DataTableProps<TData extends History, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  user: string;
   pageSizeOptions?: number[];
   pageCount: number;
 }
 
-export function ItemTable<TData extends Item, TValue>({
+export function HistoryTable<TData extends History, TValue>({
   columns,
   data,
-  user,
   pageCount,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
@@ -143,7 +141,7 @@ export function ItemTable<TData extends Item, TValue>({
     try {
       setLoading(true);
       const idToDelete = selectedData.map((data) => data.original.id);
-      const response = await deleteSeveralItem(idToDelete, user);
+      const response = await deleteSeveralHistory(idToDelete);
 
       if (!response) {
         return toast({
@@ -158,7 +156,7 @@ export function ItemTable<TData extends Item, TValue>({
       router.refresh();
 
       return toast({
-        title: `Success, ${idToDelete.length} items has successfully deleted.`,
+        title: `Success, ${idToDelete.length} histories has successfully deleted.`,
       });
 
     } catch (error) {
@@ -175,7 +173,7 @@ export function ItemTable<TData extends Item, TValue>({
   return (
     <>
       <AlertModal
-        description='Do you want to delete all of the selected items ? This action can&apos;t be undone'
+        description='Do you want to delete all of the selected histories ? This action can&apos;t be undone'
         isOpen={alertOpen}
         onClose={() => setAlertOpen(false)}
         onConfirm={onConfirmDelete}

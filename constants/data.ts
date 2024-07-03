@@ -94,7 +94,7 @@ export const users: User[] = [
 
 export type Employee = {
   id: string,
-  name: string | null,
+  name: string,
   email: string,
   role: string,
   image: string | null,
@@ -131,6 +131,16 @@ export type Item = {
   category: {
     name: string,
   }
+}
+
+export type History = {
+  id: string,
+  field: string,
+  name: string,
+  oldValue: string,
+  newValue: string,
+  modifiedBy: string,
+  createdAt: Date,
 }
 
 export const navItems: NavItem[] = [

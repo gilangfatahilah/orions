@@ -14,19 +14,19 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import useSessionStore from '@/lib/store';
 import { deleteCategory } from '@/services/category.service';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: Category;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const { role } = useSessionStore();
+  const { data: session } = useSession();
 
   const router = useRouter();
   const { toast } = useToast();
-  const isStaff = role === 'Staff';
+  const isStaff = session?.user.role === 'Staff';
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
