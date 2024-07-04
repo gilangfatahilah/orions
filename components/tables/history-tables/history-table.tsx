@@ -38,7 +38,10 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { History } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
 import { deleteSeveralHistory } from '@/services/history.service';
-
+import { formatDate } from '@/lib/formatDate';
+import { exportCSV, exportToExcel } from '@/lib/fileExport';
+import TableDropdown from '../table-dropdown';
+import { CalendarDateRangePicker } from '@/components/date-range-picker';
 
 interface DataTableProps<TData extends History, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -137,6 +140,48 @@ export function HistoryTable<TData extends History, TValue>({
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
 
+  const onExportExcel = async () => {
+    try {
+      setLoading(true);
+      const dataToExport = selectedData.map((data) => ({
+        name: data.original.name,
+        field: data.original.field,
+        from: data.original.oldValue,
+        to: data.original.newValue,
+        modifiedBy: data.original.modifiedBy,
+        date: formatDate(data.original.createdAt),
+      }))
+
+      await exportToExcel(dataToExport, 'history', 'history');
+    } catch (error) {
+      // 
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onExportCsv = () => {
+    setLoading(true);
+    const dataToExport = selectedData.map((data) => ({
+      name: data.original.name,
+      field: data.original.field,
+      from: data.original.oldValue,
+      to: data.original.newValue,
+      modifiedBy: data.original.modifiedBy,
+      date: formatDate(data.original.createdAt),
+    }))
+
+    exportCSV(dataToExport, 'history');
+    setLoading(false);
+  };
+
+  const onFilterDate = ({from, to}: {from: string, to: string}): void => {
+    router.push(`${pathname}?${createQueryString({
+      startDate: from,
+      endDate: to
+    })}`)
+  }
+
   const onConfirmDelete = async () => {
     try {
       setLoading(true);
@@ -182,7 +227,7 @@ export function HistoryTable<TData extends History, TValue>({
 
       <div className='w-full flex items-center gap-4 justify-between'>
         <Input
-          placeholder="Search category..."
+          placeholder="Search everything..."
           value={globalFilter}
           onChange={(event) => {
             const search = event.target.value;
@@ -198,9 +243,13 @@ export function HistoryTable<TData extends History, TValue>({
           className="w-full md:max-w-sm mb-2"
         />
 
-        <Button onClick={() => setAlertOpen(true)} className={selectedData.length ? 'block' : 'hidden'} variant={'destructive'}>
-          <Icons.trash className='w-4 h-4' />
-        </Button>
+        <div className='flex gap-2 flex-wrap mb-2 '>
+          <CalendarDateRangePicker onSelectDate={onFilterDate} />
+
+          <div className={selectedData.length ? 'block' : 'hidden'}>
+            <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} onDelete={() => setAlertOpen(true)} />
+          </div>
+        </div>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

@@ -70,7 +70,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setOpen(true)}>
+              <DropdownMenuItem className='text-red-600' onClick={() => setOpen(true)}>
                 <Trash className="mr-2 h-4 w-4" /> Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

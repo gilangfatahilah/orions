@@ -34,7 +34,6 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Icons } from '@/components/icons';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Employee } from '@/constants/data';
 import { CellAction } from './cell-action';
@@ -42,6 +41,9 @@ import { AlertModal } from '@/components/modal/alert-modal';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { deleteSeveralUser } from '@/services/user.service';
 import { useToast } from '@/components/ui/use-toast';
+import TableDropdown from '../table-dropdown';
+import { formatDate } from '@/lib/formatDate';
+import { exportToExcel, exportCSV } from '@/lib/fileExport';
 
 interface DataTableProps {
   data: Employee[];
@@ -49,9 +51,6 @@ interface DataTableProps {
   role: string;
   user: string;
   pageCount: number;
-  searchParams?: {
-    [key: string]: string | string[] | undefined;
-  };
 }
 
 export function EmployeeTable({
@@ -152,22 +151,12 @@ export function EmployeeTable({
       accessorKey: 'createdAt',
       header: 'JOINED',
       cell: ({ row }) => {
-        const formatDate = (date: Date) => {
-          return new Intl.DateTimeFormat('id-ID', {
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric', 
-          }).format(date);
-        };
-
-        const date = formatDate(row.original.createdAt);
-        return date;
+        return formatDate(row.original.createdAt);
       }
     },
     {
       id: 'actions',
-      header: 'ACTION',
+      header: '•••',
       cell: ({ row }) => {
         const isSuperadmin = row.original.role === 'Superadmin';
         const isManager = row.original.role === 'Manager';
@@ -246,6 +235,37 @@ export function EmployeeTable({
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
 
+  const onExportExcel = async () => {
+    try {
+      setLoading(true);
+      const dataToExport = selectedData.map((data) => ({
+        name: data.original.name,
+        email: data.original.email,
+        role: data.original.role,
+        date: formatDate(data.original.createdAt),
+      }))
+
+      await exportToExcel(dataToExport, 'data-user', 'user');
+    } catch (error) {
+      // 
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onExportCsv = () => {
+      setLoading(true);
+      const dataToExport = selectedData.map((data) => ({
+        name: data.original.name,
+        email: data.original.email,
+        role: data.original.role,
+        date: formatDate(data.original.createdAt),
+      }))
+
+      exportCSV(dataToExport, 'data-user');
+      setLoading(false);
+  };
+
   const onConfirmDelete = async () => {
     try {
       setLoading(true);
@@ -291,7 +311,7 @@ export function EmployeeTable({
 
       <div className='w-full flex items-center gap-4 justify-between'>
         <Input
-          placeholder="Search all columns..."
+          placeholder="Search everything..."
           value={globalFilter}
           onChange={(event) => {
             const search = event.target.value;
@@ -307,9 +327,9 @@ export function EmployeeTable({
           className="w-full md:max-w-sm mb-2"
         />
 
-        <Button onClick={() => setAlertOpen(true)} className={selectedData.length ? 'block' : 'hidden'} variant={'destructive'}>
-          <Icons.trash className='w-4 h-4' />
-        </Button>
+        <div className={selectedData.length ? 'block' : 'hidden'}>
+          <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} onDelete={() => setAlertOpen(true)} />
+        </div>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

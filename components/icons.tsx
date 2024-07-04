@@ -11,6 +11,7 @@ import {
   Eye,
   EyeOff,
   File,
+  FileDown,
   FileText,
   HelpCircle,
   Image,
@@ -37,6 +38,7 @@ import {
   Twitter,
   User,
   User2Icon,
+  FileSpreadsheet,
   UserX2Icon,
   LogOut,
   UserCog,
@@ -48,6 +50,7 @@ import {
   MapPin,
   BadgeDollarSign,
   MoveLeft,
+  RefreshCw,
   KeyRound,
   X
 } from 'lucide-react';
@@ -61,6 +64,9 @@ export const Icons = {
   login: LogIn,
   close: X,
   eye: Eye,
+  refresh: RefreshCw,
+  spreadsheet: FileSpreadsheet,
+  export: FileDown,
   phone: Phone,
   asterisk: Asterisk,
   eyeOff: EyeOff,
