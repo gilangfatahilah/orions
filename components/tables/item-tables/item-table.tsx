@@ -9,7 +9,6 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 import React from 'react';
-import { Icons } from '@/components/icons';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,12 +31,15 @@ import {
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon
 } from '@radix-ui/react-icons';
+import TableDropdown from '../table-dropdown';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Item } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
 import { deleteSeveralItem } from '@/services/item.service';
+import { exportCSV, exportToExcel } from '@/lib/fileExport';
+import { formatCurrency } from '@/lib/formatter';
 
 
 interface DataTableProps<TData extends Item, TValue> {
@@ -54,7 +56,7 @@ export function ItemTable<TData extends Item, TValue>({
   user,
   pageCount,
   pageSizeOptions = [10, 20, 30, 40, 50]
-}: DataTableProps<TData, TValue>) {
+}: Readonly<DataTableProps<TData, TValue>>) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -139,6 +141,35 @@ export function ItemTable<TData extends Item, TValue>({
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
 
+  const onExportExcel = async () => {
+    try {
+      setLoading(true);
+      const dataToExport = selectedData.map((data) => ({
+        name: data.original.name,
+        category: data.original.category.name,
+        price: formatCurrency(data.original.price)
+      }))
+
+      await exportToExcel(dataToExport, 'data-item', 'item');
+    } catch (error) {
+      // 
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onExportCsv = () => {
+    setLoading(true);
+    const dataToExport = selectedData.map((data) => ({
+      name: data.original.name,
+      category: data.original.category.name,
+      price: formatCurrency(data.original.price)
+    }))
+
+    exportCSV(dataToExport, 'data-user');
+    setLoading(false);
+  };
+
   const onConfirmDelete = async () => {
     try {
       setLoading(true);
@@ -182,9 +213,9 @@ export function ItemTable<TData extends Item, TValue>({
         loading={loading}
       />
 
-      <div className='w-full flex items-center gap-4 justify-between'>
+      <div className='w-full flex items-center gap-4 justify-between mb-2'>
         <Input
-          placeholder="Search category..."
+          placeholder="Search everything..."
           value={globalFilter}
           onChange={(event) => {
             const search = event.target.value;
@@ -197,12 +228,12 @@ export function ItemTable<TData extends Item, TValue>({
             setGlobalFilter(search);
             router.push(`${pathname}?${params.toString()}`);
           }}
-          className="w-full md:max-w-sm mb-2"
+          className="w-full md:max-w-sm"
         />
 
-        <Button onClick={() => setAlertOpen(true)} className={selectedData.length ? 'block' : 'hidden'} variant={'destructive'}>
-          <Icons.trash className='w-4 h-4' />
-        </Button>
+        <div className={selectedData.length ? 'block' : 'hidden'}>
+          <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} onDelete={() => setAlertOpen(true)} />
+        </div>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

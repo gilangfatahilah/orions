@@ -38,7 +38,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { History } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
 import { deleteSeveralHistory } from '@/services/history.service';
-import { formatDate } from '@/lib/formatDate';
+import { formatDate } from '@/lib/formatter';
 import { exportCSV, exportToExcel } from '@/lib/fileExport';
 import TableDropdown from '../table-dropdown';
 import { CalendarDateRangePicker } from '@/components/date-range-picker';

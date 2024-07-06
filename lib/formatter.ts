@@ -15,3 +15,12 @@ export const formatISO = (date: Date): string => {
 
   return utcDate.toISOString();
 }
+
+export const formatCurrency = (currency: number): string => {
+  const formatCurrency = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+  })
+
+  return formatCurrency.format(currency);
+}

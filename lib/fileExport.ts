@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
-import { formatDate } from './formatDate';
+import { formatDate } from './formatter';
 
-export const exportToExcel = async (data: Record<string, string>[], title: string, worksheetName: string) => {
+export const exportToExcel = async (data: Record<string, string | number>[], title: string, worksheetName: string) => {
   try {
     const dateNow = formatDate(new Date());
 
@@ -15,7 +15,7 @@ export const exportToExcel = async (data: Record<string, string>[], title: strin
   }
 }
 
-export const exportCSV = (jsonData: Array<{ [key: string]: string }>, filename: string): void => {
+export const exportCSV = (jsonData: Array<{ [key: string]: string | number }>, filename: string): void => {
   const csvRows = [];
   const dateNow = formatDate(new Date());
   const headers = Object.keys(jsonData[0]);

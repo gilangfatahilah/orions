@@ -9,7 +9,6 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 import React from 'react';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -31,40 +30,33 @@ import {
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon
 } from '@radix-ui/react-icons';
+import TableDropdown from '../table-dropdown';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Employee } from '@/constants/data';
-import { CellAction } from './cell-action';
-import { AlertModal } from '@/components/modal/alert-modal';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { deleteSeveralUser } from '@/services/user.service';
+import { Stock } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
-import TableDropdown from '../table-dropdown';
-import { formatDate } from '@/lib/formatter';
-import { exportToExcel, exportCSV } from '@/lib/fileExport';
+import { exportCSV, exportToExcel } from '@/lib/fileExport';
 
-interface DataTableProps {
-  data: Employee[];
+
+interface DataTableProps<TData extends Stock, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
   pageSizeOptions?: number[];
-  role: string;
-  user: string;
   pageCount: number;
 }
 
-export function EmployeeTable({
+export function StockTable<TData extends Stock, TValue>({
+  columns,
   data,
   pageCount,
-  role,
-  user,
   pageSizeOptions = [10, 20, 30, 40, 50]
-}: DataTableProps) {
-  const { toast } = useToast();
+}: Readonly<DataTableProps<TData, TValue>>) {
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   const searchParams = useSearchParams();
-  // Search params
+
   const page = searchParams?.get('page') ?? '1';
   const pageAsNumber = Number(page);
   const fallbackPage =
@@ -75,104 +67,7 @@ export function EmployeeTable({
   const initialSearch = searchParams?.get('search') ?? '';
 
   const [globalFilter, setGlobalFilter] = React.useState<string>('');
-  const [alertOpen, setAlertOpen] = React.useState<boolean>(false);
-  const [loading, setLoading] = React.useState<boolean>(false);
 
-  /**
-   * Table Columns
-   */
-  const columns: ColumnDef<Employee>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const allSelectableRows = table.getFilteredRowModel().rows.filter(
-          row => {
-            if (role === 'Manager') {
-              return row.original.role !== 'Manager' && row.original.role !== 'Superadmin';
-            }
-
-            return row.original.role !== 'Superadmin';
-          }
-        );
-
-        const allSelected = allSelectableRows.every(row => row.getIsSelected());
-
-        return (
-          <Checkbox
-            checked={allSelected}
-            onCheckedChange={(value) => {
-              allSelectableRows.forEach(row => row.toggleSelected(!!value));
-            }}
-            aria-label="Select all"
-          />
-        );
-      },
-      cell: ({ row }) => {
-        const rolesToDisable = role === 'Manager' ? ['Manager', 'Superadmin'] : ['Superadmin'];
-
-        return (
-          <Checkbox
-            checked={row.getIsSelected()}
-            disabled={rolesToDisable.includes(row.original.role)}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-        )
-      },
-      enableSorting: false,
-      enableHiding: false
-    },
-    {
-      accessorKey: 'image',
-      header: 'PHOTO',
-      cell: ({ row }) => {
-        return (
-          <Avatar>
-            <AvatarImage src={row.original.image as string} alt={row.original.name as string} />
-            <AvatarFallback> {row.original.name?.substring(0, 1).toUpperCase()} </AvatarFallback>
-          </Avatar>
-        )
-      },
-    },
-    {
-      accessorKey: 'name',
-      header: 'NAME',
-      enableSorting: true,
-    },
-    {
-      accessorKey: 'email',
-      header: 'EMAIL'
-    },
-    {
-      accessorKey: 'role',
-      header: 'ROLE',
-    },
-    {
-      accessorKey: 'createdAt',
-      header: 'JOINED',
-      cell: ({ row }) => {
-        return formatDate(row.original.createdAt);
-      }
-    },
-    {
-      id: 'actions',
-      header: '•••',
-      cell: ({ row }) => {
-        const isSuperadmin = row.original.role === 'Superadmin';
-        const isManager = row.original.role === 'Manager';
-        const isUserSuperadmin = role === 'Superadmin';
-        const isUserManager = role === 'Manager';
-
-        if ((isUserSuperadmin && isSuperadmin) || (isUserManager && (isManager || isSuperadmin))) {
-          return null;
-        }
-
-        return <CellAction data={row.original} />;
-      }
-    }
-  ];
-
-  // Create query string
   const createQueryString = React.useCallback(
     (params: Record<string, string | number | null>) => {
       const newSearchParams = new URLSearchParams(searchParams?.toString());
@@ -190,10 +85,6 @@ export function EmployeeTable({
     [searchParams]
   );
 
-  React.useEffect(() => {
-    setGlobalFilter(initialSearch);
-  }, [initialSearch]);
-
   // Handle server-side pagination
   const [{ pageIndex, pageSize }, setPagination] =
     React.useState<PaginationState>({
@@ -201,6 +92,24 @@ export function EmployeeTable({
       pageSize: fallbackPerPage
     });
 
+  React.useEffect(() => {
+    setGlobalFilter(initialSearch);
+  }, [initialSearch, data]);
+
+
+  React.useEffect(() => {
+    router.push(
+      `${pathname}?${createQueryString({
+        page: pageIndex + 1,
+        limit: pageSize
+      })}`,
+      {
+        scroll: false
+      }
+    );
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageIndex, pageSize]);
 
   const table = useReactTable({
     data,
@@ -219,96 +128,37 @@ export function EmployeeTable({
     manualFiltering: true,
   });
 
-  React.useEffect(() => {
-    router.push(
-      `${pathname}?${createQueryString({
-        page: pageIndex + 1,
-        limit: pageSize
-      })}`,
-      {
-        scroll: false
-      }
-    );
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndex, pageSize]);
-
   const selectedData = table.getFilteredSelectedRowModel().rows;
 
   const onExportExcel = async () => {
     try {
-      setLoading(true);
       const dataToExport = selectedData.map((data) => ({
-        name: data.original.name,
-        email: data.original.email,
-        role: data.original.role,
-        date: formatDate(data.original.createdAt),
+        name: data.original.item.name,
+        previousQuantity: data.original.prevQuantity,
+        currentQuantity: data.original.quantity
       }))
 
-      await exportToExcel(dataToExport, 'data-user', 'user');
+      await exportToExcel(dataToExport, 'data-item', 'item');
     } catch (error) {
-      // 
-    } finally {
-      setLoading(false);
+      toast({
+        variant: 'destructive',
+        title: 'Export Failed, please try again.'
+      })
     }
   };
 
   const onExportCsv = () => {
-      setLoading(true);
-      const dataToExport = selectedData.map((data) => ({
-        name: data.original.name,
-        email: data.original.email,
-        role: data.original.role,
-        date: formatDate(data.original.createdAt),
-      }))
+    const dataToExport = selectedData.map((data) => ({
+      name: data.original.item.name,
+      previousQuantity: data.original.prevQuantity,
+      currentQuantity: data.original.quantity
+    }))
 
-      exportCSV(dataToExport, 'data-user');
-      setLoading(false);
+    exportCSV(dataToExport, 'data-user');
   };
-
-  const onConfirmDelete = async () => {
-    try {
-      setLoading(true);
-      const idToDelete = selectedData.map((data) => data.original.id);
-      const response = await deleteSeveralUser(idToDelete, user);
-
-      if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
-        });
-      }
-
-      // close and refresh
-      setAlertOpen(false);
-      router.refresh();
-
-      return toast({
-        title: `Success, ${idToDelete.length} users has successfully deleted.`,
-      });
-
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <>
-      <AlertModal
-        description='Do you want to delete all of the selected users ? This action can&apos;t be undone'
-        isOpen={alertOpen}
-        onClose={() => setAlertOpen(false)}
-        onConfirm={onConfirmDelete}
-        loading={loading}
-      />
-
       <div className='w-full flex items-center gap-4 justify-between mb-2'>
         <Input
           placeholder="Search everything..."
@@ -328,7 +178,7 @@ export function EmployeeTable({
         />
 
         <div className={selectedData.length ? 'block' : 'hidden'}>
-          <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} onDelete={() => setAlertOpen(true)} />
+          <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} />
         </div>
       </div>
 
@@ -359,16 +209,14 @@ export function EmployeeTable({
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                 >
-                  {
-                    row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    )
-                    )}
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
                 </TableRow>
               ))
             ) : (

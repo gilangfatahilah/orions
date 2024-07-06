@@ -11,7 +11,7 @@ import { CalendarIcon } from '@radix-ui/react-icons';
 import { addDays, format } from 'date-fns';
 import * as React from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { formatISO } from '@/lib/formatDate'
+import { formatISO } from '@/lib/formatter'
 import { DateRange } from 'react-day-picker';
 import { Icons } from './icons';
 

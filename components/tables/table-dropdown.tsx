@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 interface TableDropdownProps {
-  onDelete: () => void;
+  onDelete?: () => void;
   onDownloadExcel: () => void;
   onDownloadCsv: () => void;
 }
@@ -48,13 +48,16 @@ const TableDropdown = ({ onDelete, onDownloadExcel, onDownloadCsv }: TableDropdo
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
-
-        <DropdownMenuItem className='text-red-600' onClick={() => onDelete()}>
-          Delete
-          <DropdownMenuShortcut>
-            <Icons.trash className="mr-2 h-4 w-4" />
-          </DropdownMenuShortcut>
-        </DropdownMenuItem>
+        {
+          onDelete !== undefined && (
+            <DropdownMenuItem className='text-red-600' onClick={() => onDelete()}>
+              Delete
+              <DropdownMenuShortcut>
+                <Icons.trash className="mr-2 h-4 w-4" />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          )
+        }
       </DropdownMenuContent>
     </DropdownMenu>
   )

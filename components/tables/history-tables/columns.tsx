@@ -104,7 +104,7 @@ export const columns: ColumnDef<History>[] = [
   },
   {
     id: 'actions',
-    header: 'ACTION',
+    header: '•••',
     cell: ({ row }) => <CellAction data={row.original} />
   }
 ];
