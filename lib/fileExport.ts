@@ -11,7 +11,7 @@ export const exportToExcel = async (data: Record<string, string | number>[], tit
     const worksheet = XLSX.utils?.json_to_sheet(data);
     XLSX.utils.book_append_sheet(workbook, worksheet, worksheetName);
     // Save the workbook as an Excel file
-    XLSX.writeFile(workbook, `${title} - ${dateNow}.xlsx`);
+    XLSX.writeFile(workbook, `${title}_${dateNow.replace(/,|\s+/g, '_')}.xlsx`);
   } catch (error) {
     throw new Error('Error when download worksheet');
   }
@@ -38,7 +38,7 @@ export const exportCSV = (jsonData: Array<{ [key: string]: string | number }>, f
 
   const a = document.createElement('a');
   a.setAttribute('href', url);
-  a.setAttribute('download', `${filename}-${dateNow}.csv`);
+  a.setAttribute('download', `${filename}_${dateNow.replace(/,|\s+/g, '_')}.csv`);
   a.click();
 
   window.URL.revokeObjectURL(url);
@@ -55,7 +55,6 @@ export const exportPDF = (data: Record<string, string | number>[], title: string
 
     doc.setFontSize(14)
 
-    // Dynamically generate table headers from the object keys
     const tableColumn = Object.keys(data[0]);
     const tableRows = data.map(data => tableColumn.map(key => data[key]));
 
@@ -66,5 +65,5 @@ export const exportPDF = (data: Record<string, string | number>[], title: string
       startY: 50,
     });
     doc.text(title, marginLeft, 40);
-    doc.save(`${filename}-${dateNow}.pdf`);
+    doc.save(`${filename}_${dateNow.replace(/,|\s+/g, '_')}.pdf`);
 }

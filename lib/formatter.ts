@@ -8,9 +8,7 @@ export const formatDate = (date: Date) => {
 };
 
 export const formatISO = (date: Date): string => {
-
   const timezoneOffset = date.getTimezoneOffset() * 60000;
-
   const utcDate = new Date(date.getTime() - timezoneOffset);
 
   return utcDate.toISOString();
@@ -23,4 +21,11 @@ export const formatCurrency = (currency: number): string => {
   })
 
   return formatCurrency.format(currency);
+}
+
+export const parseCurrency = (currency: string): number => {
+  const numberString = currency.replace(/Rp\s?|\.|,/g, '');
+  const number = parseInt(numberString);
+  
+  return number;
 }

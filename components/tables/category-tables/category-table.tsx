@@ -38,6 +38,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Category } from '@/constants/data';
 import { deleteSeveralCategory } from '@/services/category.service';
 import { useToast } from '@/components/ui/use-toast';
+import FileImport from '@/components/file-import';
 
 
 interface DataTableProps<TData extends Category, TValue> {
@@ -197,6 +198,8 @@ export function CategoryTable<TData extends Category, TValue>({
           }}
           className="w-full md:max-w-sm"
         />
+
+          <FileImport />
 
         <Button onClick={() => setAlertOpen(true)} className={selectedData.length ? 'block' : 'hidden'} variant={'destructive'}>
           <Icons.trash className='w-4 h-4' />

@@ -115,7 +115,7 @@ export default async function page({ searchParams }: paramsProps) {
     }
   });
 
-  const historyTotalCount = await prisma.history.count({ where: { table: 'Item', } });
+  const historyTotalCount = await prisma.history.count({ where: { table: 'User', } });
   const historyPageCount = Math.ceil(historyTotalCount / pageLimit);
 
   return (
