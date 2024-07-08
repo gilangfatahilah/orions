@@ -3,12 +3,14 @@
 import prisma from "@/lib/db";
 import { Transaction } from "@prisma/client";
 
-interface TransactionParams {
+export interface TransactionParams {
   type: 'ISSUING' | 'RECEIVING';
   supplierId?: string;
   outletId?: string;
   userId?: string;
   user: string;
+  total: number;
+  date: Date;
   items: {
     id: string;
     quantity: number;
@@ -16,29 +18,14 @@ interface TransactionParams {
 }
 
 export const createTransaction = async (
-  { type, supplierId, outletId, items, userId, user }:
+  { type, supplierId, outletId, date, total, items, userId, user }:
   TransactionParams): Promise<Transaction | null> => {
-  
-  let totalPrice = 0;
-
-  for (const item of items) {
-    const itemData = await prisma.item.findUnique({
-      where: {
-        id: item.id,
-      }
-    });
-
-    if (!itemData) {
-      throw new Error(`Item with ID ${item.id} not found`)
-    }
-
-    totalPrice += itemData.price * item.quantity;
-  }
 
   const transaction = await prisma.transaction.create({
     data: {
       type: type,
-      totalPrice: totalPrice,
+      totalPrice: total,
+      transactionDate: date,
       userId: userId,
       supplierId: type === 'RECEIVING' ? supplierId : null,
       outletId: type === 'ISSUING' ? outletId : null,
@@ -57,7 +44,7 @@ export const createTransaction = async (
       name: type,
       table: 'Transaction',
       oldValue: '-',
-      newValue: totalPrice.toString(),
+      newValue: total.toString(),
       modifiedBy: user,
     },
   })
@@ -65,7 +52,7 @@ export const createTransaction = async (
   for (const item of items) {
     const currentStock = await prisma.stock.findUnique({
       where: {
-        id: item.id,
+        itemId: item.id,
       },
     })
 
@@ -79,7 +66,7 @@ export const createTransaction = async (
 
     await prisma.stock.update({
       where: {
-        id: item.id,
+        itemId: item.id,
       },
       data: {
         quantity: newQuantity,

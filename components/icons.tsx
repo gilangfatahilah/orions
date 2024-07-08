@@ -20,6 +20,7 @@ import {
   Loader2,
   LogIn,
   Layers,
+  Calendar,
   LucideIcon,
   LucideProps,
   Moon,
@@ -50,9 +51,11 @@ import {
   MapPin,
   BadgeDollarSign,
   MoveLeft,
+  ArrowUp10,
   RefreshCw,
   KeyRound,
-  X
+  X,
+  MoreHorizontal
 } from 'lucide-react';
 import google from '@/public/logo/google.svg'
 
@@ -64,6 +67,8 @@ export const Icons = {
   login: LogIn,
   close: X,
   eye: Eye,
+  numberUp: ArrowUp10,
+  calendar: Calendar,
   refresh: RefreshCw,
   spreadsheet: FileSpreadsheet,
   export: FileDown,
@@ -88,6 +93,7 @@ export const Icons = {
   settings: Settings,
   billing: CreditCard,
   ellipsis: MoreVertical,
+  moreHorizontal: MoreHorizontal,
   add: Plus,
   report: BarChart3,
   transaction: ScrollText,

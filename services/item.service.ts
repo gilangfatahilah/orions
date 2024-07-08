@@ -8,6 +8,12 @@ export const createItem = async (data: { name: string, categoryId: string, price
   return await prisma.item.create({
     data: {
       ...data,
+      stock: {
+        create: {
+          quantity: 0,
+          prevQuantity: 0,
+        }
+      },
       history: {
         create: [
           {
@@ -17,6 +23,14 @@ export const createItem = async (data: { name: string, categoryId: string, price
             oldValue: '-',
             newValue: data.name,
             modifiedBy: user,
+          },
+          {
+            field: 'Stock',
+            name: 'quantity',
+            table: 'stock',
+            oldValue: '0',
+            newValue: '0',
+            modifiedBy: user,
           }
         ]
       }
@@ -24,6 +38,9 @@ export const createItem = async (data: { name: string, categoryId: string, price
   });
 };
 
+export const getItems = async (): Promise<Item[] | null> => {
+  return await prisma.item.findMany()
+}
 
 export const getItemById = async (id: string): Promise<Item | null> => {
   return await prisma.item.findUnique({

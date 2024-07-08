@@ -43,7 +43,7 @@ import { deleteSeveralUser } from '@/services/user.service';
 import { useToast } from '@/components/ui/use-toast';
 import TableDropdown from '../table-dropdown';
 import { formatDate } from '@/lib/formatter';
-import { exportToExcel, exportCSV } from '@/lib/fileExport';
+import { exportToExcel, exportCSV, exportPDF } from '@/lib/fileExport';
 
 interface DataTableProps {
   data: Employee[];
@@ -59,7 +59,7 @@ export function EmployeeTable({
   role,
   user,
   pageSizeOptions = [10, 20, 30, 40, 50]
-}: DataTableProps) {
+}: Readonly<DataTableProps>) {
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
@@ -234,37 +234,12 @@ export function EmployeeTable({
   }, [pageIndex, pageSize]);
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
-
-  const onExportExcel = async () => {
-    try {
-      setLoading(true);
-      const dataToExport = selectedData.map((data) => ({
-        name: data.original.name,
-        email: data.original.email,
-        role: data.original.role,
-        date: formatDate(data.original.createdAt),
-      }))
-
-      await exportToExcel(dataToExport, 'data-user', 'user');
-    } catch (error) {
-      // 
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onExportCsv = () => {
-      setLoading(true);
-      const dataToExport = selectedData.map((data) => ({
-        name: data.original.name,
-        email: data.original.email,
-        role: data.original.role,
-        date: formatDate(data.original.createdAt),
-      }))
-
-      exportCSV(dataToExport, 'data-user');
-      setLoading(false);
-  };
+  const dataToExport = selectedData.map((data) => ({
+    name: data.original.name,
+    role: data.original.role,
+    email: data.original.email,
+    joined: formatDate(data.original.createdAt),
+  }));
 
   const onConfirmDelete = async () => {
     try {
@@ -328,7 +303,7 @@ export function EmployeeTable({
         />
 
         <div className={selectedData.length ? 'block' : 'hidden'}>
-          <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} onDelete={() => setAlertOpen(true)} />
+          <TableDropdown data={dataToExport} tableName='User' onDelete={() => setAlertOpen(true)} />
         </div>
       </div>
 

@@ -1,4 +1,6 @@
 import * as XLSX from 'xlsx';
+import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
 import { formatDate } from './formatter';
 
 export const exportToExcel = async (data: Record<string, string | number>[], title: string, worksheetName: string) => {
@@ -11,7 +13,7 @@ export const exportToExcel = async (data: Record<string, string | number>[], tit
     // Save the workbook as an Excel file
     XLSX.writeFile(workbook, `${title} - ${dateNow}.xlsx`);
   } catch (error) {
-    throw error = 'Error when download worksheet';
+    throw new Error('Error when download worksheet');
   }
 }
 
@@ -40,4 +42,29 @@ export const exportCSV = (jsonData: Array<{ [key: string]: string | number }>, f
   a.click();
 
   window.URL.revokeObjectURL(url);
+}
+
+export const exportPDF = (data: Record<string, string | number>[], title: string, filename: string,) => {
+  const unit = "pt";
+    const size = "A4";
+    const orientation = "portrait";
+    const marginLeft = 40;
+
+    const dateNow = formatDate(new Date());
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(14)
+
+    // Dynamically generate table headers from the object keys
+    const tableColumn = Object.keys(data[0]);
+    const tableRows = data.map(data => tableColumn.map(key => data[key]));
+
+    // @ts-ignore
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 50,
+    });
+    doc.text(title, marginLeft, 40);
+    doc.save(`${filename}-${dateNow}.pdf`);
 }

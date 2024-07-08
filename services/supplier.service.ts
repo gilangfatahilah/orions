@@ -8,6 +8,10 @@ export const createSupplier = async (data: { name: string, address: string, phon
   })
 };
 
+export const getSuppliers = async (): Promise<Supplier[]| null> => {
+  return await prisma.supplier.findMany();
+}
+
 export const getSupplierById = async (id: string): Promise<Supplier | null> => {
   return await prisma.supplier.findUnique({
     where: { id }

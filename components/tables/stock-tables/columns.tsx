@@ -52,7 +52,7 @@ export const columns: ColumnDef<Stock>[] = [
     id: 'status',
     header: 'STATUS',
     cell: ({ row }) => {
-      if (row.original.quantity < 5) { return "Low Stock" }
+      if (row.original.quantity < 5 && row.original.quantity >= 1) { return "Low Stock" }
       else if (row.original.quantity === 0) { return "Empty Stock" }
       else { return "Available Stock" }
     }

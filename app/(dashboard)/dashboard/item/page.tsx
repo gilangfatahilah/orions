@@ -33,6 +33,9 @@ export default async function page({ searchParams }: paramsProps) {
   const pageLimit = Number(searchParams.limit) || 10;
   const offset = (page - 1) * pageLimit;
   const search = searchParams.search ? String(searchParams.search) : '';
+  const startDate = searchParams.startDate ? String(searchParams.startDate) : '';
+  const endDate = searchParams.endDate ? String(searchParams.endDate) : '';
+
 
   const item = await prisma.item.findMany({
     skip: offset,
@@ -86,6 +89,18 @@ export default async function page({ searchParams }: paramsProps) {
             ],
           }
           : {}
+      ),
+      ...(
+        startDate && endDate ? {
+          OR: [
+            {
+              createdAt: {
+                gte: new Date(startDate),
+                lte: new Date(endDate),
+              }
+            }
+          ]
+        } : {}
       ),
       table: 'Item',
     },

@@ -34,7 +34,6 @@ import { createItem, updateItem, deleteItem } from '@/services/item.service';
 import { getCategory } from '@/services/category.service';
 import { NumericFormat } from 'react-number-format';
 
-export const IMG_MAX_LIMIT = 1;
 const formSchema = z.object({
   name: z
     .string()
@@ -86,7 +85,6 @@ export const ItemForm = (
     )
   };
 
-  // get option data from category
   useEffect(() => {
     const fetchCategories = async () => {
       const categories = await getCategory();
@@ -166,6 +164,8 @@ export const ItemForm = (
         });
       }
     } catch (error: any) {
+      console.log(error.message);
+
       toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.',

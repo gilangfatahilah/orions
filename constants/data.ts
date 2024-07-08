@@ -70,6 +70,15 @@ export type History = {
   createdAt: Date,
 }
 
+export type Transaction = {
+  id: string,
+  name: string,
+  image?: string,
+  quantity: number,
+  pricePerItem: number,
+  priceFinal: number,
+}
+
 export const navItems: NavItem[] = [
   {
     title: 'Dashboard',

@@ -8,6 +8,10 @@ export const createOutlet = async (data: { name: string, address: string, phone:
   })
 };
 
+export const getOutlets = async (): Promise<Outlet[]| null> => {
+  return await prisma.outlet.findMany();
+}
+
 export const getOutletById = async (id: string): Promise<Outlet | null> => {
   return await prisma.outlet.findUnique({
     where: { id }

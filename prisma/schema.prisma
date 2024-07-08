@@ -115,7 +115,7 @@ model History {
 }
 
 model Stock {
-  id           String    @id @unique
+  id           String    @id @default(uuid())
   quantity     Int
   prevQuantity Int
   itemId       String    @unique
@@ -150,18 +150,19 @@ model Outlet {
 }
 
 model Transaction {
-  id         String              @id @default(uuid())
-  type       TransactionType
-  totalPrice Int
-  supplierId String?
-  userId     String?
-  outletId   String?
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime?           @updatedAt
-  user       User?               @relation(fields: [userId], references: [id])
-  supplier   Supplier?           @relation(fields: [supplierId], references: [id])
-  outlet     Outlet?             @relation(fields: [outletId], references: [id])
-  detail     TransactionDetail[]
+  id              String              @id @default(uuid())
+  type            TransactionType
+  totalPrice      Int
+  transactionDate DateTime            
+  supplierId      String?
+  userId          String?
+  outletId        String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime?           @updatedAt
+  user            User?               @relation(fields: [userId], references: [id])
+  supplier        Supplier?           @relation(fields: [supplierId], references: [id])
+  outlet          Outlet?             @relation(fields: [outletId], references: [id])
+  detail          TransactionDetail[]
 }
 
 enum TransactionType {

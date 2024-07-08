@@ -139,41 +139,14 @@ export function HistoryTable<TData extends History, TValue>({
   });
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
-
-  const onExportExcel = async () => {
-    try {
-      setLoading(true);
-      const dataToExport = selectedData.map((data) => ({
-        name: data.original.name,
-        field: data.original.field,
-        from: data.original.oldValue,
-        to: data.original.newValue,
-        modifiedBy: data.original.modifiedBy,
-        date: formatDate(data.original.createdAt),
-      }))
-
-      await exportToExcel(dataToExport, 'history', 'history');
-    } catch (error) {
-      // 
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onExportCsv = () => {
-    setLoading(true);
-    const dataToExport = selectedData.map((data) => ({
-      name: data.original.name,
-      field: data.original.field,
-      from: data.original.oldValue,
-      to: data.original.newValue,
-      modifiedBy: data.original.modifiedBy,
-      date: formatDate(data.original.createdAt),
-    }))
-
-    exportCSV(dataToExport, 'history');
-    setLoading(false);
-  };
+  const dataToExport = selectedData.map((data) => ({
+    name: data.original.name,
+    field: data.original.field,
+    from: data.original.oldValue,
+    to: data.original.newValue,
+    modifiedBy: data.original.modifiedBy,
+    date: formatDate(data.original.createdAt),
+  }))
 
   const onFilterDate = ({from, to}: {from: string, to: string}): void => {
     router.push(`${pathname}?${createQueryString({
@@ -247,7 +220,7 @@ export function HistoryTable<TData extends History, TValue>({
           <CalendarDateRangePicker onSelectDate={onFilterDate} />
 
           <div className={selectedData.length ? 'block' : 'hidden'}>
-            <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} onDelete={() => setAlertOpen(true)} />
+            <TableDropdown data={dataToExport} tableName='History' onDelete={() => setAlertOpen(true)} />
           </div>
         </div>
       </div>

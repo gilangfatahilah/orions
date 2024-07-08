@@ -1,10 +1,12 @@
 'use client';
 
+import React from 'react';
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table';
 
@@ -19,14 +21,16 @@ import {
 import { Input } from './input';
 import { Button } from './button';
 import { ScrollArea, ScrollBar } from './scroll-area';
+import { Transaction } from '@/constants/data';
+import { formatCurrency } from '@/lib/formatter';
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends Transaction, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  searchKey: string;
+  searchKey?: string;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends Transaction, TValue>({
   columns,
   data,
   searchKey
@@ -35,23 +39,34 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel()
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: 6 } },
   });
 
   /* this can be used to get the selectedrows 
   console.log("value", table.getFilteredSelectedRowModel()); */
 
+  const dataTable = table.getRowModel().rows;
+  const listTotalPrices = dataTable.map((data) => data.original.priceFinal)
+  
+  const countPrices = listTotalPrices.reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0)
+
   return (
     <>
-      <Input
-        placeholder={`Search ${searchKey}...`}
-        value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ''}
-        onChange={(event) =>
-          table.getColumn(searchKey)?.setFilterValue(event.target.value)
-        }
-        className="w-full md:max-w-sm"
-      />
-      <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">
+      {
+        searchKey && (
+          <Input
+            placeholder={`Search ${searchKey}...`}
+            value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ''}
+            onChange={(event) =>
+              table.getColumn(searchKey)?.setFilterValue(event.target.value)
+            }
+            className="w-full md:max-w-sm"
+          />
+        )
+      }
+      <ScrollArea className="h-full rounded-md border">
         <Table className="relative">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -62,9 +77,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
@@ -104,8 +119,7 @@ export function DataTable<TData, TValue>({
       </ScrollArea>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          Total price : {formatCurrency(countPrices)}
         </div>
         <div className="space-x-2">
           <Button

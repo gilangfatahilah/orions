@@ -6,6 +6,13 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { cn } from '@/lib/utils';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { addDays, format } from 'date-fns';
@@ -79,14 +86,38 @@ export function CalendarDateRangePicker({ onSelectDate }: Readonly<CalendarProps
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
+          <PopoverContent className="flex w-auto flex-col space-y-2 p-2" align="end">
+            <Select
+              onValueChange={(value) =>
+                setDate({
+                  from: addDays(new Date(), parseInt(value)),
+                  to: new Date(),
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value="-1">Tomorrow</SelectItem>
+                <SelectItem value="-3">In 3 days</SelectItem>
+                <SelectItem value="-7">In a week</SelectItem>
+                <SelectItem value="-14">In 2 weeks</SelectItem>
+                <SelectItem value="-30">In a month</SelectItem>
+                <SelectItem value="-90">In 3 months</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Calendar
               initialFocus
               mode="range"
-              defaultMonth={date?.from}
+              defaultMonth={addDays(new Date(), -30)}
               selected={date}
               onSelect={setDate}
               numberOfMonths={2}
+              disabled={(date) =>
+                date > new Date() || date < new Date("1900-01-01")
+              }
             />
           </PopoverContent>
         </Popover>

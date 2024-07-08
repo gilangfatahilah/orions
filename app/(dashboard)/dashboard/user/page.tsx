@@ -5,6 +5,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { columns as historyColumns } from '@/components/tables/history-tables/columns';
+import { HistoryTable } from "@/components/tables/history-tables/history-table";
 import BreadCrumb from '@/components/breadcrumb';
 import { EmployeeTable } from '@/components/tables/employee-tables/employee-table';
 import { buttonVariants } from '@/components/ui/button';
@@ -15,7 +16,6 @@ import { Icons } from '@/components/icons';
 import prisma from '@/lib/db';
 import Link from 'next/link';
 import { auth } from '@/auth';
-import { HistoryTable } from "@/components/tables/history-tables/history-table";
 
 const breadcrumbItems = [{ title: 'User', link: '/dashboard/user' }];
 

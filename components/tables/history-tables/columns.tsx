@@ -4,6 +4,7 @@ import { History } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { formatDate } from '@/lib/formatter';
 
 export const columns: ColumnDef<History>[] = [
   {
@@ -89,17 +90,7 @@ export const columns: ColumnDef<History>[] = [
     accessorKey: 'createdAt',
     header: 'DATE',
     cell: ({ row }) => {
-      const formatDate = (date: Date) => {
-        return new Intl.DateTimeFormat('id-ID', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }).format(date);
-      };
-
-      const date = formatDate(row.original.createdAt);
-      return date;
+      return formatDate(row.original.createdAt);
     }
   },
   {
