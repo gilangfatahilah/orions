@@ -51,7 +51,7 @@ const TableDropdown = ({ onDelete, data, tableName }: TableDropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">Actions</Button>
+        <Button size={'sm'}>Actions</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>Actions</DropdownMenuLabel>

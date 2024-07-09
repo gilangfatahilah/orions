@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -17,7 +16,6 @@ import { DataTable } from '@/components/ui/data-table';
 import { Transaction } from '@/constants/data';
 import { formatCurrency } from '@/lib/formatter';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
 interface TransactionTableProps {
@@ -38,6 +36,12 @@ const CellAction = ({ data, onDeleteRow, onUpdateRow }: CellActionProps) => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [quantity, setQuantity] = React.useState<number>(data.quantity);
 
+  const handleInputChange = (e: any) => {
+    const value = e.target.value;
+
+    setQuantity(value.replace(/^0+/, ''))
+  }
+  
   const handleUpdate = () => {
     onUpdateRow(data.id, quantity);
     setOpenUpdate(false);
@@ -61,10 +65,10 @@ const CellAction = ({ data, onDeleteRow, onUpdateRow }: CellActionProps) => {
       <Dialog open={openUpdate} onOpenChange={() => setOpenUpdate(!openUpdate)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit quantity</DialogTitle>
+            <DialogTitle>Update quantity</DialogTitle>
           </DialogHeader>
           <div>
-            <Input type="number" onChange={(e) => setQuantity(Number(e.target.value))} value={quantity} />
+            <Input type="number" min={1} onChange={handleInputChange} value={quantity} />
           </div>
           <DialogFooter>
             <Button onClick={handleUpdate}>Save changes</Button>

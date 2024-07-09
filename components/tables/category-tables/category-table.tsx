@@ -36,9 +36,11 @@ import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Category } from '@/constants/data';
-import { deleteSeveralCategory } from '@/services/category.service';
+import { createSeveralCategory, deleteSeveralCategory } from '@/services/category.service';
 import { useToast } from '@/components/ui/use-toast';
 import FileImport from '@/components/file-import';
+import ImportExcel from '@/components/file-import';
+import TableDropdown from '../table-dropdown';
 
 
 interface DataTableProps<TData extends Category, TValue> {
@@ -46,12 +48,14 @@ interface DataTableProps<TData extends Category, TValue> {
   data: TData[];
   pageSizeOptions?: number[];
   pageCount: number;
+  user: string;
 }
 
 export function CategoryTable<TData extends Category, TValue>({
   columns,
   data,
   pageCount,
+  user,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
@@ -137,12 +141,16 @@ export function CategoryTable<TData extends Category, TValue>({
   });
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
+  const dataToExport = selectedData.map((data) => ({
+    name: data.original.name,
+    code: data.original.code ?? '-',
+  }))
 
   const onConfirmDelete = async () => {
     try {
       setLoading(true);
       const idToDelete = selectedData.map((data) => data.original.id);
-      const response = await deleteSeveralCategory(idToDelete);
+      const response = await deleteSeveralCategory(idToDelete, user);
 
       if (!response) {
         return toast({
@@ -170,6 +178,47 @@ export function CategoryTable<TData extends Category, TValue>({
       setLoading(false);
     }
   }
+
+  const handleImportExcel = async(data: Record<string, string | number>[]): Promise<void> => {
+    try {
+      setLoading(true);
+
+      const dataHeader = Object.keys(data[0]);
+      const requiredHeaders = ["name", "code"]
+      const isHeaderMatch = requiredHeaders.every(header => dataHeader.includes(header));
+
+      if(!isHeaderMatch) {
+        toast({
+          variant: 'destructive',
+          title: 'Failed to import data, the header does not match with the table.'
+        })
+        return;
+      }
+
+      const dataToImport = data.map((d) => ({
+        code: d.code as string ?? null,
+        name: d.name as string,
+      }))
+
+      const response = await createSeveralCategory(dataToImport, user);
+
+      if(response){
+        toast({
+          title: 'Import Success!'
+        })
+        return;
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.'
+      })
+    }finally{
+      setLoading(false)
+
+      router.refresh();
+    }
+  };
 
   return (
     <>
@@ -199,11 +248,13 @@ export function CategoryTable<TData extends Category, TValue>({
           className="w-full md:max-w-sm"
         />
 
-          <FileImport />
+        <div className='flex items-center gap-2 flex-wrap mb-2 '>
+          <ImportExcel onSubmit={handleImportExcel} />
 
-        <Button onClick={() => setAlertOpen(true)} className={selectedData.length ? 'block' : 'hidden'} variant={'destructive'}>
-          <Icons.trash className='w-4 h-4' />
-        </Button>
+          <div className={selectedData.length ? 'block' : 'hidden'}>
+            <TableDropdown data={dataToExport} tableName='Category' onDelete={() => setAlertOpen(true)} />
+          </div>
+        </div>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

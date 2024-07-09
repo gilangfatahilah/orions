@@ -39,10 +39,11 @@ interface CategoryFormProps {
     name: string;
     code?: string;
   }
+  user: string
 }
 
 export const CategoryForm = (
-  { initialData }: CategoryFormProps
+  { initialData, user }: CategoryFormProps
 ) => {
   const router = useRouter();
   const { toast } = useToast();
@@ -72,7 +73,7 @@ export const CategoryForm = (
     try {
       setLoading(true);
       if (initialData) {
-        const response = await updateCategory(initialData.id, { name: data.name, code: data.code ?? undefined });
+        const response = await updateCategory(initialData.id, { name: data.name, code: data.code ?? undefined }, user);
 
         if (!response) {
           return toast({
@@ -89,7 +90,7 @@ export const CategoryForm = (
         })
       }
 
-      const response = await createCategory({ name: data.name, code: data.code ?? undefined });
+      const response = await createCategory({ name: data.name, code: data.code ?? undefined }, user);
 
       if (!response) {
         return toast({
@@ -121,7 +122,7 @@ export const CategoryForm = (
     try {
       setLoading(true);
 
-      const response = await deleteCategory(initialData?.id as string);
+      const response = await deleteCategory(initialData?.id as string, user);
 
       if (!response) {
         return toast({

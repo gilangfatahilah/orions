@@ -33,7 +33,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await deleteCategory(data.id);
+      await deleteCategory(data.id, session?.user.name as string);
 
       toast({
         title: "Success, category has been deleted."

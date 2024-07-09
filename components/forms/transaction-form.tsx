@@ -56,6 +56,7 @@ const formSchema = z.object({
   type: z.enum(["ISSUING", "RECEIVING"]),
   supplier: z.string().optional(),
   outlet: z.string().optional(),
+  letter: z.string().min(6, 'Transaction letter code must have at least 6 characters'),
   quantity: z.number().optional(),
   transactionDate: z.date(),
   item: z.string().optional().refine(value => value !== undefined, {
@@ -85,6 +86,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
     type: 'RECEIVING',
     supplier: '',
     item: '',
+    letter: '',
     outlet: '',
     quantity: 1,
     transactionDate: new Date(),
@@ -158,17 +160,17 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
         ) : input === 'item' ? (
           <>
             <Icons.item className='w-4 h-4' />
-            <span>{valueToRender ?? 'Select an item'}</span>
+            <span>{valueToRender ?? 'Select item'}</span>
           </>
         ) : input === 'supplier' ? (
           <>
             <Icons.supplier className='w-4 h-4' />
-            <span>{valueToRender ?? 'Select an supplier'}</span>
+            <span>{valueToRender ?? 'Select supplier'}</span>
           </>
         ) : (
           <>
             <Icons.outlet className='w-4 h-4' />
-            <span>{valueToRender ?? 'Select an outlet'}</span>
+            <span>{valueToRender ?? 'Select outlet'}</span>
           </>
         )}
       </div>
@@ -249,7 +251,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
     }
   }
 
-  const handleSubmit = async(data: TransactionFormValues) => {
+  const handleSubmit = async (data: TransactionFormValues) => {
     try {
       setLoading(true);
 
@@ -260,6 +262,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
         type: data.type,
         supplierId: data.type === 'RECEIVING' ? data.supplier : undefined,
         outletId: data.type === 'ISSUING' ? data.outlet : undefined,
+        letterCode: data.letter,
         userId: user.id,
         user: user.name,
         total: totalPrices,
@@ -272,7 +275,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
 
       const response = await createTransaction(dataToAssign);
 
-      if (response){        
+      if (response) {
         toast({
           title: 'Success add transaction.'
         })
@@ -280,10 +283,10 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
 
     } catch (error) {
       toast({
-        variant:'destructive',
+        variant: 'destructive',
         title: 'Failed to add new transaction, please check your connection and try again'
       })
-    }finally{
+    } finally {
       setLoading(false);
     }
   }
@@ -456,6 +459,29 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
 
             <FormField
               control={form.control}
+              name="letter"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <div className='relative'>
+                      <Icons.pens className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                      <Input
+                        type="text"
+                        placeholder="Enter transaction letter code"
+                        disabled={loading}
+                        className='pl-10 placeholder:text-primary'
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name='item'
               render={({ field }) => (
                 <FormItem>
@@ -505,6 +531,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                       <Input
                         type="number"
                         min={1}
+                        max={20}
                         placeholder="Enter item quantity"
                         disabled={loading || form.watch('item') === ''}
                         className='pl-10'

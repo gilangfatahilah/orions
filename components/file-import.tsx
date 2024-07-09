@@ -7,10 +7,10 @@ import { AlertModal } from './modal/alert-modal';
 import { importExcelData } from '@/lib/fileImport';
 
 interface ImportExcelProps {
-  onSubmit: (data: any[]) => void;
+  onSubmit: (data: any[]) => Promise<void>;
 }
 
-const ImportExcel = () => {
+const ImportExcel = ({onSubmit}: ImportExcelProps) => {
   const { toast } = useToast();
 
   const [fileName, setFileName] = React.useState<string>('');
@@ -33,15 +33,22 @@ const ImportExcel = () => {
   };
 
   const handleFileSubmit = async () => {
-    const data = await importExcelData(file as File);
-
-    console.log(data);
+    try {      
+      setLoading(true);
+      const data = await importExcelData(file as File);
+      await onSubmit(data);
+    } catch (error) {
+      // 
+    }finally{
+      setLoading(false);
+      setOpenModal(false);
+    }
   }
 
   return (
     <>
       <AlertModal
-        description={`Are you sure you want to import data from : "${fileName}" to this table ?`}
+        description={`Are you sure you want to import data from "${fileName}" to this table ?`}
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
         onConfirm={handleFileSubmit}
@@ -51,7 +58,7 @@ const ImportExcel = () => {
       <div className="flex flex-col items-center">
         <Label
           htmlFor="file-upload"
-          className="h-7 flex items-center my-auto rounded-md px-2 py-3 text-xs border border-dashed border-input cursor-pointer bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground"
+          className="h-8 flex items-center my-auto rounded-md px-3 text-xs border border-dashed border-input cursor-pointer bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground"
         >
           <div className='flex items-center'>
             <Icons.import className="w-3 h-3 mr-2" />

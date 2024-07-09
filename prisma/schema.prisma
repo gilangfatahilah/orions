@@ -153,7 +153,8 @@ model Transaction {
   id              String              @id @default(uuid())
   type            TransactionType
   totalPrice      Int
-  transactionDate DateTime            
+  transactionDate DateTime
+  letterCode      String
   supplierId      String?
   userId          String?
   outletId        String?

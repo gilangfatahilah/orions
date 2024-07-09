@@ -29,7 +29,7 @@ const EditCategoryPage = async ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <CategoryForm initialData={data}/>
+      <CategoryForm initialData={data} user={session?.user.name as string}/>
     </div>
   )
 }

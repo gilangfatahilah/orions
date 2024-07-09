@@ -8,6 +8,7 @@ export interface TransactionParams {
   supplierId?: string;
   outletId?: string;
   userId?: string;
+  letterCode: string;
   user: string;
   total: number;
   date: Date;
@@ -18,7 +19,7 @@ export interface TransactionParams {
 }
 
 export const createTransaction = async (
-  { type, supplierId, outletId, date, total, items, userId, user }:
+  { type, supplierId, outletId, date, total, letterCode, items, userId, user }:
   TransactionParams): Promise<Transaction | null> => {
 
   const transaction = await prisma.transaction.create({
@@ -26,6 +27,7 @@ export const createTransaction = async (
       type: type,
       totalPrice: total,
       transactionDate: date,
+      letterCode: letterCode,
       userId: userId,
       supplierId: type === 'RECEIVING' ? supplierId : null,
       outletId: type === 'ISSUING' ? outletId : null,

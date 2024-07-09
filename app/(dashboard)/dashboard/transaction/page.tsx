@@ -35,6 +35,9 @@ const transactionPage = async () => {
         <TabsContent value="transaction">
           <TransactionForm user={userSession} />
         </TabsContent>
+        <TabsContent value="history">
+          acumalaka
+        </TabsContent>
       </Tabs>
     </div>
   )
