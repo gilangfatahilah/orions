@@ -79,6 +79,26 @@ export type Transaction = {
   priceFinal: number,
 }
 
+export type TransactionHistory = {
+  id: string,
+  type: 'ISSUING' | 'RECEIVING',
+  transactionDate: Date,
+  letterCode: string,
+  totalPrice: number,
+  supplier: {
+    id: string,
+    name: string,
+  } | null,
+  outlet: {
+    id: string,
+    name: string,
+  } | null,
+  user: {
+    id: string,
+    name: string,
+  } | null
+}
+
 export const navItems: NavItem[] = [
   {
     title: 'Dashboard',

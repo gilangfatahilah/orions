@@ -38,7 +38,7 @@ import { formatDate } from '@/lib/formatter';
 import { getSuppliers } from '@/services/supplier.service';
 import { getOutlets } from '@/services/outlet.service';
 import { Transaction } from '@/constants/data';
-import { TransactionTable } from '../tables/transaction-tables';
+import { TransactionTable } from '../tables/transaction-tables/form-table';
 
 interface TransactionFormProps {
   user: {
@@ -57,8 +57,7 @@ const formSchema = z.object({
   supplier: z.string().optional(),
   outlet: z.string().optional(),
   letter: z.string().min(6, 'Transaction letter code must have at least 6 characters'),
-  quantity: z.number().optional(),
-  transactionDate: z.date(),
+  quantity: z.number().optional().or(z.nan()).transform((val) => val || 0),  transactionDate: z.date(),
   item: z.string().optional().refine(value => value !== undefined, {
     message: 'Item is required'
   }),
@@ -88,7 +87,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
     item: '',
     letter: '',
     outlet: '',
-    quantity: 1,
+    quantity: 0,
     transactionDate: new Date(),
   };
 
@@ -295,7 +294,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className='w-full flex flex-col justify-between space-y-8'>
 
-        <div className='w-full md:grid md:grid-cols-5 gap-8'>
+        <div className='w-full md:grid md:grid-cols-4 gap-8'>
 
           <div className='col-span-2 flex flex-col gap-4'>
             <FormField
@@ -470,7 +469,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                         type="text"
                         placeholder="Enter transaction letter code"
                         disabled={loading}
-                        className='pl-10 placeholder:text-primary'
+                        className='pl-10'
                         {...field}
                       />
                     </div>
@@ -530,12 +529,11 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                       <Icons.numberUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                       <Input
                         type="number"
-                        min={1}
-                        max={20}
                         placeholder="Enter item quantity"
                         disabled={loading || form.watch('item') === ''}
                         className='pl-10'
                         {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
                       />
                     </div>
                   </FormControl>
@@ -555,7 +553,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
             }
           </div>
 
-          <div className='w-full grid grid-rows-3 col-span-3'>
+          <div className='w-full grid grid-rows-3 col-span-2'>
             <div className='row-span-2'>
               <FormLabel>List item</FormLabel>
               <TransactionTable data={itemList} onUpdateQuantity={onUpdateQuantity} onRemoveRow={onRemoveItem} />

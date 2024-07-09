@@ -1,4 +1,10 @@
 import React from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Input } from './ui/input';
 import { Icons } from './icons';
 import { Label } from './ui/label';
@@ -10,7 +16,7 @@ interface ImportExcelProps {
   onSubmit: (data: any[]) => Promise<void>;
 }
 
-const ImportExcel = ({onSubmit}: ImportExcelProps) => {
+const ImportExcel = ({ onSubmit }: ImportExcelProps) => {
   const { toast } = useToast();
 
   const [fileName, setFileName] = React.useState<string>('');
@@ -33,13 +39,13 @@ const ImportExcel = ({onSubmit}: ImportExcelProps) => {
   };
 
   const handleFileSubmit = async () => {
-    try {      
+    try {
       setLoading(true);
       const data = await importExcelData(file as File);
       await onSubmit(data);
     } catch (error) {
       // 
-    }finally{
+    } finally {
       setLoading(false);
       setOpenModal(false);
     }
@@ -55,25 +61,34 @@ const ImportExcel = ({onSubmit}: ImportExcelProps) => {
         loading={loading}
       />
 
-      <div className="flex flex-col items-center">
-        <Label
-          htmlFor="file-upload"
-          className="h-8 flex items-center my-auto rounded-md px-3 text-xs border border-dashed border-input cursor-pointer bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground"
-        >
-          <div className='flex items-center'>
-            <Icons.import className="w-3 h-3 mr-2" />
-            <span>Import</span>
-          </div>
-          <Input
-            id="file-upload"
-            name="file-upload"
-            type="file"
-            accept='.xlsx, .xls'
-            className="sr-only"
-            onChange={handleFileChange}
-          />
-        </Label>
-      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex flex-col items-center">
+              <Label
+                htmlFor="file-upload"
+                className="h-8 flex items-center my-auto rounded-md px-3 text-xs border border-dashed border-input cursor-pointer bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground"
+              >
+                <div className='flex items-center'>
+                  <Icons.import className="w-3 h-3 mr-2" />
+                  <span>Import</span>
+                </div>
+                <Input
+                  id="file-upload"
+                  name="file-upload"
+                  type="file"
+                  accept='.xlsx, .xls'
+                  className="sr-only"
+                  onChange={handleFileChange}
+                />
+              </Label>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Add your xlsx data to this table.</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
     </>
   );
