@@ -38,8 +38,12 @@ export const createItem = async (data: { name: string, categoryId: string, price
   });
 };
 
-export const getItems = async (): Promise<Item[] | null> => {
-  return await prisma.item.findMany()
+export const getItems = async () => {
+  return await prisma.item.findMany({
+    include: {
+      stock: true,
+    }
+  })
 }
 
 export const getItemById = async (id: string): Promise<Item | null> => {
@@ -77,7 +81,7 @@ export const updateItem = async (id: string, data: Partial<Item>, user: string):
   if (data.categoryId && data.categoryId !== currentItem.categoryId) {
     const category = await getCategoryById(data.categoryId);
 
-    changes.push({ field: 'Category', oldValue: currentItem.category.name, newValue: category?.name ?? '' });
+    changes.push({ field: 'Category', oldValue: currentItem.category.name ?? '-', newValue: category?.name ?? '' });
   }
   if (data.price !== undefined && data.price !== currentItem.price) {
     changes.push({ field: 'Price', oldValue: currentItem.price, newValue: data.price });
@@ -138,7 +142,6 @@ export const deleteSeveralItem = async (id: string[], user: string) => {
 
 export const deleteItem = async (id: string, user: string): Promise<Item | null> => {
   const currentItem = await getItemById(id);
-
   await prisma.history.create({
     data: {
       field: 'Delete Item',

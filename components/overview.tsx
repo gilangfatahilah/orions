@@ -1,103 +1,67 @@
-'use client';
+"use client"
 
-import { Bar, BarChart, ResponsiveContainer, Tooltip, Legend, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+const chartData = [
+  { month: "January", desktop: 186 },
+  { month: "February", desktop: 305 },
+  { month: "March", desktop: 237 },
+  { month: "April", desktop: 73 },
+  { month: "May", desktop: 209 },
+  { month: "June", desktop: 214 },
+  { month: "July", desktop: 59 },
+  { month: "August", desktop: 90 },
+  { month: "September", desktop: 181 },
+  { month: "October", desktop: 220 },
+  { month: "November", desktop: 198 },
+  { month: "December", desktop: 111 },
+]
 
-const data = [
-  {
-    name: 'Jan',
-    total: Math.floor(Math.random() * 5000) + 1000
+const chartConfig = {
+  desktop: {
+    label: "Stocks",
+    color: "#2761D9",
   },
-  {
-    name: 'Feb',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Mar',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Apr',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'May',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Jun',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Jul',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Aug',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Sep',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Oct',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Nov',
-    total: Math.floor(Math.random() * 5000) + 1000
-  },
-  {
-    name: 'Dec',
-    total: Math.floor(Math.random() * 5000) + 1000
-  }
-];
+} satisfies ChartConfig
 
-export function Overview() {
-  const contentStyle = {
-    width: '150%',
-    backgroundColor: '#000000',
-    padding: 'none',
-    border: '2px solid #27272A',
-    borderRadius: '6px',
-  }
-
-  const labelStyle = {
-    fontSize: '14px',
-    padding: '6px',
-    color: '#fff',
-    fontWeight: '700',
-    borderBottom: '2px solid #27272A'
-  }
-
-  const itemStyle = {
-    fontSize: '12px',
-    padding: '6px',
-    color: '#fff',
-    fontWeight: '500',
-  }
+export const Overview = (data: any) => {
+  console.log(data);
 
   return (
-    <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data}>
+    <ChartContainer className="w-full" config={chartConfig}>
+      <BarChart
+        accessibilityLayer
+        data={chartData}
+        margin={{
+          top: 20,
+        }}
+      >
+        <CartesianGrid vertical={false} />
         <XAxis
-          dataKey="name"
-          stroke="#888888"
-          fontSize={12}
+          dataKey="month"
           tickLine={false}
+          tickMargin={10}
           axisLine={false}
+          tickFormatter={(value) => value.slice(0, 3)}
         />
-        <YAxis
-          stroke="#888888"
-          fontSize={12}
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={(value) => `$${value}`}
+        <ChartTooltip
+          cursor={false}
+          content={<ChartTooltipContent hideLabel />}
         />
-
-        <Tooltip animationEasing='ease-out' animationDuration={400} itemStyle={itemStyle} contentStyle={contentStyle} labelStyle={labelStyle} />
-        <Bar dataKey="total" fill="#1D24CA" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8}>
+          <LabelList
+            position="top"
+            offset={12}
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
       </BarChart>
-    </ResponsiveContainer>
-  );
+    </ChartContainer>
+  )
 }

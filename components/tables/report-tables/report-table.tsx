@@ -9,8 +9,6 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 import React from 'react';
-import { Icons } from '@/components/icons';
-import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -35,31 +33,26 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Outlet } from '@/constants/data';
-import { useToast } from '@/components/ui/use-toast';
-import { deleteSeveralOutlet } from '@/services/outlet.service';
+import { Summary } from '@/constants/data';
+import TableDropdown from '../table-dropdown';
+import { formatCurrency } from '@/lib/formatter';
 
 
-interface DataTableProps<TData extends Outlet, TValue> {
+interface DataTableProps<TData extends Summary, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageSizeOptions?: number[];
-  role: string;
-  user: string;
   pageCount: number;
 }
 
-export function OutletTable<TData extends Outlet, TValue>({
+export function TransactionHistoryTable<TData extends Summary, TValue>({
   columns,
   data,
-  user,
   pageCount,
-  role,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
   const searchParams = useSearchParams();
   // Search params
   const page = searchParams?.get('page') ?? '1';
@@ -72,11 +65,6 @@ export function OutletTable<TData extends Outlet, TValue>({
   const initialSearch = searchParams?.get('search') ?? '';
 
   const [globalFilter, setGlobalFilter] = React.useState<string>('');
-  const [alertOpen, setAlertOpen] = React.useState<boolean>(false);
-  const [loading, setLoading] = React.useState<boolean>(false);
-
-  /* this can be used to get the selectedrows 
-  console.log("value", table.getFilteredSelectedRowModel()); */
 
   // Create query string
   const createQueryString = React.useCallback(
@@ -140,53 +128,20 @@ export function OutletTable<TData extends Outlet, TValue>({
   });
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
-
-  const onConfirmDelete = async () => {
-    try {
-      setLoading(true);
-      const idToDelete = selectedData.map((data) => data.original.id);
-      const response = await deleteSeveralOutlet(idToDelete, user);
-
-      if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
-        });
-      }
-
-      // close and refresh
-      setAlertOpen(false);
-      router.refresh();
-
-      return toast({
-        title: `Success, ${idToDelete.length} outlets has successfully deleted.`,
-      });
-
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
-    } finally {
-      setLoading(false);
-    }
-  }
+  const dataToExport = selectedData.map((data) => ({
+    item: data.original.itemName,
+    itemPrice: formatCurrency(data.original.itemPrice),
+    stockIn: data.original.stockIn,
+    stockOut: data.original.stockOut,
+    finalMonthStock: data.original.finalMonthUnit,
+    finalPrice: data.original.itemPriceTotal,
+  }));
 
   return (
     <>
-      <AlertModal
-        description='Do you want to delete all of the selected outlets ? This action can&apos;t be undone'
-        isOpen={alertOpen}
-        onClose={() => setAlertOpen(false)}
-        onConfirm={onConfirmDelete}
-        loading={loading}
-      />
-
-      <div className='w-full flex items-center gap-4 justify-between'>
+      <div className='w-full flex items-center gap-4 mb-2 justify-between'>
         <Input
-          placeholder="Search category..."
+          placeholder="Search everything..."
           value={globalFilter}
           onChange={(event) => {
             const search = event.target.value;
@@ -202,9 +157,9 @@ export function OutletTable<TData extends Outlet, TValue>({
           className="w-full md:max-w-sm"
         />
 
-        <Button onClick={() => setAlertOpen(true)} className={selectedData.length ? 'block' : 'hidden'} variant={'destructive'}>
-          <Icons.trash className='w-4 h-4' />
-        </Button>
+          <div className={selectedData.length ? 'block' : 'hidden'}>
+            <TableDropdown data={dataToExport} tableName='Transaction' />
+          </div>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

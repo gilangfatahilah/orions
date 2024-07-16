@@ -1,11 +1,11 @@
 'use client';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TransactionHistory } from '@/constants/data';
+import { TransactionDetail } from '@/constants/data';
 import { formatCurrency, formatDate } from '@/lib/formatter';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 
-export const columns: ColumnDef<TransactionHistory>[] = [
+export const columns: ColumnDef<TransactionDetail>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -58,18 +58,20 @@ export const columns: ColumnDef<TransactionHistory>[] = [
     }
   },
   {
-    accessorKey: 'supplier.name',
-    header: 'SUPPLIER',
+    id: 'supplierOutlet',
+    header: 'SUPPLIER / OUTLET',
     cell: ({ row }) => {
-      return row.original.supplier?.name ?? '-';
+      if (row.original.type === 'RECEIVING')
+        return row.original.supplier?.name ?? '-';
+      return row.original.outlet?.name ?? '-';
     }
   },
   {
-    accessorKey: 'outlet.name',
-    header: 'OUTLET',
+    accessorKey: 'user.name',
+    header: 'MANAGE BY',
     cell: ({ row }) => {
-      return row.original.outlet?.name ?? '-';
-    }
+      return row.original.user.name;
+    },
   },
   {
     id: 'actions',

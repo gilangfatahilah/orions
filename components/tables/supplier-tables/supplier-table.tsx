@@ -45,6 +45,7 @@ interface DataTableProps<TData extends Supplier, TValue> {
   data: TData[];
   pageSizeOptions?: number[];
   role: string;
+  user: string;
   pageCount: number;
 }
 
@@ -52,6 +53,7 @@ export function SupplierTable<TData extends Supplier, TValue>({
   columns,
   data,
   pageCount,
+  user,
   role,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
@@ -143,7 +145,7 @@ export function SupplierTable<TData extends Supplier, TValue>({
     try {
       setLoading(true);
       const idToDelete = selectedData.map((data) => data.original.id);
-      const response = await deleteSeveralSupplier(idToDelete);
+      const response = await deleteSeveralSupplier(idToDelete, user);
 
       if (!response) {
         return toast({

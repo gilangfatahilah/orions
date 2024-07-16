@@ -54,26 +54,20 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
     select: {
       id: true,
       type: true,
-      transactionDate: true,
-      letterCode: true,
       totalPrice: true,
+      letterCode: true,
+      transactionDate: true,
       supplier: {
-        select: {
-          id: true,
-          name: true,
-        }
+        select: { id: true, name: true, address: true, phone: true }
       },
       outlet: {
-        select: {
-          id: true,
-          name: true,
-        }
+        select: { id: true, name: true, address: true, phone: true }
       },
       user: {
-        select: {
-          id: true,
-          name: true
-        }
+        select: { id: true, name: true }
+      },
+      detail: {
+        select: { id: true, quantity: true, item: { select: { id: true, image: true, name: true, price: true } } }
       }
     },
     orderBy: {

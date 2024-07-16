@@ -245,7 +245,7 @@ export function CategoryTable<TData extends Category, TValue>({
             setGlobalFilter(search);
             router.push(`${pathname}?${params.toString()}`);
           }}
-          className="w-full md:max-w-sm"
+          className="w-full md:max-w-sm mb-2"
         />
 
         <div className='flex items-center gap-2 flex-wrap mb-2 '>

@@ -32,7 +32,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await deleteOutlet(data.id);
+      await deleteOutlet(data.id, session?.user.name as string);
 
       toast({
         title: "Success, outlet has been deleted."

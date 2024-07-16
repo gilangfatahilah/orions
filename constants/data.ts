@@ -47,7 +47,7 @@ export type Item = {
   image: string | null,
   category: {
     name: string,
-  }
+  } | null,
 }
 
 export type Stock = {
@@ -97,6 +97,52 @@ export type TransactionHistory = {
     id: string,
     name: string,
   } | null
+}
+
+export type TransactionDetail = {
+  id: string,
+  type: 'ISSUING' | 'RECEIVING',
+  transactionDate: Date,
+  letterCode: string,
+  totalPrice: number,
+  supplier: {
+    id: string,
+    name: string,
+    address: string,
+    phone: string,
+  } | null,
+  outlet: {
+    id: string,
+    name: string,
+    address: string,
+    phone: string,
+  } | null,
+  user: {
+    id: string,
+    name: string,
+  }
+  detail: {
+    id: string,
+    quantity: number,
+    item: {
+      image: string | null,
+      id: string,
+      name: string,
+      price: number,
+    }
+  }[],
+}
+
+export type Summary = {
+  finalMonthUnit: number,
+  itemCode: string,
+  itemName: string,
+  itemPrice: number,
+  itemPriceTotal: number,
+  month: number,
+  stockIn: number,
+  stockOut: number,
+  year: number,
 }
 
 export const navItems: NavItem[] = [

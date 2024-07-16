@@ -43,10 +43,11 @@ interface SupplierFormProps {
     phone?: string;
     email?: string;
   }
+  user: string;
 }
 
 export const SupplierForm = (
-  { initialData }: SupplierFormProps
+  { initialData, user }: SupplierFormProps
 ) => {
   const router = useRouter();
   const { toast } = useToast();
@@ -86,7 +87,7 @@ export const SupplierForm = (
             address: data.address,
             phone: `+62${data.phone}`,
             email: data.email ?? undefined
-          });
+          }, user);
 
         if (!response) {
           return toast({
@@ -109,7 +110,7 @@ export const SupplierForm = (
           address: data.address,
           phone: `+62${data.phone}`,
           email: data.email ?? undefined,
-        });
+        }, user);
 
       if (!response) {
         return toast({
@@ -141,7 +142,7 @@ export const SupplierForm = (
     try {
       setLoading(true);
 
-      const response = await deleteSupplier(initialData?.id as string);
+      const response = await deleteSupplier(initialData?.id as string, user);
 
       if (!response) {
         return toast({

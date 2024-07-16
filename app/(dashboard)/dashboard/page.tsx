@@ -1,27 +1,59 @@
 import { auth } from '@/auth';
 import { CalendarDateRangePicker } from '@/components/date-range-picker';
 import { Overview } from '@/components/overview';
-import { RecentSales } from '@/components/recent-sales';
+import { TotalStocks } from '@/components/totalStocks';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import prisma from '@/lib/db';
+import { getRandomColor } from '@/lib/randomColor';
+import { getStockSummary } from '@/services/transaction.service';
 
 export default async function page() {
   const session = await auth();
 
-  const getFirstWord= (str: string): string => {
-    // Split the string by spaces
+
+  const data = await getStockSummary();
+  const dataItem = await prisma.item.findMany({
+    select: {
+      id: true,
+      name: true,
+      stock: {
+        select: {
+          quantity: true,
+        }
+      }
+    }
+  });
+
+  const sortedItems = dataItem
+    .map((item) => ({
+      label: item.name,
+      value: item.stock?.quantity ?? 0,
+    }))
+    .sort((a, b) => b.value - a.value);
+
+  const top5Items = sortedItems.slice(0, 5);
+  const othersQuantity = sortedItems.slice(5).reduce((sum, item) => sum + item.value, 0);
+
+  const colors = ['#2463EB', '#60A8FB', '#3B86F7', '#91C6FE', '#BDDCFE', '#5AB2FF'];
+
+  const chartData = [
+    ...top5Items.map((item, index) => ({ ...item, fill: colors[index] })),
+    { label: 'others', value: othersQuantity, fill: colors[5] },
+  ];
+
+  const getFirstWord = (str: string): string => {
     const words = str.split(' ');
-    // Return the first word, if there is one
+
     return words.length > 0 ? words[0] : '';
-}
+  }
 
   return (
     <ScrollArea className="h-full">
@@ -38,6 +70,7 @@ export default async function page() {
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -149,20 +182,12 @@ export default async function page() {
                   <CardTitle>Overview</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <Overview />
+                  <Overview data={data} />
                 </CardContent>
               </Card>
-              <Card className="col-span-4 md:col-span-3">
-                <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
-                  <CardDescription>
-                    You made 265 sales this month.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RecentSales />
-                </CardContent>
-              </Card>
+              <div className='col-span-4 md:col-span-3'>
+                <TotalStocks data={chartData} />
+              </div>
             </div>
           </TabsContent>
         </Tabs>

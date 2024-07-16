@@ -7,7 +7,7 @@ export interface TransactionParams {
   type: 'ISSUING' | 'RECEIVING';
   supplierId?: string;
   outletId?: string;
-  userId?: string;
+  userId: string;
   letterCode: string;
   user: string;
   total: number;
@@ -18,9 +18,22 @@ export interface TransactionParams {
   }[];
 }
 
+interface StockSummary {
+  itemName: string;
+  itemCode: string;
+  itemPrice: number;
+  stockIn: number;
+  stockOut: number;
+  firstMonthUnit: number;
+  finalMonthUnit: number;
+  itemPriceTotal: number;
+  month: number;
+  year: number;
+}
+
 export const createTransaction = async (
   { type, supplierId, outletId, date, total, letterCode, items, userId, user }:
-  TransactionParams): Promise<Transaction | null> => {
+    TransactionParams): Promise<Transaction | null> => {
 
   const transaction = await prisma.transaction.create({
     data: {
@@ -96,3 +109,85 @@ export const createTransaction = async (
 
   return transaction;
 }
+
+export const getTransactionDetail = async (id: string) => {
+  return await prisma.transaction.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      totalPrice: true,
+      letterCode: true,
+      transactionDate: true,
+      supplier: {
+        select: { id: true, name: true, address: true, phone: true }
+      },
+      outlet: {
+        select: { id: true, name: true, address: true, phone: true }
+      },
+      user: {
+        select: { id: true, name: true }
+      },
+      detail: {
+        select: { id: true, quantity: true, item: { select: { id: true, image: true, name: true, price: true } } }
+      }
+    }
+  });
+}
+
+export const getStockSummary = async (): Promise<StockSummary[]> => {
+  const items = await prisma.item.findMany({
+    include: {
+      transactions: {
+        include: {
+          transaction: true,
+        },
+      },
+    },
+  });
+
+  const stockSummary: StockSummary[] = items.flatMap(item => {
+    const sortedTransactions = item.transactions.sort(
+      (a, b) => a.transaction.transactionDate.getTime() - b.transaction.transactionDate.getTime()
+    );
+
+    let currentStock = 0;
+    const monthlySummary = sortedTransactions.reduce<Record<string, StockSummary>>((acc, td) => {
+      const month = td.transaction.transactionDate.getMonth() + 1; // getMonth() returns 0-11
+      const year = td.transaction.transactionDate.getFullYear();
+
+      const key = `${year}-${month}`;
+      if (!acc[key]) {
+        acc[key] = {
+          itemName: item.name,
+          itemCode: item.id,
+          itemPrice: item.price,
+          firstMonthUnit: currentStock,
+          stockIn: 0,
+          stockOut: 0,
+          finalMonthUnit: 0,
+          itemPriceTotal: 0,
+          month,
+          year,
+        };
+      }
+
+      if (td.transaction.type === 'RECEIVING') {
+        acc[key].stockIn += td.quantity;
+        currentStock += td.quantity;
+      } else if (td.transaction.type === 'ISSUING') {
+        acc[key].stockOut += td.quantity;
+        currentStock -= td.quantity;
+      }
+
+      acc[key].finalMonthUnit = currentStock;
+      acc[key].itemPriceTotal = acc[key].itemPrice * acc[key].finalMonthUnit;
+
+      return acc;
+    }, {});
+
+    return Object.values(monthlySummary);
+  });
+
+  return stockSummary;
+};

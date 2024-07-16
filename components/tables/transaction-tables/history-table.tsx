@@ -33,12 +33,12 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { TransactionHistory } from '@/constants/data';
+import { TransactionDetail } from '@/constants/data';
 import TableDropdown from '../table-dropdown';
 import { formatDate, formatCurrency } from '@/lib/formatter';
 
 
-interface DataTableProps<TData extends TransactionHistory, TValue> {
+interface DataTableProps<TData extends TransactionDetail, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageSizeOptions?: number[];
@@ -46,7 +46,7 @@ interface DataTableProps<TData extends TransactionHistory, TValue> {
   user: string;
 }
 
-export function TransactionHistoryTable<TData extends TransactionHistory, TValue>({
+export function TransactionHistoryTable<TData extends TransactionDetail, TValue>({
   columns,
   data,
   pageCount,

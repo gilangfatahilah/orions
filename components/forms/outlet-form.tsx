@@ -42,11 +42,12 @@ interface OutletFormProps {
     address: string;
     phone?: string;
     email?: string;
-  }
+  },
+  user: string;
 }
 
 export const OutletForm = (
-  { initialData }: OutletFormProps
+  { initialData, user }: OutletFormProps
 ) => {
   const router = useRouter();
   const { toast } = useToast();
@@ -86,7 +87,7 @@ export const OutletForm = (
             address: data.address,
             phone: `+62${data.phone}`,
             email: data.email ?? undefined
-          });
+          }, user);
 
         if (!response) {
           return toast({
@@ -109,7 +110,7 @@ export const OutletForm = (
           address: data.address,
           phone: `+62${data.phone}`,
           email: data.email ?? undefined,
-        });
+        }, user);
 
       if (!response) {
         return toast({
@@ -141,7 +142,7 @@ export const OutletForm = (
     try {
       setLoading(true);
 
-      const response = await deleteOutlet(initialData?.id as string);
+      const response = await deleteOutlet(initialData?.id as string, user);
 
       if (!response) {
         return toast({

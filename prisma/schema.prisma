@@ -80,8 +80,8 @@ model Category {
 model Item {
   id           String              @id @default(uuid())
   name         String
-  category     Category            @relation(fields: [categoryId], references: [id])
-  categoryId   String
+  category     Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId   String?
   price        Int
   image        String?
   stock        Stock?
@@ -105,12 +105,12 @@ model History {
   outletId   String?
   itemId     String?
   stockId    String?
-  user       User?     @relation(fields: [userId], references: [id])
-  category   Category? @relation(fields: [categoryId], references: [id])
-  supplier   Supplier? @relation(fields: [supplierId], references: [id])
-  outlet     Outlet?   @relation(fields: [outletId], references: [id])
-  item       Item?     @relation(fields: [itemId], references: [id])
-  stock      Stock?    @relation(fields: [stockId], references: [id])
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  outlet     Outlet?   @relation(fields: [outletId], references: [id], onDelete: SetNull)
+  item       Item?     @relation(fields: [itemId], references: [id], onDelete: SetNull)
+  stock      Stock?    @relation(fields: [stockId], references: [id], onDelete: SetNull)
   createdAt  DateTime  @default(now())
 }
 
@@ -121,7 +121,7 @@ model Stock {
   itemId       String    @unique
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
-  item         Item      @relation(fields: [itemId], references: [id])
+  item         Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
   history      History[]
 }
 
@@ -156,13 +156,13 @@ model Transaction {
   transactionDate DateTime
   letterCode      String
   supplierId      String?
-  userId          String?
+  userId          String
   outletId        String?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime?           @updatedAt
-  user            User?               @relation(fields: [userId], references: [id])
-  supplier        Supplier?           @relation(fields: [supplierId], references: [id])
-  outlet          Outlet?             @relation(fields: [outletId], references: [id])
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  supplier        Supplier?           @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  outlet          Outlet?             @relation(fields: [outletId], references: [id], onDelete: SetNull)
   detail          TransactionDetail[]
 }
 

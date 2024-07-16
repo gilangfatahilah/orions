@@ -47,6 +47,11 @@ interface TransactionFormProps {
   }
 }
 
+interface ItemStock {
+  id: string;
+  stock: number;
+}
+
 interface Option {
   label: string;
   value: string;
@@ -57,7 +62,7 @@ const formSchema = z.object({
   supplier: z.string().optional(),
   outlet: z.string().optional(),
   letter: z.string().min(6, 'Transaction letter code must have at least 6 characters'),
-  quantity: z.number().optional().or(z.nan()).transform((val) => val || 0),  transactionDate: z.date(),
+  quantity: z.number().optional().or(z.nan()).transform((val) => val || 0), transactionDate: z.date(),
   item: z.string().optional().refine(value => value !== undefined, {
     message: 'Item is required'
   }),
@@ -102,6 +107,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
   const [suppliers, setSuppliers] = React.useState<Option[]>([]);
   const [outlets, setOutlets] = React.useState<Option[]>([]);
   const [itemList, setItemList] = React.useState<Transaction[]>([]);
+  const [itemStock, setItemStock] = React.useState<ItemStock[]>([]);
 
   React.useEffect(() => {
     const fetchOptions = async () => {
@@ -117,6 +123,11 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
           value: item.id,
         }));
 
+        const stockToAssign = itemData.map((item) => ({
+          id: item.id,
+          stock: item.stock?.quantity ?? 0,
+        }));
+
         const suppliersToAssign = supplierData?.map((supplier) => ({
           label: supplier.name,
           value: supplier.id,
@@ -128,6 +139,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
         }));
 
         setItems(itemsToAssign);
+        setItemStock(stockToAssign);
         setSuppliers(suppliersToAssign);
         setOutlets(outletsToAssign);
 
@@ -180,8 +192,28 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
     try {
       const itemId = form.watch('item');
       const itemQuantity = form.watch('quantity');
+      const transactionType = form.watch('type');
 
       const selectedItem = await getItemById(itemId);
+      const stockData = itemStock.find(stock => stock.id === itemId);
+
+      const errorToast = () => {
+        return toast({
+          variant: 'destructive',
+          title: 'Failed to add item',
+          description: 'The quantity exceeds the available stock',
+        });
+      }
+
+      if (itemQuantity === 0) {
+        errorToast();
+        return;
+      }
+
+      if (transactionType === 'ISSUING' && stockData && itemQuantity > stockData.stock) {
+        errorToast();
+        return;
+      }
 
       if (selectedItem) {
         const itemEqual = itemList.find((item) => item.id === selectedItem.id);

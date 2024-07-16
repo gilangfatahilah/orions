@@ -7,6 +7,13 @@ export const formatDate = (date: Date) => {
   }).format(date);
 };
 
+export const formatMonth = (num: number): string => {
+  const months = [
+      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  return months[num - 1];
+}
+
 export const formatISO = (date: Date): string => {
   const timezoneOffset = date.getTimezoneOffset() * 60000;
   const utcDate = new Date(date.getTime() - timezoneOffset);
