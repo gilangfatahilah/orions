@@ -29,19 +29,19 @@ const chartConfig: ChartConfig = {
   }
 }
 
-export function TotalStocks({ data }: ChartProps) {
+export function TotalStocks({ data }: Readonly<ChartProps>) {
   const totalStocks = React.useMemo(() => {
     return data.reduce((acc, curr) => acc + curr.value, 0)
   }, [data])
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col max-h-[500px]">
       <CardHeader className="items-center pb-0">
         <CardTitle>Current Item Stocks</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardDescription>Summary of currently item stock in warehouse.</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[300px]">
+        <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[325px]">
           <PieChart>
             <ChartTooltip
               cursor={false}

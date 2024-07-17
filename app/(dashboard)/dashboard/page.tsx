@@ -6,48 +6,19 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import prisma from '@/lib/db';
-import { getRandomColor } from '@/lib/randomColor';
-import { getStockSummary } from '@/services/transaction.service';
+import { getTotalItemsByMonth, getTotalItemsSummary } from '@/services/dashboard.service';
 
 export default async function page() {
   const session = await auth();
 
-
-  const data = await getStockSummary();
-  const dataItem = await prisma.item.findMany({
-    select: {
-      id: true,
-      name: true,
-      stock: {
-        select: {
-          quantity: true,
-        }
-      }
-    }
-  });
-
-  const sortedItems = dataItem
-    .map((item) => ({
-      label: item.name,
-      value: item.stock?.quantity ?? 0,
-    }))
-    .sort((a, b) => b.value - a.value);
-
-  const top5Items = sortedItems.slice(0, 5);
-  const othersQuantity = sortedItems.slice(5).reduce((sum, item) => sum + item.value, 0);
-
-  const colors = ['#2463EB', '#60A8FB', '#3B86F7', '#91C6FE', '#BDDCFE', '#5AB2FF'];
-
-  const chartData = [
-    ...top5Items.map((item, index) => ({ ...item, fill: colors[index] })),
-    { label: 'others', value: othersQuantity, fill: colors[5] },
-  ];
+  const monthlyItemSummary = await getTotalItemsByMonth();
+  const totalItemSummary = await getTotalItemsSummary();
 
   const getFirstWord = (str: string): string => {
     const words = str.split(' ');
@@ -63,7 +34,6 @@ export default async function page() {
             Hi, Welcome back {getFirstWord(session?.user.name as string) ?? ''} 👋
           </h2>
           <div className="hidden items-center space-x-2 md:flex">
-            <CalendarDateRangePicker />
             <Button>Download</Button>
           </div>
         </div>
@@ -177,16 +147,19 @@ export default async function page() {
               </Card>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="col-span-4">
+              <Card className="col-span-4 max-h-[500px]">
                 <CardHeader>
-                  <CardTitle>Overview</CardTitle>
+                  <CardTitle>Monthly Stock Summary
+                    {` ${monthlyItemSummary[0]?.month ?? ''} ${monthlyItemSummary[0]?.year ?? ''} - Now`}
+                  </CardTitle>
+                  <CardDescription>Summary of items stock at the end of each month.</CardDescription>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <Overview data={data} />
+                  <Overview data={monthlyItemSummary} />
                 </CardContent>
               </Card>
               <div className='col-span-4 md:col-span-3'>
-                <TotalStocks data={chartData} />
+                <TotalStocks data={totalItemSummary} />
               </div>
             </div>
           </TabsContent>

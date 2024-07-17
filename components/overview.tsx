@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
 import {
   ChartConfig,
@@ -7,36 +8,33 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-  { month: "July", desktop: 59 },
-  { month: "August", desktop: 90 },
-  { month: "September", desktop: 181 },
-  { month: "October", desktop: 220 },
-  { month: "November", desktop: 198 },
-  { month: "December", desktop: 111 },
-]
+import { getStockSummary } from "@/services/dashboard.service";
+
+interface ChartData {
+  month: string;
+  year: number;
+  itemCount: number;  
+}
 
 const chartConfig = {
-  desktop: {
-    label: "Stocks",
+  itemCount: {
+    label: "Stock",
     color: "#2761D9",
   },
 } satisfies ChartConfig
 
-export const Overview = (data: any) => {
+interface OverviewProps {
+  data: ChartData[];
+}
+
+export const Overview: React.FC<OverviewProps> = ({ data }) => {
   console.log(data);
 
   return (
     <ChartContainer className="w-full" config={chartConfig}>
       <BarChart
         accessibilityLayer
-        data={chartData}
+        data={data}
         margin={{
           top: 20,
         }}
@@ -53,7 +51,7 @@ export const Overview = (data: any) => {
           cursor={false}
           content={<ChartTooltipContent hideLabel />}
         />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8}>
+        <Bar dataKey="itemCount" fill="#2761D9" radius={8}>
           <LabelList
             position="top"
             offset={12}
