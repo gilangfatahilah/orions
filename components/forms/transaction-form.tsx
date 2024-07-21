@@ -197,7 +197,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
       const itemQuantity = form.watch('quantity');
       const transactionType = form.watch('type');
 
-      const selectedItem = await getItemById(itemId);
+      const selectedItem = await getItemById(itemId as string);
       const stockData = itemStock.find(stock => stock.id === itemId);
 
       const errorToast = () => {
