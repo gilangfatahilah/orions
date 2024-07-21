@@ -9,7 +9,6 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 import React from 'react';
-import { Icons } from '@/components/icons';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +37,6 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Category } from '@/constants/data';
 import { createSeveralCategory, deleteSeveralCategory } from '@/services/category.service';
 import { useToast } from '@/components/ui/use-toast';
-import FileImport from '@/components/file-import';
 import ImportExcel from '@/components/file-import';
 import TableDropdown from '../table-dropdown';
 

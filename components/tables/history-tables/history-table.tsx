@@ -9,7 +9,6 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 import React from 'react';
-import { Icons } from '@/components/icons';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +38,6 @@ import { History } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
 import { deleteSeveralHistory } from '@/services/history.service';
 import { formatDate } from '@/lib/formatter';
-import { exportCSV, exportToExcel } from '@/lib/fileExport';
 import TableDropdown from '../table-dropdown';
 import { CalendarDateRangePicker } from '@/components/date-range-picker';
 

@@ -25,9 +25,9 @@ export async function sendMail({
   });
   try {
     const testResult = await transport.verify();
+    // eslint-disable-next-line no-console
     console.log(testResult);
   } catch (error) {
-    console.error({ error });
     return;
   }
 
@@ -40,7 +40,6 @@ export async function sendMail({
     });
     return sendResult
   } catch (error) {
-    console.log(error);
   }
 }
 

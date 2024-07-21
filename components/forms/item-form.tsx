@@ -164,8 +164,6 @@ export const ItemForm = (
         });
       }
     } catch (error: any) {
-      console.log(error.message);
-
       toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.',

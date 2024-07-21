@@ -15,7 +15,7 @@ import { Icons } from '@/components/icons';
 import { DataTable } from '@/components/ui/data-table';
 import { Transaction } from '@/constants/data';
 import { formatCurrency } from '@/lib/formatter';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
 interface TransactionTableProps {
@@ -33,7 +33,6 @@ interface CellActionProps {
 const CellAction = ({ data, onDeleteRow, onUpdateRow }: CellActionProps) => {
   const [openDelete, setOpenDelete] = React.useState<boolean>(false);
   const [openUpdate, setOpenUpdate] = React.useState<boolean>(false);
-  const [loading, setLoading] = React.useState<boolean>(false);
   const [quantity, setQuantity] = React.useState<number>(data.quantity);
 
   const handleInputChange = (e: any) => {
@@ -59,7 +58,7 @@ const CellAction = ({ data, onDeleteRow, onUpdateRow }: CellActionProps) => {
         description={`Are you sure you want to remove ${data.name}`}
         onClose={() => setOpenDelete(false)}
         onConfirm={handleDelete}
-        loading={loading}
+        loading={false}
       />
 
       <Dialog open={openUpdate} onOpenChange={() => setOpenUpdate(!openUpdate)}>

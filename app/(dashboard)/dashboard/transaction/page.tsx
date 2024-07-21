@@ -33,8 +33,6 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
   const pageLimit = Number(searchParams.limit) || 10;
   const offset = (page - 1) * pageLimit;
   const search = searchParams.search ? String(searchParams.search) : '';
-  const startDate = searchParams.startDate ? String(searchParams.startDate) : '';
-  const endDate = searchParams.endDate ? String(searchParams.endDate) : '';
 
   const transaction = await prisma.transaction.findMany({
     skip: offset,

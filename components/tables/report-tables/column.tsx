@@ -1,7 +1,7 @@
 'use client';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Summary } from '@/constants/data';
-import { formatCurrency, formatDate, formatMonth } from '@/lib/formatter';
+import { formatCurrency, } from '@/lib/formatter';
 import { ColumnDef } from '@tanstack/react-table';
 
 export const columns: ColumnDef<Summary>[] = [
