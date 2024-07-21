@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Icons } from "../icons"
 import { useToast } from "../ui/use-toast";
-import { updateUser } from "@/services/user.service";
+import prisma from "@/lib/db";
 
 const formSchema = z.object({
   password: z.string().min(6, {
@@ -63,7 +63,10 @@ export const ResetPassword = ({ id }: { id: string }) => {
       setLoading(true);
 
       const hashedPassword = await bcrypt.hash(data.password, 10)
-      const response = await updateUser(id, { password: hashedPassword });
+      const response = await prisma.user.update({
+        where: { id },
+        data: { password: hashedPassword }
+      });
 
       if (response) {
         router.push('/')
@@ -117,7 +120,7 @@ export const ResetPassword = ({ id }: { id: string }) => {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <div className='relative'>
-                    <Icons.lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Icons.lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         type={passwordVisible ? 'text' : 'password'}
                         placeholder="Enter your password"
@@ -152,7 +155,7 @@ export const ResetPassword = ({ id }: { id: string }) => {
                   <FormLabel>Confirm password</FormLabel>
                   <FormControl>
                     <div className='relative'>
-                    <Icons.lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Icons.lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         type={passwordVisible ? 'text' : 'password'}
                         placeholder="Confirm password"
