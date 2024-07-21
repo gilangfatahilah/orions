@@ -8,12 +8,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
-import { useSession } from 'next-auth/react';
 import { Icons } from '@/components/icons';
 import React from 'react';
 import DetailTransaction from "@/components/transaction-detail";
 import { TransactionDetail } from "@/constants/data";
-import { useReactToPrint } from 'react-to-print';
+import { generatePDF } from "@/lib/fileExport";
 
 interface CellActionProps {
   data: TransactionDetail;
@@ -21,16 +20,15 @@ interface CellActionProps {
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const detailRef = React.useRef(null);
-  const { data: session } = useSession();
-  const isStaff = session?.user.role === 'Staff';
 
-  const handleDownload = useReactToPrint({
-    documentTitle: 'Transaction Detail',
-    content: () => detailRef.current,
-  })
+  const handleDownload = () => {
+    if (detailRef.current) {
+      generatePDF(detailRef.current, `INV-${data.id.toUpperCase().slice(0, 12)}.pdf`);
+    }
+  }
+  
 
   return (
-    !isStaff && (
       <Dialog>
         <DialogTrigger asChild>
           <Button size={'icon'} variant={'ghost'} info='Detail'>
@@ -50,6 +48,5 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    )
   );
 };

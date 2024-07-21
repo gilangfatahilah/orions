@@ -18,9 +18,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { Icons } from "./icons"
 
 interface ChartProps {
   data: { label: string, value: number, fill: string }[]
+  previousMonthStock: number;
 }
 
 const chartConfig: ChartConfig = {
@@ -29,10 +31,13 @@ const chartConfig: ChartConfig = {
   }
 }
 
-export function TotalStocks({ data }: Readonly<ChartProps>) {
+export function TotalStocks({ data, previousMonthStock }: Readonly<ChartProps>) {
   const totalStocks = React.useMemo(() => {
     return data.reduce((acc, curr) => acc + curr.value, 0)
-  }, [data])
+  }, [data]);
+
+  const aggregatedStocks = ((totalStocks - previousMonthStock) / previousMonthStock) * 100;
+  const parsedAggregatedStocks = aggregatedStocks.toFixed(2);
 
   return (
     <Card className="flex flex-col max-h-[500px]">
@@ -88,9 +93,21 @@ export function TotalStocks({ data }: Readonly<ChartProps>) {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
+          {
+            aggregatedStocks < 0 ? (
+              <div className="flex items-center gap-2 font-medium leading-none">
+                Trending down by {parsedAggregatedStocks}% this month <Icons.trendingDown className="h-4 w-4" />
+              </div>
+            ) : aggregatedStocks === 0 ? (
+              <div className="flex items-center gap-2 font-medium leading-none">
+                There&apos;s no transaction since last month <Icons.sparkles className="h-4 w-4" /> 
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 font-medium leading-none">
+                Trending up by {parsedAggregatedStocks}% this month <Icons.trendingUp className="h-4 w-4" />
+              </div>
+            )
+          }
         <div className="leading-none text-muted-foreground">
           Showing latest total item stocks in warehouse.
         </div>

@@ -8,7 +8,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { getStockSummary } from "@/services/dashboard.service";
 
 interface ChartData {
   month: string;
@@ -28,10 +27,8 @@ interface OverviewProps {
 }
 
 export const Overview: React.FC<OverviewProps> = ({ data }) => {
-  console.log(data);
-
   return (
-    <ChartContainer className="w-full" config={chartConfig}>
+    <ChartContainer className="w-full max-h-[340px]" config={chartConfig}>
       <BarChart
         accessibilityLayer
         data={data}

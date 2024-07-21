@@ -12,6 +12,7 @@ import { auth } from '@/auth';
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { TransactionHistoryTable } from "@/components/tables/transaction-tables/history-table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type paramsProps = {
   searchParams: {
@@ -44,8 +45,8 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
           ? {
             OR: [
               { letterCode: { contains: search, mode: 'insensitive' } },
-              { supplier: {name: { contains: search, mode: 'insensitive' }} },
-              { outlet: {name: { contains: search, mode: 'insensitive' }} },
+              { supplier: { name: { contains: search, mode: 'insensitive' } } },
+              { outlet: { name: { contains: search, mode: 'insensitive' } } },
             ],
           }
           : {}
@@ -79,27 +80,31 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
   const pageCount = Math.ceil(totalCount / pageLimit);
 
   return (
-    <div className="flex-1 space-y-4 p-8">
-      <BreadCrumb items={breadcrumbItems} />
-      <div className='flex items-center justify-between'>
-        <Heading title='Transaction' description='Manage your transaction here.' />
+    <ScrollArea className="h-full">
+
+      <div className="flex-1 space-y-4 p-8">
+        <BreadCrumb items={breadcrumbItems} />
+        <div className='flex items-center justify-between'>
+          <Heading title='Transaction' description='Manage your transaction here.' />
+        </div>
+
+        <Tabs defaultValue="transaction">
+          <TabsList className="grid w-full md:w-1/4 mb-2 grid-cols-2">
+            <TabsTrigger value="transaction">Transaction</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+          </TabsList>
+          <Separator />
+
+          <TabsContent value="transaction">
+            <TransactionForm user={userSession} />
+          </TabsContent>
+          <TabsContent value="history">
+            <TransactionHistoryTable data={transaction} columns={columns} user={session?.user.name as string} pageCount={pageCount} />
+          </TabsContent>
+        </Tabs>
       </div>
+    </ScrollArea>
 
-      <Tabs defaultValue="transaction">
-        <TabsList className="grid w-full md:w-1/4 mb-2 grid-cols-2">
-          <TabsTrigger value="transaction">Transaction</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-        </TabsList>
-        <Separator />
-
-        <TabsContent value="transaction">
-          <TransactionForm user={userSession} />
-        </TabsContent>
-        <TabsContent value="history">
-          <TransactionHistoryTable data={transaction} columns={columns} user={session?.user.name as string} pageCount={pageCount} />
-        </TabsContent>
-      </Tabs>
-    </div>
   )
 }
 

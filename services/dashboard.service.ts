@@ -15,21 +15,32 @@ interface StockSummary {
   year: number;
 }
 
-interface MonthlyItemCount {
+export interface MonthlyItemCount {
   month: string;
   year: number;
   itemCount: number;
 }
 
-interface TotalItemSummary {
+export interface TotalItemSummary {
   label: string;
   value: number;
-  fill : string;
+  fill: string;
+}
+
+export interface CardSummary {
+  totalPrice: string;
+  priceDescription: string;
+  totalUser: number;
+  userDescription: string;
+  totalSupplier: number;
+  supplierDescription: string;
+  totalOutlet: number;
+  outletDescription: string;
 }
 
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-export const getStockSummary = async (): Promise<StockSummary[]> => {
+export const getStockSummary = async (month?: string, year?: number): Promise<StockSummary[]> => {
   const items = await prisma.item.findMany({
     include: {
       transactions: {
@@ -104,6 +115,11 @@ export const getStockSummary = async (): Promise<StockSummary[]> => {
     return Object.values(monthlySummary);
   });
 
+  if (month && year) {
+    const filteredSummaries = stockSummary.filter((item) => item.month === month && item.year === year);
+    return filteredSummaries;
+  }
+
   return stockSummary;
 };
 
@@ -147,7 +163,6 @@ export const getTotalItemsByMonth = async (): Promise<MonthlyItemCount[]> => {
   return sortedItemCountByMonth;
 };
 
-
 export const getTotalItemsSummary = async (): Promise<TotalItemSummary[]> => {
   const dataItem = await prisma.item.findMany({
     select: {
@@ -178,3 +193,112 @@ export const getTotalItemsSummary = async (): Promise<TotalItemSummary[]> => {
     { label: 'others', value: othersQuantity, fill: colors[5] },
   ];
 }
+
+export const getCardSummary = async (): Promise<CardSummary> => {
+  const formatAmount = (amount: number): string => {
+    if (amount >= 1000000000) {
+      return 'Rp ' + (amount / 1000000000).toFixed(1) + 'B';
+    } else if (amount >= 1000000) {
+      return 'Rp ' + (amount / 1000000).toFixed(1) + 'M';
+    } else {
+      return 'Rp ' + amount.toLocaleString();
+    }
+  };
+
+  
+  const countAggregate = (current: number, previous: number): string => {
+    const aggregate = current - previous;
+    return aggregate >= 0 ? `+${aggregate} from last month` : `${aggregate} last current month`
+  }
+
+  const formatDescription = (current: number, previous: number): string => {
+    if (previous === 0) {
+      return '+100% from last month';
+    }
+
+    const aggregatedData = ((current - previous) / previous) * 100;
+    const description = aggregatedData >= 0 ? `+${aggregatedData.toFixed(2)}% from last month` : `${aggregatedData.toFixed(2)}% from last month`;
+    return description;
+  }
+
+  const dataItem = await prisma.item.findMany({
+    select: {
+      id: true,
+      price: true,
+      stock: {
+        select: {
+          quantity: true,
+        }
+      }
+    }
+  });
+
+  const totalUser = await prisma.user.count();
+  const totalSupplier = await prisma.supplier.count();
+  const totalOutlet = await prisma.outlet.count();
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const lastMonth = monthNames[now.getMonth() - 1];
+
+  const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const firstDayOfLastMonth = new Date(firstDayOfCurrentMonth);
+  firstDayOfLastMonth.setMonth(firstDayOfLastMonth.getMonth() - 1);
+  const lastDayOfLastMonth = new Date(firstDayOfCurrentMonth);
+  lastDayOfLastMonth.setDate(lastDayOfLastMonth.getDate() - 1);
+
+  const userLastMonth = await prisma.user.count({
+    where: {
+      createdAt: {
+        gte: firstDayOfLastMonth,
+        lt: firstDayOfCurrentMonth,
+      },
+    },
+  });
+
+  const supplierLastMonth = await prisma.supplier.count({
+    where: {
+      createdAt: {
+        gte: firstDayOfLastMonth,
+        lt: firstDayOfCurrentMonth,
+      },
+    },
+  });
+
+  const outletLastMonth = await prisma.outlet.count({
+    where: {
+      createdAt: {
+        gte: firstDayOfLastMonth,
+        lt: firstDayOfCurrentMonth,
+      },
+    },
+  });
+
+  const lastMonthData = await getStockSummary(lastMonth, year);
+  const lastMonthTotalPrice = lastMonthData.map((data) => data.itemPriceTotal).reduce((sum, item) => sum + item, 0);
+
+  const priceList = dataItem.map((item) => {
+    if (item.stock?.quantity) {
+      return item.price * item.stock.quantity;
+    }
+    return 0;
+  });
+
+  const currentPrice = priceList.reduce((sum, item) => sum + item, 0);
+
+  const priceDescription = formatDescription(currentPrice, lastMonthTotalPrice);
+  const supplierDescription = countAggregate(totalSupplier, supplierLastMonth);
+  const outletDescription = countAggregate(totalOutlet, outletLastMonth);
+  const userDescription = countAggregate(totalUser, userLastMonth);
+
+  return {
+    totalPrice: formatAmount(currentPrice),
+    priceDescription,
+    totalSupplier,
+    supplierDescription,
+    totalOutlet,
+    outletDescription,
+    totalUser,
+    userDescription
+  };
+};

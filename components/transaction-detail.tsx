@@ -80,17 +80,8 @@ const DetailTransaction = forwardRef<HTMLDivElement, DetailTransactionProps>(({ 
           <div className="text-right">
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">Subtotal</p>
-                <p>$250.00</p>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">Tax (8%)</p>
-                <p>$20.00</p>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between font-semibold">
-                <p>Total Due</p>
-                <p>$270.00</p>
+                <p className="text-sm font-medium">Price Total</p>
+                <p>{formatCurrency(data.totalPrice)}</p>
               </div>
             </div>
           </div>

@@ -80,13 +80,13 @@ model Category {
 model Item {
   id           String              @id @default(uuid())
   name         String
-  category     Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   categoryId   String?
   price        Int
   image        String?
   stock        Stock?
   createdAt    DateTime            @default(now())
   updatedAt    DateTime?           @updatedAt
+  category     Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   transactions TransactionDetail[]
   history      History[]
 }

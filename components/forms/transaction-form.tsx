@@ -108,6 +108,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
   const [outlets, setOutlets] = React.useState<Option[]>([]);
   const [itemList, setItemList] = React.useState<Transaction[]>([]);
   const [itemStock, setItemStock] = React.useState<ItemStock[]>([]);
+  const [searchQuery, setSearchQuery] = React.useState<string>('');
 
   React.useEffect(() => {
     const fetchOptions = async () => {
@@ -149,6 +150,8 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
 
     fetchOptions();
   }, []);
+
+  const filteredItems = items.filter((item) => item.label.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const renderPlaceholderWithIcon = (input: 'type' | 'item' | 'supplier' | 'outlet', value?: string) => {
     let valueToRender;
@@ -531,12 +534,26 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <div className='p-2'>
+                        <Input
+                          type='text'
+                          key={'uniqueKey'}
+                          placeholder='Search...'
+                          value={searchQuery}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            setSearchQuery(e.target.value)
+                          }}
+                          className='w-full p-2 border border-gray-300 rounded'
+                        />
+                      </div>
+
                       <SelectGroup className='px-2'>
                         <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>
                           Select item
                         </SelectLabel>
                         {
-                          items?.map((item) => (
+                          filteredItems?.map((item) => (
                             <SelectItem key={item.value} value={item.value}>
                               {item.label}
                             </SelectItem>
