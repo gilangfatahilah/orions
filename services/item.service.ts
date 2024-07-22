@@ -81,7 +81,7 @@ export const updateItem = async (id: string, data: Partial<Item>, user: string):
   if (data.categoryId && data.categoryId !== currentItem.categoryId) {
     const category = await getCategoryById(data.categoryId);
 
-    changes.push({ field: 'Category', oldValue: currentItem.category.name ?? '-', newValue: category?.name ?? '' });
+    changes.push({ field: 'Category', oldValue: currentItem.category?.name ?? '-', newValue: category?.name ?? '' });
   }
   if (data.price !== undefined && data.price !== currentItem.price) {
     changes.push({ field: 'Price', oldValue: currentItem.price, newValue: data.price });

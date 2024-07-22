@@ -102,6 +102,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
   });
 
   const { toast } = useToast();
+  const watchedItem = form.watch('item');
   const [loading, setLoading] = React.useState<boolean>(false);
   const [items, setItems] = React.useState<Option[]>([]);
   const [suppliers, setSuppliers] = React.useState<Option[]>([]);
@@ -591,11 +592,15 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
             />
 
             {
-              !!form?.watch('item').length && (
-                <Button onClick={(e) => {
-                  e.preventDefault();
-                  onAddItem()
-                }} disabled={loading} variant={'outline'}>
+              watchedItem && watchedItem.length > 0 && (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onAddItem();
+                  }}
+                  disabled={loading}
+                  variant={'outline'}
+                >
                   Add item
                 </Button>
               )

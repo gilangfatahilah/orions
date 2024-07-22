@@ -35,8 +35,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Stock } from '@/constants/data';
-import { useToast } from '@/components/ui/use-toast';
-import { exportCSV, exportToExcel } from '@/lib/fileExport';
 
 
 interface DataTableProps<TData extends Stock, TValue> {
@@ -54,7 +52,6 @@ export function StockTable<TData extends Stock, TValue>({
 }: Readonly<DataTableProps<TData, TValue>>) {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
   const searchParams = useSearchParams();
 
   const page = searchParams?.get('page') ?? '1';
@@ -130,32 +127,12 @@ export function StockTable<TData extends Stock, TValue>({
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
 
-  const onExportExcel = async () => {
-    try {
-      const dataToExport = selectedData.map((data) => ({
-        name: data.original.item.name,
-        previousQuantity: data.original.prevQuantity,
-        currentQuantity: data.original.quantity
-      }))
+  const dataToExport = selectedData.map((data) => ({
+    name: data.original.item.name,
+    previousQuantity: data.original.prevQuantity,
+    currentQuantity: data.original.quantity
+  }))
 
-      await exportToExcel(dataToExport, 'data-item', 'item');
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Export Failed, please try again.'
-      })
-    }
-  };
-
-  const onExportCsv = () => {
-    const dataToExport = selectedData.map((data) => ({
-      name: data.original.item.name,
-      previousQuantity: data.original.prevQuantity,
-      currentQuantity: data.original.quantity
-    }))
-
-    exportCSV(dataToExport, 'data-user');
-  };
 
   return (
     <>
@@ -178,7 +155,7 @@ export function StockTable<TData extends Stock, TValue>({
         />
 
         <div className={selectedData.length ? 'block' : 'hidden'}>
-          <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} />
+          <TableDropdown data={dataToExport} tableName='Stock' />
         </div>
       </div>
 

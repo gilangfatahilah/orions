@@ -38,7 +38,6 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Item } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
 import { deleteSeveralItem } from '@/services/item.service';
-import { exportCSV, exportToExcel } from '@/lib/fileExport';
 import { formatCurrency } from '@/lib/formatter';
 
 
@@ -141,34 +140,11 @@ export function ItemTable<TData extends Item, TValue>({
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
 
-  const onExportExcel = async () => {
-    try {
-      setLoading(true);
-      const dataToExport = selectedData.map((data) => ({
-        name: data.original.name,
-        category: data.original.category.name,
-        price: formatCurrency(data.original.price)
-      }))
-
-      await exportToExcel(dataToExport, 'data-item', 'item');
-    } catch (error) {
-      // 
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onExportCsv = () => {
-    setLoading(true);
-    const dataToExport = selectedData.map((data) => ({
-      name: data.original.name,
-      category: data.original.category.name,
-      price: formatCurrency(data.original.price)
-    }))
-
-    exportCSV(dataToExport, 'data-user');
-    setLoading(false);
-  };
+  const dataToExport = selectedData.map((data) => ({
+    name: data.original.name,
+    category: data.original.category?.name ?? '-',
+    price: formatCurrency(data.original.price)
+  }));
 
   const onConfirmDelete = async () => {
     try {
@@ -232,7 +208,7 @@ export function ItemTable<TData extends Item, TValue>({
         />
 
         <div className={selectedData.length ? 'block' : 'hidden'}>
-          <TableDropdown onDownloadExcel={() => onExportExcel()} onDownloadCsv={() => onExportCsv()} onDelete={() => setAlertOpen(true)} />
+          <TableDropdown data={dataToExport} tableName="Item" onDelete={() => setAlertOpen(true)} />
         </div>
       </div>
 
