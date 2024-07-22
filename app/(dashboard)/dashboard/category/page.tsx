@@ -17,6 +17,7 @@ import { Icons } from '@/components/icons';
 import prisma from '@/lib/db';
 import Link from 'next/link';
 import { auth } from '@/auth';
+import { Category } from "@/constants/data";
 
 const breadcrumbItems = [{ title: 'Category', link: '/dashboard/category' }];
 
@@ -60,7 +61,7 @@ export default async function page({ searchParams }: paramsProps) {
   });
 
   // If no code show -
-  category.map((c) => {
+  category.map((c: Category) => {
     if (!c.code) c.code = '-'
   })
 

@@ -120,12 +120,12 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
       const outletData = await getOutlets();
 
       if (itemData?.length && supplierData?.length && outletData?.length) {
-        const itemsToAssign = itemData?.map((item) => ({
+        const itemsToAssign = itemData?.map((item: Record<string, any>) => ({
           label: item.name,
           value: item.id,
         }));
 
-        const stockToAssign = itemData.map((item) => ({
+        const stockToAssign = itemData.map((item: Record<string, any>) => ({
           id: item.id,
           stock: item.stock?.quantity ?? 0,
         }));

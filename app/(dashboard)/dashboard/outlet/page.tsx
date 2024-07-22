@@ -16,6 +16,7 @@ import { Icons } from '@/components/icons';
 import prisma from '@/lib/db';
 import Link from 'next/link';
 import { auth } from '@/auth';
+import { Outlet } from "@/constants/data";
 
 const breadcrumbItems = [{ title: 'Outlet', link: '/dashboard/outlet' }];
 
@@ -59,7 +60,7 @@ export default async function page({ searchParams }: paramsProps) {
     }
   });
 
-  outlet.map((o) => {
+  outlet.map((o: Outlet) => {
     if (!o.email) o.email = "-"
   })
 

@@ -17,6 +17,7 @@ import { Icons } from '@/components/icons';
 import prisma from '@/lib/db';
 import Link from 'next/link';
 import { auth } from '@/auth';
+import { Supplier } from "@/constants/data";
 
 const breadcrumbItems = [{ title: 'Supplier', link: '/dashboard/supplier' }];
 
@@ -60,11 +61,11 @@ export default async function page({ searchParams }: paramsProps) {
     }
   });
 
-  supplier.map((s) => {
+  supplier.map((s: Supplier) => {
     if (!s.email) s.email = "-";
   })
 
-  const totalCount = await prisma.supplier.count();
+const totalCount = await prisma.supplier.count();
   const pageCount = Math.ceil(totalCount / pageLimit);
 
   // History
