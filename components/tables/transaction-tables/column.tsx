@@ -1,7 +1,7 @@
 'use client';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TransactionDetail } from '@/constants/data';
-import { formatCurrency, formatDate } from '@/lib/formatter';
+import { formatDate } from '@/lib/formatter';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 
@@ -48,22 +48,6 @@ export const columns: ColumnDef<TransactionDetail>[] = [
     header: 'LETTER CODE',
     cell: ({ row }) => {
       return row.original.letterCode.toUpperCase();
-    }
-  },
-  {
-    accessorKey: 'totalPrice',
-    header: 'PRICE VALUE',
-    cell: ({ row }) => {
-      return formatCurrency(row.original.totalPrice)
-    }
-  },
-  {
-    id: 'supplierOutlet',
-    header: 'SUPPLIER / OUTLET',
-    cell: ({ row }) => {
-      if (row.original.type === 'RECEIVING')
-        return row.original.supplier?.name ?? '-';
-      return row.original.outlet?.name ?? '-';
     }
   },
   {

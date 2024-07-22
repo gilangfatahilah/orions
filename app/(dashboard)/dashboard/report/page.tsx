@@ -19,14 +19,14 @@ const ReportPage = () => {
         <Heading title='Report' description='View and track report&apos;s summary here.' />
       </div>
 
-      <Tabs defaultValue="summary">
+      <Tabs defaultValue="general">
         <TabsList className="grid w-full md:w-1/4 mb-2 grid-cols-2">
-          <TabsTrigger value="summary">Summary</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="history">Transaction</TabsTrigger>
         </TabsList>
         <Separator />
 
-        <TabsContent value="summary">
+        <TabsContent value="general">
         </TabsContent>
         <TabsContent value="history">
         </TabsContent>

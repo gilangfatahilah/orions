@@ -43,8 +43,7 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
           ? {
             OR: [
               { letterCode: { contains: search, mode: 'insensitive' } },
-              { supplier: { name: { contains: search, mode: 'insensitive' } } },
-              { outlet: { name: { contains: search, mode: 'insensitive' } } },
+              { user: { name: { contains: search, mode: 'insensitive' } } },
             ],
           }
           : {}

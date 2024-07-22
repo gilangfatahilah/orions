@@ -591,7 +591,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
             />
 
             {
-              !!form.watch('item').length && (
+              !!form?.watch('item').length && (
                 <Button onClick={(e) => {
                   e.preventDefault();
                   onAddItem()

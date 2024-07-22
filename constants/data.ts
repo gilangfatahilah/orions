@@ -135,6 +135,7 @@ export type TransactionDetail = {
 
 export type Summary = {
   finalMonthUnit: number,
+  firstMonthUnit: number,
   itemCode: string,
   itemName: string,
   itemPrice: number,
