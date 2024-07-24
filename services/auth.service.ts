@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 "use server"
 import { signOut, signIn } from '@/auth';
+import prisma from '@/lib/db';
 import { sendMail, compileWelcomeTemplate, compileInvitationEmail } from '@/lib/mail';
 import { SentMessageInfo } from 'nodemailer';
 
@@ -16,6 +17,14 @@ export const credentialsSignIn = async (email: string, password: string) => {
   })
 
 };
+
+export const resetPassword = async (id: string, password: string) => {
+  return await prisma.user.update({
+    where: { id },
+    data: { password },
+  })
+}
+
 
 export const send = async (
   email: string,
@@ -42,17 +51,17 @@ export const sendInvitationMail = async (
   image?: string,
 ): Promise<SentMessageInfo | undefined> => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3000); // 5 seconds timeout
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
 
-  let IPv4 = '0.0.0.0';
+  let ip = '0.0.0.0';
   let location = 'Indonesia';
 
   try {
-    const getInfo = await fetch('https://geolocation-db.com/json/', { signal: controller.signal });
+    const getInfo = await fetch('https://ipinfo.io/', { signal: controller.signal });
     clearTimeout(timeoutId);
     const userInfo = await getInfo.json();
-    IPv4 = userInfo.IPv4;
-    location = `${userInfo.city}, ${userInfo.country_name}`;
+    ip = userInfo.ip;
+    location = `${userInfo.city}, ${userInfo.region}`;
   } catch (error: any) {
     if (error.name === 'AbortError') {
       console.error('Fetch request timed out');
@@ -65,7 +74,7 @@ export const sendInvitationMail = async (
     to: email,
     name: name,
     subject: subject,
-    body: compileInvitationEmail(name, role, invitedByEmail, inviteLink, IPv4, location, image),
+    body: compileInvitationEmail(name, role, invitedByEmail, inviteLink, ip, location, image),
   });
 };
 

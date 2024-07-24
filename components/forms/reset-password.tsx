@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Icons } from "../icons"
 import { useToast } from "../ui/use-toast";
-import prisma from "@/lib/db";
+import { resetPassword } from "@/services/auth.service";
 
 const formSchema = z.object({
   password: z.string().min(6, {
@@ -63,10 +63,7 @@ export const ResetPassword = ({ id }: { id: string }) => {
       setLoading(true);
 
       const hashedPassword = await bcrypt.hash(data.password, 10)
-      const response = await prisma.user.update({
-        where: { id },
-        data: { password: hashedPassword }
-      });
+      const response = await resetPassword(id, hashedPassword);
 
       if (response) {
         router.push('/')
@@ -85,6 +82,8 @@ export const ResetPassword = ({ id }: { id: string }) => {
         });
       }
     } catch (error) {
+      console.log(error);
+
       toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.',
