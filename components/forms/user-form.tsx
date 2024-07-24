@@ -155,6 +155,8 @@ export const UserForm = (
         const url = `${BASE_URL}/reset-password/${response.id}`;
 
         const sendMail = await sendInvitationMail(email, name, subject, role, sessionEmail as string, url, userImage);
+        // eslint-disable-next-line no-console
+        console.log(sendMail);
 
         if (sendMail.accepted.length) { 
           router.push('/dashboard/user');

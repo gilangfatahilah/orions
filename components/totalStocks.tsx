@@ -36,7 +36,7 @@ export function TotalStocks({ data, previousMonthStock }: Readonly<ChartProps>) 
   }, [data]);
 
   const aggregatedStocks = ((totalStocks - previousMonthStock) / previousMonthStock) * 100;
-  const parsedAggregatedStocks = aggregatedStocks.toFixed(2);
+  const parsedAggregatedStocks = isNaN(aggregatedStocks) ? 0.00 : aggregatedStocks.toFixed(2);
 
   return (
     <Card className="flex flex-col max-h-[500px]">

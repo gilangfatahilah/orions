@@ -27,7 +27,7 @@ interface DashboardProps {
 
 const DashboardOverview: React.FC<DashboardProps> = ({ monthlyItemSummary, totalItemSummary, cardSummary, sessionUser }) => {
   const overviewRef = React.useRef(null);
-  const previousMonthStock = monthlyItemSummary[monthlyItemSummary.length - 2].itemCount;
+  const previousMonthStock = monthlyItemSummary[monthlyItemSummary.length - 2]?.itemCount ?? 0;
 
   const handleDownload = () => {
     if (overviewRef.current) {

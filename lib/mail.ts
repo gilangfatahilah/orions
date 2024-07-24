@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import nodemailer from "nodemailer";
 import {render} from '@react-email/render';
 import EmailTemplate from "@/components/emails";
@@ -18,8 +19,6 @@ export async function sendMail({
 
   const transport = nodemailer.createTransport({
     service: "gmail",
-    host: 'smtp.gmail.com',
-    port: 465,
     auth: {
       user: SMTP_EMAIL,
       pass: SMTP_PASSWORD,
@@ -27,9 +26,9 @@ export async function sendMail({
   });
   try {
     const testResult = await transport.verify();
-    // eslint-disable-next-line no-console
     console.log(testResult);
   } catch (error) {
+    console.error({ error });
     return;
   }
 
@@ -42,7 +41,7 @@ export async function sendMail({
     });
     return sendResult
   } catch (error) {
-    return;
+    console.log(error);
   }
 }
 
