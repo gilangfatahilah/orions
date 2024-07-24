@@ -18,6 +18,8 @@ export async function sendMail({
 
   const transport = nodemailer.createTransport({
     service: "gmail",
+    host: 'smtp.gmail.com',
+    port: 465,
     auth: {
       user: SMTP_EMAIL,
       pass: SMTP_PASSWORD,
@@ -40,6 +42,7 @@ export async function sendMail({
     });
     return sendResult
   } catch (error) {
+    return;
   }
 }
 
