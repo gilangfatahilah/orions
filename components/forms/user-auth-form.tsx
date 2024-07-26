@@ -118,6 +118,7 @@ export default function UserAuthForm() {
       <Form {...credentialForm}>
         <form
           onSubmit={credentialForm.handleSubmit(handleCredentialSubmit)}
+          method='POST'
           className="w-full space-y-2"
         >
           <FormField

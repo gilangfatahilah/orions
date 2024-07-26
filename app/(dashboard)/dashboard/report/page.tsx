@@ -8,10 +8,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import BreadCrumb from "@/components/breadcrumb";
+import { GeneralSummary } from '@/components/tables/report-tables/general-table';
 
 const breadcrumbItems = [{ title: 'Report', link: '/dashboard/report' }];
 
-const ReportPage = () => {
+const ReportPage = async() => {
+
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
@@ -27,6 +29,7 @@ const ReportPage = () => {
         <Separator />
 
         <TabsContent value="general">
+          <GeneralSummary searchKey='itemName'/>
         </TabsContent>
         <TabsContent value="history">
         </TabsContent>

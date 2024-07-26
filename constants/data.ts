@@ -1,4 +1,4 @@
-import { NavItem, SidebarNavItem } from '@/types';
+import { NavItem } from '@/types';
 
 export type User = {
   id: number;
@@ -140,7 +140,7 @@ export type Summary = {
   itemName: string,
   itemPrice: number,
   itemPriceTotal: number,
-  month: number,
+  month: string,
   stockIn: number,
   stockOut: number,
   year: number,

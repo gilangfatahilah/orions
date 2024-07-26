@@ -181,3 +181,15 @@ model TransactionDetail {
 
   @@unique([transactionId, itemId])
 }
+
+model TransactionReport {
+  id              String          @id @default(uuid())
+  type            TransactionType
+  totalPrice      Int
+  transactionDate DateTime
+  letterCode      String
+  user            String
+  supplier        String
+  Outlet          String
+  Detail          String
+}
