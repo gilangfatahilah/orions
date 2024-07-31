@@ -39,6 +39,7 @@ import { getSuppliers } from '@/services/supplier.service';
 import { getOutlets } from '@/services/outlet.service';
 import { Transaction } from '@/constants/data';
 import { TransactionTable } from '../tables/transaction-tables/form-table';
+import { Combobox } from '../combobox';
 
 interface TransactionFormProps {
   user: {
@@ -130,12 +131,12 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
           stock: item.stock?.quantity ?? 0,
         }));
 
-        const suppliersToAssign = supplierData?.map((supplier) => ({
+        const suppliersToAssign = supplierData.map((supplier) => ({
           label: supplier.name,
           value: supplier.id,
         }));
 
-        const outletsToAssign = outletData?.map((outlet) => ({
+        const outletsToAssign = outletData.map((outlet) => ({
           label: outlet.name,
           value: outlet.id,
         }));
@@ -414,34 +415,12 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Supplier</FormLabel>
-                      <Select
-                        disabled={loading}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue>
-                              {renderPlaceholderWithIcon('supplier', field.value)}
-                            </SelectValue>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectGroup className='px-2'>
-                            <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>
-                              Select supplier
-                            </SelectLabel>
-                            {
-                              suppliers?.map((supplier) => (
-                                <SelectItem key={supplier.value} value={supplier.value}>
-                                  {supplier.label}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        options={suppliers}
+                        field={field}
+                        form={form}
+                        name="supplier"
+                        />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -457,34 +436,12 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Outlet</FormLabel>
-                      <Select
-                        disabled={loading}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue>
-                              {renderPlaceholderWithIcon('outlet', field.value)}
-                            </SelectValue>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectGroup className='px-2'>
-                            <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>
-                              Select outlet
-                            </SelectLabel>
-                            {
-                              outlets?.map((outlet, index) => (
-                                <SelectItem key={outlet.value} value={outlet.value}>
-                                  {outlet.label}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        options={outlets}
+                        field={field}
+                        form={form}
+                        name="outlet"
+                        />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -521,48 +478,12 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Item</FormLabel>
-                  <Select
-                    disabled={loading}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue>
-                          {renderPlaceholderWithIcon('item', field.value)}
-                        </SelectValue>
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <div className='p-2'>
-                        <Input
-                          type='text'
-                          key={'uniqueKey'}
-                          placeholder='Search...'
-                          value={searchQuery}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            setSearchQuery(e.target.value)
-                          }}
-                          className='w-full p-2 border border-gray-300 rounded'
+                  <Combobox
+                        options={items}
+                        field={field}
+                        form={form}
+                        name="item"
                         />
-                      </div>
-
-                      <SelectGroup className='px-2'>
-                        <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>
-                          Select item
-                        </SelectLabel>
-                        {
-                          filteredItems?.map((item) => (
-                            <SelectItem key={item.value} value={item.value}>
-                              {item.label}
-                            </SelectItem>
-                          ))
-                        }
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

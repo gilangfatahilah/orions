@@ -18,6 +18,17 @@ export interface TransactionParams {
   }[];
 }
 
+export interface TransactionReportParams {
+  type: 'ISSUING' | 'RECEIVING';
+  totalPrice: number;
+  transactionDate: Date;
+  letterCode: string;
+  user: string;
+  supplier: string | null;
+  outlet: string | null;
+  detail: string;
+} 
+
 export const createTransaction = async (
   { type, supplierId, outletId, date, total, letterCode, items, userId, user }:
     TransactionParams): Promise<Transaction | null> => {
@@ -121,3 +132,18 @@ export const getTransactionDetail = async (id: string) => {
     }
   });
 };
+
+export const addTransactionReport  = async (data: TransactionReportParams[]) => {
+  return await prisma.transactionReport.createMany({
+    data: data.map((d) => ({
+      type: d.type,
+      totalPrice: d.totalPrice,
+      transactionDate: d.transactionDate,
+      letterCode: d.letterCode,
+      user: d.user,
+      supplier: d.supplier ?? null,
+      outlet: d.outlet ?? null,
+      detail: d.detail,
+    }))
+  })
+} 

@@ -9,7 +9,6 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 import React from 'react';
-import { Icons } from '@/components/icons';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,8 +36,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Outlet } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
-import { deleteSeveralOutlet } from '@/services/outlet.service';
-
+import { createSeveralOutlet, deleteSeveralOutlet } from '@/services/outlet.service';
+import ImportExcel from '@/components/file-import';
+import TableDropdown from '../table-dropdown';
 
 interface DataTableProps<TData extends Outlet, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -140,6 +140,12 @@ export function OutletTable<TData extends Outlet, TValue>({
   });
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
+  const dataToExport = selectedData.map((data) => ({
+    name: data.original.name,
+    phone: data.original.phone,
+    email: data.original.email ?? '-',
+    address: data.original.address,
+  }))
 
   const onConfirmDelete = async () => {
     try {
@@ -174,6 +180,69 @@ export function OutletTable<TData extends Outlet, TValue>({
     }
   }
 
+  const handleImportExcel = async (excelData: Record<string, string | number>[]): Promise<void> => {
+    function skipExistValue(array1: Record<string, any>[], array2: Record<string, any>[]) {
+      return array1.filter(item1 => !array2.some(item2 => item1.name === item2.name));
+    }
+
+    try {
+      setLoading(true);
+
+      const dataHeader = Object.keys(excelData[0]);
+      const requiredHeaders = ["name", "phone", "email", "address"]
+      const isHeaderMatch = requiredHeaders.every(header => dataHeader.includes(header));
+
+      if (!isHeaderMatch) {
+        toast({
+          variant: 'destructive',
+          title: 'Failed to import data, the header does not match with the table.'
+        })
+        return;
+      }
+
+      const existingData = data.map((data) => ({
+        name: data.name,
+        phone: data.phone,
+        address: data.address,
+        email: data.email ?? null,
+      }))
+
+      const dataToImport = excelData.map((d) => ({
+        name: d.name as string,
+        phone: d.phone as string,
+        address: d.address as string,
+        email: d.email as string ?? null,
+      }))
+
+      const compareData = skipExistValue(dataToImport, existingData);
+
+      if (compareData.length) {
+        const response = await createSeveralOutlet(dataToImport, user);
+
+        if (response) {
+          toast({
+            title: 'Import Success!'
+          })
+          return;
+        }
+      }
+
+      toast({
+        variant: 'destructive',
+        title: 'Failed to import, the following data is duplicated.'
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.'
+      })
+    } finally {
+      setLoading(false)
+
+      router.refresh();
+    }
+  };
+
   return (
     <>
       <AlertModal
@@ -199,12 +268,16 @@ export function OutletTable<TData extends Outlet, TValue>({
             setGlobalFilter(search);
             router.push(`${pathname}?${params.toString()}`);
           }}
-          className="w-full md:max-w-sm"
+          className="w-full md:max-w-sm mb-2"
         />
 
-        <Button onClick={() => setAlertOpen(true)} className={selectedData.length ? 'block' : 'hidden'} variant={'destructive'}>
-          <Icons.trash className='w-4 h-4' />
-        </Button>
+        <div className='flex items-center gap-2 flex-wrap mb-2 '>
+          <ImportExcel onSubmit={handleImportExcel} />
+
+          <div className={selectedData.length ? 'block' : 'hidden'}>
+            <TableDropdown data={dataToExport} tableName='Outlet' onDelete={() => setAlertOpen(true)} />
+          </div>
+        </div>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

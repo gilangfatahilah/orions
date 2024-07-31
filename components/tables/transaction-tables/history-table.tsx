@@ -36,6 +36,8 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TransactionDetail } from '@/constants/data';
 import TableDropdown from '../table-dropdown';
 import { formatDate, formatCurrency } from '@/lib/formatter';
+import { AlertModal } from '@/components/modal/alert-modal';
+import { addTransactionReport, TransactionReportParams } from '@/services/transaction.service';
 
 
 interface DataTableProps<TData extends TransactionDetail, TValue> {
@@ -67,6 +69,8 @@ export function TransactionHistoryTable<TData extends TransactionDetail, TValue>
   const initialSearch = searchParams?.get('search') ?? '';
 
   const [globalFilter, setGlobalFilter] = React.useState<string>('');
+  const [openModal, setOpenModal] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   // Create query string
   const createQueryString = React.useCallback(
@@ -141,8 +145,46 @@ export function TransactionHistoryTable<TData extends TransactionDetail, TValue>
     user: data.original.user?.name ?? '-',
   }));
 
+  const handleAddToReport = async() => {
+    try {
+      setLoading(true);
+      const selectedIds = selectedData.map((data) => data.original.id);
+      const filteredData = data.filter((data) => selectedIds.includes(data.id));
+
+      const dataToReport: TransactionReportParams[]  = filteredData.map((data) => ({
+        type: data.type,
+        totalPrice: data.totalPrice,
+        transactionDate: data.transactionDate,
+        letterCode: data.letterCode,
+        user: data.user.name,
+        supplier: data.supplier ? JSON.stringify(data.supplier) : null,
+        outlet: data.outlet ? JSON.stringify(data.outlet) : null,
+        detail: JSON.stringify(data.detail),
+      }));
+
+      const response =  await addTransactionReport(dataToReport);
+      // REPLACE WITH TOAST SUCCESS 
+      if (response) console.log('success');
+
+    } catch (error) {
+      // REPLACE WITH TOAST ERROR
+      console.error(error);
+    }finally{
+      setLoading(false);
+      setOpenModal(false);
+    }
+  }
+
   return (
     <>
+      <AlertModal
+        onConfirm={handleAddToReport}
+        description="Are you sure you want to add this transaction to transaction report?"
+        loading={loading}
+        isOpen={openModal}
+        onClose={() => setOpenModal(false)}
+      />
+
       <div className='w-full flex items-center gap-4 mb-2 justify-between'>
         <Input
           placeholder="Search everything..."
@@ -161,9 +203,9 @@ export function TransactionHistoryTable<TData extends TransactionDetail, TValue>
           className="w-full md:max-w-sm"
         />
 
-          <div className={selectedData.length ? 'block' : 'hidden'}>
-            <TableDropdown data={dataToExport} tableName='Transaction' />
-          </div>
+        <div className={selectedData.length ? 'block' : 'hidden'}>
+          <TableDropdown data={dataToExport} tableName='Transaction' addToReport={() => setOpenModal(true)} />
+        </div>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

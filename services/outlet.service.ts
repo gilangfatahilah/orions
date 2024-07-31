@@ -2,23 +2,22 @@
 import prisma from '@/lib/db';
 import { Outlet } from '@prisma/client';
 
-export const createOutlet = async (data: { name: string, address: string, phone: string, email?: string }, user: string): Promise<Outlet | null> => {
-  return await prisma.outlet.create({
-    data: {
-      ...data,
-      history: {
-        create: {
-          field: 'New Outlet',
-          name: data.name,
-          table: 'Outlet',
-          oldValue: '-',
-          newValue: data.name,
-          modifiedBy: user,
-        }
-      }
-    }
+export const createSeveralOutlet = async (data: { name: string, phone: string, address: string, email: string | null }[], user: string) => {
+  await prisma.history.createMany({
+    data: data.map((d) => ({
+      field: 'New Outlet',
+      name: d.name,
+      table: 'Outlet',
+      oldValue: '-',
+      newValue: d.name,
+      modifiedBy: user,
+    }))
   })
-};
+
+  return await prisma.outlet.createMany({
+    data: data,
+  })
+}
 
 export const getOutlets = async (): Promise<Outlet[]| null> => {
   return await prisma.outlet.findMany();
@@ -89,7 +88,7 @@ export const deleteSeveralOutlet = async (id: string[], user: string) => {
   });
 
   if (!currentOutlets) {
-    throw new Error('Supplier not found');
+    throw new Error('Outlet not found');
   };
 
   await prisma.history.createMany({
@@ -103,7 +102,7 @@ export const deleteSeveralOutlet = async (id: string[], user: string) => {
     }))
   })
 
-  return await prisma.supplier.deleteMany({
+  return await prisma.outlet.deleteMany({
     where: {
       id: {
         in: id,

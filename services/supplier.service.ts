@@ -20,6 +20,23 @@ export const createSupplier = async (data: { name: string, address: string, phon
   })
 };
 
+export const createSeveralSupplier = async (data: { name: string, phone: string, address: string, email: string | null }[], user: string) => {
+  await prisma.history.createMany({
+    data: data.map((d) => ({
+      field: 'New Supplier',
+      name: d.name,
+      table: 'Supplier',
+      oldValue: '-',
+      newValue: d.name,
+      modifiedBy: user,
+    }))
+  })
+
+  return await prisma.supplier.createMany({
+    data: data,
+  })
+}
+
 export const getSuppliers = async (): Promise<Supplier[] | null> => {
   return await prisma.supplier.findMany();
 }
@@ -124,7 +141,7 @@ export const deleteSupplier = async (id: string, user: string): Promise<Supplier
   if (!currentSupplier) {
     throw new Error('Supplier not found');
   };
-  
+
   await prisma.history.create({
     data: {
       field: 'Delete Supplier',

@@ -123,7 +123,7 @@ export function GeneralSummary<TData extends Summary, TValue>({
               className="w-1/3 md:max-w-sm"
             />
 
-            <div className='w-1/3 flex gap-2'>
+            <div className='w-1/3 flex items-center gap-2'>
               <Select
                 value={selectedMonth.toString()}
                 onValueChange={(value) => setSelectedMonth(Number(value))}

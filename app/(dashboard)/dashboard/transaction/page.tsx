@@ -96,7 +96,11 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
             <TransactionForm user={userSession} />
           </TabsContent>
           <TabsContent value="history">
-            <TransactionHistoryTable data={transaction} columns={columns} user={session?.user.name as string} pageCount={pageCount} />
+            <TransactionHistoryTable
+              data={transaction}
+              columns={columns}
+              user={session?.user.name as string}
+              pageCount={pageCount} />
           </TabsContent>
         </Tabs>
       </div>

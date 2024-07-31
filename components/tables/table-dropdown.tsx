@@ -20,11 +20,12 @@ import { formatDate } from '@/lib/formatter';
 
 interface TableDropdownProps {
   onDelete?: () => void;
+  addToReport?: () => void;
   data: Record<string, string | number>[];
   tableName: string;
 }
 
-const TableDropdown = ({ onDelete, data, tableName }: TableDropdownProps) => {
+const TableDropdown = ({ onDelete, addToReport, data, tableName }: TableDropdownProps) => {
   const { toast } = useToast();
 
   const onExportExcel = async () => {
@@ -84,6 +85,16 @@ const TableDropdown = ({ onDelete, data, tableName }: TableDropdownProps) => {
               Delete
               <DropdownMenuShortcut>
                 <Icons.trash className="mr-2 h-4 w-4" />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          )
+        }
+        {
+          addToReport && (
+            <DropdownMenuItem onClick={() => addToReport()}>
+              Add to report
+              <DropdownMenuShortcut>
+                <Icons.filePlus className="mr-2 h-4 w-4" />
               </DropdownMenuShortcut>
             </DropdownMenuItem>
           )

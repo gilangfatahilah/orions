@@ -177,15 +177,19 @@ export function CategoryTable<TData extends Category, TValue>({
     }
   }
 
-  const handleImportExcel = async(data: Record<string, string | number>[]): Promise<void> => {
+  const handleImportExcel = async (excelData: Record<string, string | number>[]): Promise<void> => {
+    function skipExistValue(array1: Record<string, any>[], array2: Record<string, any>[]) {
+      return array1.filter(item1 => !array2.some(item2 => item1.name === item2.name));
+    }
+
     try {
       setLoading(true);
 
-      const dataHeader = Object.keys(data[0]);
+      const dataHeader = Object.keys(excelData[0]);
       const requiredHeaders = ["name", "code"]
       const isHeaderMatch = requiredHeaders.every(header => dataHeader.includes(header));
 
-      if(!isHeaderMatch) {
+      if (!isHeaderMatch) {
         toast({
           variant: 'destructive',
           title: 'Failed to import data, the header does not match with the table.'
@@ -193,25 +197,39 @@ export function CategoryTable<TData extends Category, TValue>({
         return;
       }
 
-      const dataToImport = data.map((d) => ({
+      const existingData = data.map((data) => ({
+        code: data.code ?? null,
+        name: data.name
+      }))
+
+      const dataToImport = excelData.map((d) => ({
         code: d.code as string ?? null,
         name: d.name as string,
       }))
 
-      const response = await createSeveralCategory(dataToImport, user);
+      const compareData = skipExistValue(dataToImport, existingData);
 
-      if(response){
-        toast({
-          title: 'Import Success!'
-        })
-        return;
+      if (compareData.length) {
+        const response = await createSeveralCategory(dataToImport, user);
+
+        if (response) {
+          toast({
+            title: 'Import Success!'
+          })
+          return;
+        }
       }
+
+      toast({
+        variant: 'destructive',
+        title: 'Failed to import, the following data is duplicated.'
+      })
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.'
       })
-    }finally{
+    } finally {
       setLoading(false)
 
       router.refresh();

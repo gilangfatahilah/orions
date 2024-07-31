@@ -33,24 +33,23 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Summary } from '@/constants/data';
+import { TransactionDetail } from '@/constants/data';
 import TableDropdown from '../table-dropdown';
-import { formatCurrency } from '@/lib/formatter';
+import { formatDate, formatCurrency } from '@/lib/formatter';
 
-
-interface DataTableProps<TData extends Summary, TValue> {
+interface DataTableProps<TData extends TransactionDetail, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageSizeOptions?: number[];
   pageCount: number;
 }
 
-export function TransactionHistoryTable<TData extends Summary, TValue>({
+export function TransactionReportTable<TData extends TransactionDetail, TValue>({
   columns,
   data,
   pageCount,
   pageSizeOptions = [10, 20, 30, 40, 50]
-}: DataTableProps<TData, TValue>) {
+}: Readonly<DataTableProps<TData, TValue>>) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -129,16 +128,19 @@ export function TransactionHistoryTable<TData extends Summary, TValue>({
 
   const selectedData = table.getFilteredSelectedRowModel().rows;
   const dataToExport = selectedData.map((data) => ({
-    item: data.original.itemName,
-    itemPrice: formatCurrency(data.original.itemPrice),
-    stockIn: data.original.stockIn,
-    stockOut: data.original.stockOut,
-    finalMonthStock: data.original.finalMonthUnit,
-    finalPrice: data.original.itemPriceTotal,
+    transactionId: data.original.id,
+    type: data.original.type,
+    transactionDate: formatDate(data.original.transactionDate),
+    letterCode: data.original.letterCode,
+    totalPrice: formatCurrency(data.original.totalPrice),
+    supplier: data.original.supplier?.name ?? '-',
+    outlet: data.original.outlet?.name ?? '-',
+    user: data.original.user?.name ?? '-',
   }));
 
   return (
     <>
+
       <div className='w-full flex items-center gap-4 mb-2 justify-between'>
         <Input
           placeholder="Search everything..."
@@ -157,9 +159,9 @@ export function TransactionHistoryTable<TData extends Summary, TValue>({
           className="w-full md:max-w-sm"
         />
 
-          <div className={selectedData.length ? 'block' : 'hidden'}>
-            <TableDropdown data={dataToExport} tableName='Transaction' />
-          </div>
+        <div className={selectedData.length ? 'block' : 'hidden'}>
+          <TableDropdown data={dataToExport} tableName='Transaction Report' />
+        </div>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

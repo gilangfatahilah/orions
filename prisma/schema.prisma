@@ -189,7 +189,7 @@ model TransactionReport {
   transactionDate DateTime
   letterCode      String
   user            String
-  supplier        String
-  Outlet          String
-  Detail          String
+  supplier        String?
+  outlet          String?
+  detail          String
 }
