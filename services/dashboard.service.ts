@@ -309,14 +309,16 @@ export const getCardSummary = async (): Promise<CardSummary> => {
   };
 };
 
-export const getDashboardSummary = async(): Promise<DashboardSummary> => {
-  const  one = await getTotalItemsByMonth();
-  const two = await getTotalItemsSummary();
-  const three = await getCardSummary();
+export const getDashboardSummary = async (): Promise<DashboardSummary> => {
+  const [monthlyItemSummary, totalItemSummary, cardSummary] = await Promise.all([
+    getTotalItemsByMonth(),
+    getTotalItemsSummary(),
+    getCardSummary()
+  ]);
 
   return {
-    monthlyItemSummary: one,
-    totalItemSummary: two,
-    cardSummary: three,
-  }
-}
+    monthlyItemSummary,
+    totalItemSummary,
+    cardSummary,
+  };
+};
