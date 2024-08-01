@@ -38,6 +38,12 @@ export interface CardSummary {
   outletDescription: string;
 }
 
+interface DashboardSummary {
+  monthlyItemSummary: MonthlyItemCount[];
+  totalItemSummary: TotalItemSummary[];
+  cardSummary: CardSummary;
+}
+
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export const getStockSummary = async (month?: string, year?: number): Promise<StockSummary[]> => {
@@ -302,3 +308,15 @@ export const getCardSummary = async (): Promise<CardSummary> => {
     userDescription
   };
 };
+
+export const getDashboardSummary = async(): Promise<DashboardSummary> => {
+  const  one = await getTotalItemsByMonth();
+  const two = await getTotalItemsSummary();
+  const three = await getCardSummary();
+
+  return {
+    monthlyItemSummary: one,
+    totalItemSummary: two,
+    cardSummary: three,
+  }
+}
