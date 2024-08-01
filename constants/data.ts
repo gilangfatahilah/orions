@@ -202,9 +202,9 @@ export const navItems: NavItem[] = [
     label: 'report'
   },
   {
-    title: 'Kanban (beta)',
+    title: 'Setting',
     href: '/dashboard/kanban',
-    icon: 'kanban',
-    label: 'kanban'
+    icon: 'settings',
+    label: 'setting'
   },
 ];

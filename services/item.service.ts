@@ -38,6 +38,48 @@ export const createItem = async (data: { name: string, categoryId: string, price
   });
 };
 
+export const createSeveralItem = async (
+  data: { name: string; price: number; category: string }[],
+  user: string
+) => {
+  const categories = await prisma.category.findMany({
+    where: {
+      name: { in: data.map((d) => d.category) },
+    },
+  });
+
+  const categoryMap = new Map(categories.map((c) => [c.name, c.id]));
+
+  for (const item of data) {
+    if (!categoryMap.has(item.category)) {
+      throw new Error(`Category ${item.category} does not exist!`);
+    }
+  }
+
+  const itemsToCreate = data.map((item) => ({
+    name: item.name,
+    categoryId: categoryMap.get(item.category)!,
+    price: item.price,
+  }));
+
+  const createdItems = await prisma.item.createMany({
+    data: itemsToCreate,
+  });
+
+  await prisma.history.createMany({
+    data: data.map((d) => ({
+      field: 'New Item',
+      name: d.name,
+      table: 'Item',
+      oldValue: '-',
+      newValue: d.name,
+      modifiedBy: user,
+    })),
+  });
+
+  return createdItems;
+};
+
 export const getItems = async () => {
   return await prisma.item.findMany({
     include: {

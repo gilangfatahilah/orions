@@ -3,6 +3,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Stock } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 export const columns: ColumnDef<Stock>[] = [
   {
@@ -52,9 +53,9 @@ export const columns: ColumnDef<Stock>[] = [
     id: 'status',
     header: 'STATUS',
     cell: ({ row }) => {
-      if (row.original.quantity < 5 && row.original.quantity >= 1) { return "Low Stock" }
-      else if (row.original.quantity === 0) { return "Empty Stock" }
-      else { return "Available Stock" }
+      if (row.original.quantity <= 5 && row.original.quantity >= 1) { return (<Badge variant={'destructive'}>Low Stock</Badge>) }
+      else if (row.original.quantity === 0) { return (<Badge variant={'destructive'}>Low Stock</Badge>) }
+      else { return (<Badge>Available Stock</Badge>) }
     }
   }
 ];

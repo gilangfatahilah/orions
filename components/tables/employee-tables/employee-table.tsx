@@ -43,6 +43,7 @@ import { deleteSeveralUser } from '@/services/user.service';
 import { useToast } from '@/components/ui/use-toast';
 import TableDropdown from '../table-dropdown';
 import { formatDate } from '@/lib/formatter';
+import { Badge } from '@/components/ui/badge';
 
 interface DataTableProps {
   data: Employee[];
@@ -145,6 +146,27 @@ export function EmployeeTable({
     {
       accessorKey: 'role',
       header: 'ROLE',
+      cell: ({ row }) => {
+        if (row.original.role === 'Superadmin') {
+          return (
+            <Badge variant={'emerald'}>
+              {row.original.role}
+            </Badge>
+          )
+        } else if (row.original.role === 'Manager') {
+          return (
+            <Badge variant={'sky'}>
+              {row.original.role}
+            </Badge>
+          )
+        }
+
+        return (
+          <Badge>
+            {row.original.role}
+          </Badge>
+        )
+      }
     },
     {
       accessorKey: 'createdAt',

@@ -4,6 +4,7 @@ import { Item } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 export const columns: ColumnDef<Item>[] = [
   {
@@ -43,7 +44,14 @@ export const columns: ColumnDef<Item>[] = [
   },
   {
     accessorKey: 'category.name',
-    header: 'CATEGORY'
+    header: 'CATEGORY',
+    cell: ({row}) => {
+      return (
+        <Badge>
+          {row.original.category?.name}
+        </Badge>
+      )
+    }
   },
   {
     accessorKey: 'price',

@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Checkbox } from '../ui/checkbox';
 import { Icons } from '../icons';
 import { AlertModal } from '../modal/alert-modal';
 import { useRouter } from 'next/navigation';
@@ -63,6 +64,7 @@ export const ItemForm = (
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [stayForm, setStayForm] = useState<boolean>(true);
   const [categoryOption, setCategoryOption] = useState<{ label: string, value: string }[]>();
   const title = initialData ? 'Edit Item' : 'Create Item';
   const description = initialData ? 'This action will update the item data, you can delete the item also by click the trash button.' : 'This action will add a new item, the new item will be invited via email that included in this form.';
@@ -157,7 +159,7 @@ export const ItemForm = (
           })
         }
 
-        router.push('/dashboard/item')
+        if (stayForm) router.push('/dashboard/item');
         return toast({
           title: 'Success, New item was added.',
           description: 'Create new item was done successfully.'
@@ -359,6 +361,17 @@ export const ItemForm = (
             </div>
 
           </div>
+            {
+              !initialData && (<div className="flex justify-end items-center space-x-2 ml-1 mt-6">
+                <Checkbox id="stayForm" className='w-4 h-4' onCheckedChange={() => setStayForm(!stayForm)} />
+                <label
+                  htmlFor="stayForm"
+                  className="text-xs font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Stay on this form after submit.
+                </label>
+              </div>)
+            }
 
           <div className='flex justify-end space-x-4'>
             <Link href={'/dashboard/item'}>

@@ -110,7 +110,6 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
   const [outlets, setOutlets] = React.useState<Option[]>([]);
   const [itemList, setItemList] = React.useState<Transaction[]>([]);
   const [itemStock, setItemStock] = React.useState<ItemStock[]>([]);
-  const [searchQuery, setSearchQuery] = React.useState<string>('');
 
   React.useEffect(() => {
     const fetchOptions = async () => {
@@ -153,7 +152,6 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
     fetchOptions();
   }, []);
 
-  const filteredItems = items.filter((item) => item.label.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const renderPlaceholderWithIcon = (input: 'type' | 'item' | 'supplier' | 'outlet', value?: string) => {
     let valueToRender;

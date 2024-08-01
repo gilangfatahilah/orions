@@ -37,8 +37,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Item } from '@/constants/data';
 import { useToast } from '@/components/ui/use-toast';
-import { deleteSeveralItem } from '@/services/item.service';
-import { formatCurrency } from '@/lib/formatter';
+import { createSeveralItem, deleteSeveralItem } from '@/services/item.service';
+import { formatCurrency, parseCurrency } from '@/lib/formatter';
+import ImportExcel from '@/components/file-import';
 
 
 interface DataTableProps<TData extends Item, TValue> {
@@ -179,6 +180,67 @@ export function ItemTable<TData extends Item, TValue>({
     }
   }
 
+  const handleImportExcel = async (excelData: Record<string, string | number>[]): Promise<void> => {
+    function skipExistValue(array1: Record<string, any>[], array2: Record<string, any>[]) {
+      return array1.filter(item1 => !array2.some(item2 => item1.name === item2.name));
+    }
+
+    try {
+      setLoading(true);
+
+      const dataHeader = Object.keys(excelData[0]);
+      const requiredHeaders = ["name", "category", "price" ]
+      const isHeaderMatch = requiredHeaders.every(header => dataHeader.includes(header));
+
+      if (!isHeaderMatch) {
+        toast({
+          variant: 'destructive',
+          title: 'Failed to import data, the header does not match with the table.'
+        })
+        return;
+      }
+
+      const existingData = data.map((data) => ({
+        name: data.name,
+        category: data.category?.name,
+        price: data.price,
+      }))
+
+      const dataToImport = excelData.map((d) => ({
+        name: d.name as string,
+        category: d.category as string,
+        price: parseCurrency(d.price as string) as number,
+      }))
+
+      const compareData = skipExistValue(dataToImport, existingData);
+
+      if (compareData.length) {
+        const response = await createSeveralItem(dataToImport, user);
+
+        if (response) {
+          toast({
+            title: 'Import Success!'
+          })
+          return;
+        }
+      }
+
+      toast({
+        variant: 'destructive',
+        title: 'Failed to import, the following data is duplicated.'
+      })
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.'
+      })
+    } finally {
+      setLoading(false)
+
+      router.refresh();
+    }
+  };
+
   return (
     <>
       <AlertModal
@@ -207,8 +269,12 @@ export function ItemTable<TData extends Item, TValue>({
           className="w-full md:max-w-sm"
         />
 
-        <div className={selectedData.length ? 'block' : 'hidden'}>
-          <TableDropdown data={dataToExport} tableName="Item" onDelete={() => setAlertOpen(true)} />
+        <div className='flex items-center gap-2 flex-wrap mb-2 '>
+          <ImportExcel onSubmit={handleImportExcel} />
+
+          <div className={selectedData.length ? 'block' : 'hidden'}>
+            <TableDropdown data={dataToExport} tableName="Item" onDelete={() => setAlertOpen(true)} />
+          </div>
         </div>
       </div>
 

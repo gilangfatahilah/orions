@@ -2,6 +2,24 @@
 import prisma from '@/lib/db';
 import { Outlet } from '@prisma/client';
 
+export const createOutlet = async(data: { name: string, phone: string, address: string, email: string | null }, user: string) => {
+  return await prisma.supplier.create({
+    data: {
+      ...data,
+      history: {
+        create: {
+          field: 'New Outlet',
+          name: data.name,
+          table: 'Outlet',
+          oldValue: '-',
+          newValue: data.name,
+          modifiedBy: user,
+        }
+      }
+    },
+  })
+}
+
 export const createSeveralOutlet = async (data: { name: string, phone: string, address: string, email: string | null }[], user: string) => {
   await prisma.history.createMany({
     data: data.map((d) => ({

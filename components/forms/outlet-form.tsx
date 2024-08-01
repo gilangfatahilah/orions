@@ -109,7 +109,7 @@ export const OutletForm = (
           name: data.name,
           address: data.address,
           phone: `+62${data.phone}`,
-          email: data.email ?? undefined,
+          email: data.email ?? null,
         }, user);
 
       if (!response) {

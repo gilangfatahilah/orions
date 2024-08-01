@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { formatDate } from '@/lib/formatter';
+import { Badge } from '@/components/ui/badge';
 
 export const columns: ColumnDef<History>[] = [
   {
@@ -84,7 +85,14 @@ export const columns: ColumnDef<History>[] = [
   },
   {
     accessorKey: 'modifiedBy',
-    header: 'MODIFIED BY'
+    header: 'MODIFIED BY',
+    cell: ( {row} ) => {
+      return (
+        <Badge>
+          {row.original.modifiedBy}
+        </Badge>
+      )
+    }
   },
   {
     accessorKey: 'createdAt',
