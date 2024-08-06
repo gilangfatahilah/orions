@@ -51,10 +51,10 @@ export const columns: ColumnDef<TransactionDetail>[] = [
     }
   },
   {
-    accessorKey: 'user.name',
+    accessorKey: 'userName',
     header: 'MANAGE BY',
     cell: ({ row }) => {
-      return row.original.user.name;
+      return row.original.userName;
     },
   },
   {

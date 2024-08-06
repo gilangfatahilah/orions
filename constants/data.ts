@@ -105,31 +105,13 @@ export type TransactionDetail = {
   transactionDate: Date,
   letterCode: string,
   totalPrice: number,
-  supplier: {
-    id: string,
-    name: string,
-    address: string,
-    phone: string,
-  } | null,
-  outlet: {
-    id: string,
-    name: string,
-    address: string,
-    phone: string,
-  } | null,
-  user: {
-    id: string,
-    name: string,
-  }
+  userName: string,
+  supplierDetail: string | null,
+  outletDetail: string | null,
   detail: {
     id: string,
     quantity: number,
-    item: {
-      image: string | null,
-      id: string,
-      name: string,
-      price: number,
-    }
+    itemDetail: string,
   }[],
 }
 
@@ -203,7 +185,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Setting',
-    href: '/dashboard/kanban',
+    href: '/dashboard/setting',
     icon: 'settings',
     label: 'setting'
   },

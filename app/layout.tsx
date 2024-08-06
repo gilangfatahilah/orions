@@ -11,7 +11,20 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Orion',
-  description: 'Basic dashboard with Next.js and Shadcn'
+  description: 'An inventory web application to simplify tracking your stock.',
+  keywords: ["orion", "next js", "inventory", "web app"],
+  generator: 'Next.js',
+  manifest: '/manifest.json',
+  authors: [
+    {
+      name: "Gilang Fatahilah",
+      url: "https://gilanqf.vercel.app",
+    },
+  ],
+  icons: [
+    { rel: "apple-touch-icon", url: "/logo/orion-192.png" },
+    { rel: "icon", url: "/logo/orion-192.png" },
+  ],
 };
 
 export default async function RootLayout({

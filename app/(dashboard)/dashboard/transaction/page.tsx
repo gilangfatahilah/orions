@@ -33,6 +33,8 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
   const pageLimit = Number(searchParams.limit) || 10;
   const offset = (page - 1) * pageLimit;
   const search = searchParams.search ? String(searchParams.search) : '';
+  const startDate = searchParams.startDate ? String(searchParams.startDate) : '';
+  const endDate = searchParams.endDate ? String(searchParams.endDate) : '';
 
   const transaction = await prisma.transaction.findMany({
     skip: offset,
@@ -47,6 +49,17 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
             ],
           }
           : {}
+      ), ...(
+        startDate && endDate ? {
+          OR: [
+            {
+              createdAt: {
+                gte: new Date(startDate),
+                lte: new Date(endDate),
+              }
+            }
+          ]
+        } : {}
       ),
     },
     select: {
@@ -55,17 +68,11 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
       totalPrice: true,
       letterCode: true,
       transactionDate: true,
-      supplier: {
-        select: { id: true, name: true, address: true, phone: true }
-      },
-      outlet: {
-        select: { id: true, name: true, address: true, phone: true }
-      },
-      user: {
-        select: { id: true, name: true }
-      },
+      userName: true,
+      supplierDetail: true,
+      outletDetail: true,
       detail: {
-        select: { id: true, quantity: true, item: { select: { id: true, image: true, name: true, price: true } } }
+        select: { id: true, quantity: true, itemDetail: true, }
       }
     },
     orderBy: {
@@ -99,7 +106,6 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
             <TransactionHistoryTable
               data={transaction}
               columns={columns}
-              user={session?.user.name as string}
               pageCount={pageCount} />
           </TabsContent>
         </Tabs>

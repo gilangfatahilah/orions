@@ -3,7 +3,7 @@ import prisma from '@/lib/db';
 import { Outlet } from '@prisma/client';
 
 export const createOutlet = async(data: { name: string, phone: string, address: string, email: string | null }, user: string) => {
-  return await prisma.supplier.create({
+  return await prisma.outlet.create({
     data: {
       ...data,
       history: {

@@ -24,7 +24,7 @@ export const EmailTemplate = ({
 	<Html>
 		<Head />
 		<Preview>
-			a fast, accurate, and reliable inventory management app.
+			Orion Reset Password.
 		</Preview>
 		<Body style={main}>
 			<Container style={container}>
@@ -37,11 +37,11 @@ export const EmailTemplate = ({
 				/>
 				<Text style={paragraph}>Hi {name},</Text>
 				<Text style={paragraph}>
-					Welcome to Orion inventory, Our manager has invited you to join our team, to continue please click the link below.
+					Someone recently requested a password change for your Dropbox account. If this was you, you can set a new password here:.
 				</Text>
 				<Section style={btnContainer}>
 					<Button style={button} href={url}>
-						Continue
+						Reset Password
 					</Button>
 				</Section>
 				<Text style={paragraph}>

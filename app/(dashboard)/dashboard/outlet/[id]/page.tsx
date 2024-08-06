@@ -1,11 +1,11 @@
 import React from 'react';
 import BreadCrumb from '@/components/breadcrumb';
-import { getSupplierById } from '@/services/supplier.service';
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation';
-import { SupplierForm } from '@/components/forms/supplier-form';
+import { OutletForm } from '@/components/forms/outlet-form';
+import { getOutletById } from '@/services/outlet.service';
 
-const EditSupplierPage = async ({ params }: { params: { id: string } }) => {
+const EditOutletPage = async ({ params }: { params: { id: string } }) => {
   const breadcrumbItems = [
     { title: 'Outlet', link: '/dashboard/outlet' },
     { title: 'Update', link: `/dashboard/outlet/${params.id}` }
@@ -18,7 +18,7 @@ const EditSupplierPage = async ({ params }: { params: { id: string } }) => {
     redirect('/not-found');
   }
 
-  const initialData = await getSupplierById(params.id);
+  const initialData = await getOutletById(params.id);
 
   const data = {
     id: initialData?.id ?? '',
@@ -31,9 +31,9 @@ const EditSupplierPage = async ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <SupplierForm initialData={data} user={session?.user.name as string}/>
+      <OutletForm initialData={data} user={session?.user.name as string}/>
     </div>
   )
 }
 
-export default EditSupplierPage;
+export default EditOutletPage;

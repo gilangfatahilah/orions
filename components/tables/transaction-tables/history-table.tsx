@@ -36,8 +36,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TransactionDetail } from '@/constants/data';
 import TableDropdown from '../table-dropdown';
 import { formatDate, formatCurrency } from '@/lib/formatter';
-import { AlertModal } from '@/components/modal/alert-modal';
-import { addTransactionReport, TransactionReportParams } from '@/services/transaction.service';
+import { CalendarDateRangePicker } from '@/components/date-range-picker';
 
 
 interface DataTableProps<TData extends TransactionDetail, TValue> {
@@ -45,14 +44,12 @@ interface DataTableProps<TData extends TransactionDetail, TValue> {
   data: TData[];
   pageSizeOptions?: number[];
   pageCount: number;
-  user: string;
 }
 
 export function TransactionHistoryTable<TData extends TransactionDetail, TValue>({
   columns,
   data,
   pageCount,
-  user,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
@@ -69,8 +66,6 @@ export function TransactionHistoryTable<TData extends TransactionDetail, TValue>
   const initialSearch = searchParams?.get('search') ?? '';
 
   const [globalFilter, setGlobalFilter] = React.useState<string>('');
-  const [openModal, setOpenModal] = React.useState<boolean>(false);
-  const [loading, setLoading] = React.useState<boolean>(false);
 
   // Create query string
   const createQueryString = React.useCallback(
@@ -133,57 +128,32 @@ export function TransactionHistoryTable<TData extends TransactionDetail, TValue>
     manualFiltering: true,
   });
 
-  const selectedData = table.getFilteredSelectedRowModel().rows;
-  const dataToExport = selectedData.map((data) => ({
-    transactionId: data.original.id,
-    type: data.original.type,
-    transactionDate: formatDate(data.original.transactionDate),
-    letterCode: data.original.letterCode,
-    totalPrice: formatCurrency(data.original.totalPrice),
-    supplier: data.original.supplier?.name ?? '-',
-    outlet: data.original.outlet?.name ?? '-',
-    user: data.original.user?.name ?? '-',
-  }));
-
-  const handleAddToReport = async() => {
-    try {
-      setLoading(true);
-      const selectedIds = selectedData.map((data) => data.original.id);
-      const filteredData = data.filter((data) => selectedIds.includes(data.id));
-
-      const dataToReport: TransactionReportParams[]  = filteredData.map((data) => ({
-        type: data.type,
-        totalPrice: data.totalPrice,
-        transactionDate: data.transactionDate,
-        letterCode: data.letterCode,
-        user: data.user.name,
-        supplier: data.supplier ? JSON.stringify(data.supplier) : null,
-        outlet: data.outlet ? JSON.stringify(data.outlet) : null,
-        detail: JSON.stringify(data.detail),
-      }));
-
-      const response =  await addTransactionReport(dataToReport);
-      // REPLACE WITH TOAST SUCCESS 
-      if (response) console.log('success');
-
-    } catch (error) {
-      // REPLACE WITH TOAST ERROR
-      console.error(error);
-    }finally{
-      setLoading(false);
-      setOpenModal(false);
-    }
+  const onFilterDate = ({ from, to }: { from: string, to: string }): void => {
+    router.push(`${pathname}?${createQueryString({
+      startDate: from,
+      endDate: to
+    })}`)
   }
+
+  const selectedData = table.getFilteredSelectedRowModel().rows;
+  const dataToExport = selectedData.map((data) => {
+    const supplier = JSON.parse(data.original.supplierDetail as string);
+    const outlet = JSON.parse(data.original.outletDetail as string);
+
+    return {
+      transactionId: data.original.id,
+      type: data.original.type,
+      transactionDate: formatDate(data.original.transactionDate),
+      letterCode: data.original.letterCode,
+      totalPrice: formatCurrency(data.original.totalPrice),
+      supplier: supplier?.name ?? '-',
+      outlet: outlet?.name ?? '-',
+      user: data.original.userName ?? '-',
+    }
+  });
 
   return (
     <>
-      <AlertModal
-        onConfirm={handleAddToReport}
-        description="Are you sure you want to add this transaction to transaction report?"
-        loading={loading}
-        isOpen={openModal}
-        onClose={() => setOpenModal(false)}
-      />
 
       <div className='w-full flex items-center gap-4 mb-2 justify-between'>
         <Input
@@ -203,8 +173,12 @@ export function TransactionHistoryTable<TData extends TransactionDetail, TValue>
           className="w-full md:max-w-sm"
         />
 
-        <div className={selectedData.length ? 'block' : 'hidden'}>
-          <TableDropdown data={dataToExport} tableName='Transaction' addToReport={() => setOpenModal(true)} />
+        <div className='flex gap-2 flex-wrap items-center'>
+          <CalendarDateRangePicker onSelectDate={onFilterDate} />
+
+          <div className={selectedData.length ? 'block' : 'hidden'}>
+            <TableDropdown data={dataToExport} tableName='Transaction' />
+          </div>
         </div>
       </div>
 

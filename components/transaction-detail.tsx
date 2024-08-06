@@ -13,6 +13,9 @@ interface DetailTransactionProps {
 }
 
 const DetailTransaction = forwardRef<HTMLDivElement, DetailTransactionProps>(({ data }, ref) => {
+  const supplier = JSON.parse(data.supplierDetail as string);
+  const outlet = JSON.parse(data.outletDetail as string); 
+
   return (
     <Card className="w-full max-w-4xl" ref={ref}>
       <CardHeader className="flex flex-col items-start gap-4 border-b pb-4 md:flex-row md:items-center">
@@ -36,13 +39,13 @@ const DetailTransaction = forwardRef<HTMLDivElement, DetailTransactionProps>(({ 
             <p className="mt-2 text-sm text-muted-foreground font-medium">Transaction Type</p>
             <p className="text-base">{data.type}</p>
             <p className="mt-2 text-sm text-muted-foreground font-medium">Managed By</p>
-            <p className="text-base">{data.user.name}</p>
+            <p className="text-base">{data.userName}</p>
           </div>
           <div className="flex flex-col place-self-end self-end w-1/2 gap-1 items-end">
             <p className="text-sm mb-1 text-muted-foreground font-medium">{data.type === 'ISSUING' ? 'Outlet' : 'Supplier'}</p>
-            <p className="text-base text-end">{data.type === 'ISSUING' ? data.outlet?.name : data.supplier?.name}</p>
-            <p className="text-base text-end">{data.type === 'ISSUING' ? data.outlet?.phone : data.supplier?.phone}</p>
-            <p className="text-base text-end">{data.type === 'ISSUING' ? data.outlet?.address : data.supplier?.address}</p>
+            <p className="text-base text-end">{data.type === 'ISSUING' ? outlet.name : supplier.name}</p>
+            <p className="text-base text-end">{data.type === 'ISSUING' ? outlet.phone : supplier.phone}</p>
+            <p className="text-base text-end">{data.type === 'ISSUING' ? outlet.address : supplier.address}</p>
           </div>
         </div>
         <Table>
@@ -55,23 +58,26 @@ const DetailTransaction = forwardRef<HTMLDivElement, DetailTransactionProps>(({ 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.detail.map((detail) => (
+            {data.detail.map((detail) => {
+              const {name, image, price } = JSON.parse(detail.itemDetail);
+
+              return(
               <TableRow className="text-end" key={detail.id}>
                 <TableCell>
                   <div className="flex gap-2 items-center">
-                    {detail.item.image !== null ? (
-                      <Image src={detail.item.image} alt={detail.item.name} width={36} height={36} />
+                    {image !== null ? (
+                      <Image src={image} alt={name} width={36} height={36} />
                     ) : (
                       <Icons.item className="w-[32px] h-[32px]" />
                     )}
-                    {detail.item.name}
+                    {name}
                   </div>
                 </TableCell>
                 <TableCell>{detail.quantity}</TableCell>
-                <TableCell>{formatCurrency(detail.item.price)}</TableCell>
-                <TableCell>{formatCurrency(detail.item.price * detail.quantity)}</TableCell>
+                <TableCell>{formatCurrency(price)}</TableCell>
+                <TableCell>{formatCurrency(price * detail.quantity)}</TableCell>
               </TableRow>
-            ))}
+            )})}
           </TableBody>
         </Table>
         <Separator />

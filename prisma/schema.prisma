@@ -155,6 +155,9 @@ model Transaction {
   totalPrice      Int
   transactionDate DateTime
   letterCode      String
+  userName        String
+  outletDetail    String?
+  supplierDetail  String?
   supplierId      String?
   userId          String
   outletId        String?
@@ -175,21 +178,10 @@ model TransactionDetail {
   id            String      @id @default(uuid())
   transactionId String
   itemId        String
+  itemDetail    String
   quantity      Int
   transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   item          Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@unique([transactionId, itemId])
-}
-
-model TransactionReport {
-  id              String          @id @default(uuid())
-  type            TransactionType
-  totalPrice      Int
-  transactionDate DateTime
-  letterCode      String
-  user            String
-  supplier        String?
-  outlet          String?
-  detail          String
 }

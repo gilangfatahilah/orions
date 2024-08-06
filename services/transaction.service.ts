@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/db";
 import { Transaction } from "@prisma/client";
+import { getSupplierById } from "./supplier.service";
+import { getOutletById } from "./outlet.service";
 
 export interface TransactionParams {
   type: 'ISSUING' | 'RECEIVING';
@@ -15,6 +17,7 @@ export interface TransactionParams {
   items: {
     id: string;
     quantity: number;
+    itemDetail?: string;
   }[];
 }
 
@@ -27,29 +30,19 @@ export interface TransactionReportParams {
   supplier: string | null;
   outlet: string | null;
   detail: string;
-} 
+}
 
 export const createTransaction = async (
   { type, supplierId, outletId, date, total, letterCode, items, userId, user }:
     TransactionParams): Promise<Transaction | null> => {
 
-  const transaction = await prisma.transaction.create({
-    data: {
-      type: type,
-      totalPrice: total,
-      transactionDate: date,
-      letterCode: letterCode,
-      userId: userId,
-      supplierId: type === 'RECEIVING' ? supplierId : null,
-      outletId: type === 'ISSUING' ? outletId : null,
-      detail: {
-        create: items.map((item) => ({
-          itemId: item.id,
-          quantity: item.quantity
-        })),
-      }
-    }
-  });
+  const getItemSource = supplierId !== null ? await getSupplierById(supplierId as string) : getOutletById(outletId as string);
+
+  if (!getItemSource) {
+    throw new Error('Failed to get data supplier / outlet');
+  }
+
+  const parsedItemSource = JSON.stringify(getItemSource);
 
   await prisma.history.create({
     data: {
@@ -102,8 +95,32 @@ export const createTransaction = async (
         newValue: newQuantity.toString(),
         modifiedBy: user,
       }
-    })
+    });
+
+    item.itemDetail = itemData ? JSON.stringify(itemData) : '';
   }
+
+  const transaction = await prisma.transaction.create({
+    data: {
+      type: type,
+      totalPrice: total,
+      transactionDate: date,
+      letterCode: letterCode,
+      userId: userId,
+      supplierId: type === 'RECEIVING' ? supplierId : null,
+      outletId: type === 'ISSUING' ? outletId : null,
+      userName: user,
+      supplierDetail: type === 'RECEIVING' ? parsedItemSource : null,
+      outletDetail: type === 'ISSUING' ? parsedItemSource : null,
+      detail: {
+        create: items.map((item) => ({
+          itemId: item.id,
+          itemDetail: item.itemDetail as string,
+          quantity: item.quantity
+        })),
+      }
+    }
+  });
 
   return transaction;
 }
@@ -133,7 +150,7 @@ export const getTransactionDetail = async (id: string) => {
   });
 };
 
-export const addTransactionReport  = async (data: TransactionReportParams[]) => {
+export const addTransactionReport = async (data: TransactionReportParams[]) => {
   return await prisma.transactionReport.createMany({
     data: data.map((d) => ({
       type: d.type,

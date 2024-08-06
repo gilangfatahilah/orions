@@ -1,5 +1,3 @@
-// GeneralSummary.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -28,15 +26,21 @@ import { Summary } from '@/constants/data';
 import { formatCurrency } from '@/lib/formatter';
 import { getStockSummary } from '@/services/report.service';
 import TableDropdown from '../table-dropdown';
+import { Icons } from '@/components/icons';
+import ReportDocument from '@/components/report/generalReport';
+import dynamic from 'next/dynamic';
+
+const PDFDownloadLink = dynamic(() => import('@/components/report/pdfDownloader'), { ssr: false });
 
 interface DataTableProps<TData extends Summary, TValue> {
   searchKey?: string;
+  user: string;
 }
 
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export function GeneralSummary<TData extends Summary, TValue>({
-  searchKey
+  searchKey, user
 }: Readonly<DataTableProps<TData, TValue>>) {
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
@@ -95,7 +99,7 @@ export function GeneralSummary<TData extends Summary, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: 5 } },
+    initialState: { pagination: { pageSize: 10 } },
   });
 
   const dataToExport = data.map((d) => ({
@@ -104,9 +108,28 @@ export function GeneralSummary<TData extends Summary, TValue>({
     'Stock In': d.stockIn,
     'Stock Out': d.stockOut,
     'End Month Stock': d.finalMonthUnit,
-    'Price Value': d.itemPrice,
-    'Final Price Value': d.itemPriceTotal,
-  }))
+    'Price Value': formatCurrency(d.itemPrice),
+    'Final Price Value': formatCurrency(d.itemPriceTotal),
+  }));
+
+  const dataPdf = data.map((d) => ({
+    name: d.itemName,
+    startStock: d.stockOut,
+    stockIn: d.stockIn,
+    stockOut: d.stockOut,
+    finalStock: d.finalMonthUnit,
+    price: formatCurrency(d.itemPrice),
+    totalPrice: formatCurrency(d.itemPriceTotal),
+  }));
+
+  const currentDate = () => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = (today.getMonth() + 1); 
+    const year = today.getFullYear();
+  
+    return `${day} ${monthNames[month]}, ${year}`;
+  }
 
   return (
     <>
@@ -151,7 +174,18 @@ export function GeneralSummary<TData extends Summary, TValue>({
                   ))}
                 </SelectContent>
               </Select>
-              <TableDropdown data={dataToExport} tableName={`General Report ${selectedMonth} - ${selectedYear}`} />
+              <PDFDownloadLink
+                document={<ReportDocument
+                  data={dataPdf}
+                  period={`${monthNames[selectedMonth]} ${selectedYear}`}
+                  user={user}
+                  date={currentDate()}
+                />}
+                fileName={`General report - ${selectedMonth} ${selectedYear}`}
+              >
+                <Icons.download className='w-4 h-4' />
+              </PDFDownloadLink>
+              <TableDropdown data={dataToExport} tableName={`General Report ${monthNames[selectedMonth]} - ${selectedYear}`} />
             </div>
           </div>
         )
