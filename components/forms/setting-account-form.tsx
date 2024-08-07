@@ -28,8 +28,9 @@ import { AlertModal } from '../modal/alert-modal';
 import * as z from 'zod';
 import { send } from '@/services/auth.service';
 import FileUpload from '../file-upload';
-import { updateUser, updateUserNoHistory } from '@/services/user.service';
+import { updateUserNoHistory } from '@/services/user.service';
 import LoadingButton from '../ui/loadingButton';
+import { useSession } from 'next-auth/react';
 
 interface SettingAccountProps {
   id: string;
@@ -46,6 +47,18 @@ const formSchema = z.object({
 type SettingAccountFormValues = z.infer<typeof formSchema>;
 
 const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps) => {
+  const { data: session, update } = useSession()
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [modal, setModal] = React.useState<{
+    confirm: () => Promise<void>,
+    description: string,
+    variant: 'primary' | 'danger'
+  }>({
+    confirm: async () => { },
+    description: '',
+    variant: 'primary',
+  });
 
   const defaultValues = {
     name: userName,
@@ -57,22 +70,33 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
     defaultValues,
   });
 
-  const onSubmit = async (data: SettingAccountFormValues) => { 
+  const onSubmit = async (data: SettingAccountFormValues) => {
     try {
       setLoading(true);
 
-      const response  = await updateUserNoHistory(id, {
+      const body = {
         name: data.name,
         image: data.image,
-      });
+      }
 
-      if (response) return toast.success('Success, your account has been updated.')
+      const response = await updateUserNoHistory(id, body);
+
+      if (response) {
+        await update({
+          user: {
+            ...session?.user,
+            ...body,
+          }
+        });
+
+        toast.success('Success, your account has been updated.');
+      }
 
     } catch (error) {
       toast.error('Something went wrong', {
         description: 'There was a problem, please try again.',
       })
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -101,19 +125,6 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
       setLoading(false);
     }
   };
-
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const [open, setOpen] = React.useState<boolean>(false);
-  const [modal, setModal] = React.useState<{
-    confirm: () => Promise<void>,
-    description: string,
-    variant: 'primary' | 'danger'
-  }>({
-    confirm: async() => {},
-    description: '',
-    variant: 'primary',
-  });
-
 
   const handleChangePassword = () => {
     setModal({
