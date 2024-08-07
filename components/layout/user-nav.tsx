@@ -1,7 +1,7 @@
 'use client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { useToast } from '../ui/use-toast';
+import {toast} from 'sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,6 @@ import { AlertModal } from '../modal/alert-modal';
 
 export function UserNav() {
   const { data: session } = useSession();
-  const {toast} = useToast();
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -37,15 +36,11 @@ export function UserNav() {
       const response = await signOutAuth();
 
       if (response === undefined) {
-        toast({
-          title: 'Sign out success.',
-        })
+        toast.success('Sign out success.')
       }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong !', {
+        description: 'There was a problem while processing your request, please try again.',
       });
     }finally {
       setLoading(false);

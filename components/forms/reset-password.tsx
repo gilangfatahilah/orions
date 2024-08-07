@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input"
 import { Icons } from "../icons"
 import { useToast } from "../ui/use-toast";
 import { resetPassword } from "@/services/auth.service";
+import LoadingButton from "../ui/loadingButton";
 
 const formSchema = z.object({
   password: z.string().min(6, {
@@ -181,15 +182,8 @@ export const ResetPassword = ({ id }: { id: string }) => {
               )}
             />
 
-            {loading ? (
-              <Button disabled={true} className="ml-auto w-full mt-2" type="submit">
-                <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
-              </Button>
-            ) : (
-              <Button className="ml-auto w-full mt-2" type="submit">
-                Set new password
-              </Button>
-            )}
+            <LoadingButton label='Set New Password' loading={loading} className="w-full mt-2" />
+
           </form>
         </Form>
       </CardContent>

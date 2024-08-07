@@ -27,6 +27,7 @@ import Link from "next/link";
 import { send } from "@/services/auth.service";
 import { getUserByEmail } from "@/services/user.service";
 import { useToast } from "../ui/use-toast";
+import LoadingButton from "../ui/loadingButton";
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
@@ -143,15 +144,8 @@ export const ForgetPassword = () => {
                   )}
                 />
 
-                {loading ? (
-                  <Button disabled className="ml-auto w-full" type="submit">
-                    <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
-                  </Button>
-                ) : (
-                  <Button className="ml-auto w-full" type="submit">
-                    Send Verification Link
-                  </Button>
-                )}
+                <LoadingButton label="Send Verification Link" loading={loading} className="w-full" />
+
               </form>
             </Form>
           </CardContent>

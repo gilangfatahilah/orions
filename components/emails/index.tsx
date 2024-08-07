@@ -37,7 +37,7 @@ export const EmailTemplate = ({
 				/>
 				<Text style={paragraph}>Hi {name},</Text>
 				<Text style={paragraph}>
-					Someone recently requested a password change for your Dropbox account. If this was you, you can set a new password here:.
+					Someone recently requested a password change for your personal orion account. If this was you, you can set a new password here:.
 				</Text>
 				<Section style={btnContainer}>
 					<Button style={button} href={url}>

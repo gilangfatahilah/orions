@@ -1,12 +1,12 @@
-import Providers from '@/components/layout/providers';
-import { Toaster } from '@/components/ui/toaster';
-import '@uploadthing/react/styles.css';
-import type { Metadata } from 'next';
-import NextTopLoader from 'nextjs-toploader';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { auth } from '@/auth';
 import Pwa from '@/components/pwa';
+import Providers from '@/components/layout/providers';
+import NextTopLoader from 'nextjs-toploader';
+import { Toaster } from 'sonner';
+import { auth } from '@/auth';
+import { Inter } from 'next/font/google';
+import type { Metadata } from 'next';
+import '@uploadthing/react/styles.css';
+import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,8 +40,8 @@ export default async function RootLayout({
       <body className={`${inter.className} overflow-hidden`}>
         <NextTopLoader color='#2761D9' showSpinner={false} />
         <Providers session={session}>
-          <Toaster />
           {children}
+          <Toaster expand={true} richColors />
         </Providers>
 
         <Pwa />

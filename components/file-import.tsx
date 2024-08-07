@@ -8,7 +8,7 @@ import {
 import { Input } from './ui/input';
 import { Icons } from './icons';
 import { Label } from './ui/label';
-import { useToast } from './ui/use-toast';
+import {toast} from 'sonner';
 import { AlertModal } from './modal/alert-modal';
 import { importExcelData } from '@/lib/fileImport';
 
@@ -17,7 +17,6 @@ interface ImportExcelProps {
 }
 
 const ImportExcel = ({ onSubmit }: ImportExcelProps) => {
-  const { toast } = useToast();
 
   const [fileName, setFileName] = React.useState<string>('');
   const [file, setFile] = React.useState<File>();
@@ -31,9 +30,8 @@ const ImportExcel = ({ onSubmit }: ImportExcelProps) => {
       setFileName(file.name);
       setOpenModal(true);
     } else {
-      toast({
-        variant: 'destructive',
-        title: 'Failed importing file, please try again.',
+      toast.error('Something went wrong', {
+        description: 'Failed to upload file, please try again.'
       })
     }
   };

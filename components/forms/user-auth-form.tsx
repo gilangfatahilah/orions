@@ -15,9 +15,10 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { useToast } from '../ui/use-toast';
 import { Icons } from '../icons';
+import LoadingButton from '../ui/loadingButton';
 
 const credentialSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
@@ -29,7 +30,6 @@ const credentialSchema = z.object({
 type credentialFormData = z.infer<typeof credentialSchema>;
 
 export default function UserAuthForm() {
-  const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
@@ -46,11 +46,9 @@ export default function UserAuthForm() {
   useEffect(() => {
     const error = searchParams.get('error');
     if (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'Hmm… that google account doesn\'t look valid'
-      });
+      toast.error('Invalid account !', {
+        description: 'The account does not exist or has been removed.'
+      })
 
       router.push('/');
     }
@@ -67,27 +65,22 @@ export default function UserAuthForm() {
         redirect: false,
       });
 
-      if (response?.error === 'Configuration' || response?.error === 'Credentials') {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'Invalid email or password, please check your email or password and try again.'
+      console.log(response);
+
+      if (response?.error === 'Configuration' || response?.error === 'CredentialsSignin') {
+        return toast.error('Invalid email or password !', {
+          description: 'Please check your credentials and try again.'
         });
       }
 
-      if (response?.status === 200 && response.ok) {
-        toast({
-          title: 'Sign in successful.'
-        });
-
+      if (response?.status === 200 && response.error === null) {
+        toast.success('Sign in success, welcome back!');
         router.push('/dashboard');
+
+        return;
       }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
+      toast.error('Something went wrong, There was a problem with your request.');
     } finally {
       setLoading(false);
     }
@@ -96,13 +89,11 @@ export default function UserAuthForm() {
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
-      await signIn('google', {callbackUrl: '/dashboard'});
-      
+      await signIn('google', { callbackUrl: '/dashboard' });
+
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong !', {
+        description: 'There was a problem with your request, please try again.'
       });
     } finally {
       setLoading(false);
@@ -179,15 +170,7 @@ export default function UserAuthForm() {
             )}
           />
 
-          {loading ? (
-            <Button disabled={true} className="ml-auto w-full mt-4" type="submit">
-              <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
-            </Button>
-          ) : (
-            <Button className="ml-auto w-full mt-4" type="submit">
-              Continue
-            </Button>
-          )}
+          <LoadingButton label="Continue" loading={loading} className='w-full' />
 
         </form>
       </Form>

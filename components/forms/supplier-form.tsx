@@ -23,6 +23,7 @@ import { createSupplier, deleteSupplier, updateSupplier } from '@/services/suppl
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
 import { Textarea } from '../ui/textarea';
+import LoadingButton from '../ui/loadingButton';
 
 const formSchema = z.object({
   name: z
@@ -312,17 +313,8 @@ export const SupplierForm = (
               </Button>
             </Link>
 
-            {
-              loading ? (
-                <Button disabled={true} className="ml-auto" type="submit">
-                  <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
-                </Button>
-              ) : (
-                <Button disabled={false} className="ml-auto" type="submit">
-                  {action}
-                </Button>
-              )
-            }
+            <LoadingButton label={action} loading={loading} />
+
           </div>
         </form>
       </Form>

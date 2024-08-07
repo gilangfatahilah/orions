@@ -22,6 +22,7 @@ import { useToast } from '../ui/use-toast';
 import { createCategory, deleteCategory, updateCategory } from '@/services/category.service';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
+import LoadingButton from '../ui/loadingButton';
 
 export const IMG_MAX_LIMIT = 1;
 const formSchema = z.object({
@@ -152,7 +153,7 @@ export const CategoryForm = (
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onConfirm={onDelete}
+        onConfirm={onDelete as () => Promise<void>}
         loading={loading}
         description={`Are you sure you want to delete category ${initialData?.name}`}
       />
@@ -243,17 +244,7 @@ export const CategoryForm = (
               </Button>
             </Link>
 
-            {
-              loading ? (
-                <Button disabled={true} className="ml-auto" type="submit">
-                  <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
-                </Button>
-              ) : (
-                <Button disabled={false} className="ml-auto" type="submit">
-                  {action}
-                </Button>
-              )
-            }
+            <LoadingButton label={action} loading={loading} />
           </div>
         </form>
       </Form>

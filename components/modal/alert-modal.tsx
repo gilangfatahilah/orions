@@ -7,9 +7,10 @@ import { Icons } from '../icons';
 interface AlertModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => (void | Promise<void>);
   loading: boolean;
   description?: string;
+  variant?: 'danger' | 'primary';
 }
 
 export const AlertModal: React.FC<AlertModalProps> = ({
@@ -18,6 +19,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   onConfirm,
   loading,
   description,
+  variant = 'danger',
 }) => {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -42,11 +44,11 @@ export const AlertModal: React.FC<AlertModalProps> = ({
         </Button>
         {
           loading ? (
-            <Button disabled={loading} variant="destructive" onClick={onConfirm}>
+            <Button disabled={loading} variant={variant === 'danger' ? 'destructive' : 'default'} onClick={onConfirm}>
               <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
             </Button>
           ) : (
-            <Button disabled={loading} variant="destructive" onClick={onConfirm}>
+            <Button disabled={loading} variant={variant === 'danger' ? 'destructive' : 'default'} onClick={onConfirm}>
               Continue
             </Button>
           )

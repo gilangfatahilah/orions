@@ -28,10 +28,11 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import FileUpload from '../file-upload';
-import { useToast } from '../ui/use-toast';
+import { toast } from 'sonner'
 import { createUser, updateUser, deleteUser } from '@/services/user.service';
 import { sendInvitationMail } from '@/services/auth.service';
 import Link from 'next/link';
+import LoadingButton from '../ui/loadingButton';
 
 export const IMG_MAX_LIMIT = 1;
 const formSchema = z.object({
@@ -62,7 +63,6 @@ export const UserForm = (
   { initialData, role, sessionEmail, sessionUser }: UserFormProps
 ) => {
   const router = useRouter();
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const title = initialData ? 'Edit User' : 'Create User';
@@ -106,78 +106,57 @@ export const UserForm = (
       setLoading(true);
       const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
       const image = data.image ?? null;
-
-      if (initialData) {
-        const response = await updateUser(initialData.id, {
-          email: data.email,
-          name: data.name,
-          role: data.role,
-          image: data.image ?? null,
-        }, sessionUser)
-
-        if (response) {
-          router.push('/dashboard/user');
-
-          return toast({
-            title: 'Success, user successfully updated.',
-            description: `User successfully updated with new data.`,
-          })
-        }
-
-        if (!response) {
-          return toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'Something went wrong with your request, please check your connection and try again.',
-          })
-        }
-      } else {
-        const response = await createUser({
-          email: data.email,
-          name: data.name,
-          role: data.role,
-          image: image as string,
-        }, sessionUser);
-
-        if (!response) {
-          return toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'Something went wrong with your request, please check your connection and try again.',
-          })
-        }
-
+  
+      const actionPromise = initialData
+        ? updateUser(initialData.id, {
+            email: data.email,
+            name: data.name,
+            role: data.role,
+            image: data.image ?? null,
+          }, sessionUser)
+        : createUser({
+            email: data.email,
+            name: data.name,
+            role: data.role,
+            image: image as string,
+          }, sessionUser);
+  
+      await toast.promise(actionPromise, {
+        loading: 'Please wait...',
+        success: initialData ? 'User successfully updated.' : 'User successfully created',
+        error: 'Uh oh! Something went wrong. Please check your connection and try again.',
+      });
+  
+      if (!initialData) {
+        const actionResponse = await actionPromise; // Await the promise to get the response
         const email = data.email;
         const name = data.name;
         const subject = 'Invitation user on Orion';
         const role = data.role;
         const userImage = data.image ?? undefined;
-        const url = `${BASE_URL}/reset-password/${response.id}`;
-
-        const sendMail = await sendInvitationMail(email, name, subject, role, sessionEmail as string, url, userImage);
-        // eslint-disable-next-line no-console
-        console.log(sendMail);
-
-        if (sendMail.accepted.length) { 
-          router.push('/dashboard/user');
-
-          return toast({
-            title: 'Success, user successfully created',
-            description: `User successfully created, invitation email was sent to ${data.email}`,
-          })
-        }
-
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
+        const url = `${BASE_URL}/reset-password/${actionResponse?.id}`;
+        
+        const sendMailPromise = sendInvitationMail(email, name, subject, role, sessionEmail as string, url, userImage);
+  
+        await toast.promise(sendMailPromise, {
+          loading: 'Sending invitation email...',
+          success: `Invitation email was sent to ${data.email}`,
+          error: 'Failed to send invitation email. There was a problem with your request.',
         });
+  
+        const sendMailResponse = await sendMailPromise; // Await the promise to get the response
+  
+        if (sendMailResponse.accepted.length) {
+          router.push('/dashboard/user');
+        } else {
+          throw new Error('Email not accepted');
+        }
+      } else {
+        router.push('/dashboard/user');
       }
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong!', {
+        description: 'There was a problem, Please try again.',
       });
     } finally {
       setLoading(false);
@@ -191,23 +170,19 @@ export const UserForm = (
       const response = await deleteUser(initialData?.id as string, sessionUser);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
-        });
+        return toast.error('Something went wrong', {
+          description: 'There was a problem, Please try again.',
+        })
       }
 
       router.push('/dashboard/user');
-      return toast({
-        title: "Success, user has been deleted."
+      return toast.success('Success !', {
+        description: 'User has been deleted.'
       })
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
+      toast.error('Something went wrong!', {
+        description: 'There was a problem, please try again.',
+      })
     } finally {
       setLoading(false);
     }
@@ -218,7 +193,7 @@ export const UserForm = (
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onConfirm={onDelete}
+        onConfirm={onDelete as () => Promise<void>}
         loading={loading}
         description={`Are you sure you want to delete user ${initialData?.name}`}
       />
@@ -373,17 +348,8 @@ export const UserForm = (
               </Button>
             </Link>
 
-            {
-              loading ? (
-                <Button disabled={true} className="ml-auto" type="submit">
-                  <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
-                </Button>
-              ) : (
-                <Button disabled={false} className="ml-auto" type="submit">
-                  {action}
-                </Button>
-              )
-            }
+            <LoadingButton label={action} loading={loading} />
+
           </div>
         </form>
       </Form>

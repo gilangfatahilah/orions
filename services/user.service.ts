@@ -69,7 +69,7 @@ export const updateUser = async (id: string, data: Partial<User>, user: string):
     where: { id: id },
     data: {
       ...data,
-      history:{
+      history: {
         create: changes.map((change) => ({
           field: change.field ?? '',
           table: 'User',
@@ -92,7 +92,7 @@ export const deleteUser = async (id: string, user: string): Promise<User | null>
       table: 'User',
       name: currentUser?.name ?? '-',
       oldValue: currentUser?.name ?? '-',
-      newValue:  '-',
+      newValue: '-',
       modifiedBy: user,
     }
   })
@@ -105,9 +105,9 @@ export const deleteUser = async (id: string, user: string): Promise<User | null>
 };
 
 export const deleteSeveralUser = async (id: string[], user: string) => {
-  const currentUsers =  await prisma.user.findMany({
+  const currentUsers = await prisma.user.findMany({
     where: {
-      id: {in: id}
+      id: { in: id }
     },
     select: {
       id: true,
@@ -134,3 +134,10 @@ export const deleteSeveralUser = async (id: string[], user: string) => {
     }
   })
 };
+
+export const updateUserNoHistory = async (id: string, data: Partial<User>): Promise<User | null> => {
+  return await prisma.user.update({
+    where: { id },
+    data: { ...data }
+  })
+}

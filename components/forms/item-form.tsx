@@ -34,6 +34,7 @@ import { useToast } from '../ui/use-toast';
 import { createItem, updateItem, deleteItem } from '@/services/item.service';
 import { getCategory } from '@/services/category.service';
 import { NumericFormat } from 'react-number-format';
+import LoadingButton from '../ui/loadingButton';
 
 const formSchema = z.object({
   name: z
@@ -380,17 +381,8 @@ export const ItemForm = (
               </Button>
             </Link>
 
-            {
-              loading ? (
-                <Button disabled={true} className="ml-auto" type="submit">
-                  <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
-                </Button>
-              ) : (
-                <Button disabled={false} className="ml-auto" type="submit">
-                  {action}
-                </Button>
-              )
-            }
+            <LoadingButton label={action} loading={loading} />
+
           </div>
         </form>
       </Form>
