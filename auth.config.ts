@@ -94,8 +94,10 @@ export const authConfig = {
       }
 
       if (trigger === "update" && session) {
-        token = {...token, user : session}
-        return token;
+        token.id = session.user.id;
+        token.role = session.user.role;
+        token.image = session.user.image;
+        token.name = session.user.name;
       };
       
       return token;
