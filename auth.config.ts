@@ -82,7 +82,7 @@ export const authConfig = {
       return session;
     },
 
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account, profile, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -92,6 +92,11 @@ export const authConfig = {
       if (account?.provider === 'google' && profile?.picture) {
         token.image = profile.picture;
       }
+
+      if (trigger === "update" && session) {
+        token = {...token, user : session}
+        return token;
+      };
       
       return token;
     },
