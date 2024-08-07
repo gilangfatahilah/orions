@@ -6,6 +6,7 @@ import NextTopLoader from 'nextjs-toploader';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { auth } from '@/auth';
+import Pwa from '@/components/pwa';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -42,6 +43,8 @@ export default async function RootLayout({
           <Toaster />
           {children}
         </Providers>
+
+        <Pwa />
       </body>
     </html>
   );

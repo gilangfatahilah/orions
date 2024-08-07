@@ -6,14 +6,19 @@ import { buttonVariants } from '@/components/ui/button';
 import { FlipWords } from '@/components/ui/flip-words';
 import Logo from '@/components/layout/logo';
 import { cn } from '@/lib/utils';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Orion',
   description: 'Authentication forms built using the components.'
 };
 
-export default function AuthenticationPage() {
+export default async function AuthenticationPage() {
   const words = ["Track", "Manage", "Thrive",];
+  const session = await auth();
+
+  if (session?.user) return redirect('/dashboard');
 
   return (
     <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
