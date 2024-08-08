@@ -15,18 +15,19 @@ datasource db {
 }
 
 model User {
-  id          String        @id @default(cuid())
-  name        String
-  email       String        @unique
-  password    String?
-  role        String
-  image       String?
-  accounts    Account[]
-  sessions    Session[]
-  Transaction Transaction[]
-  history     History[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  password     String?
+  role         String
+  image        String?
+  accounts     Account[]
+  sessions     Session[]
+  Transaction  Transaction[]
+  history      History[]
+  Notification Notification?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Account {
@@ -57,6 +58,13 @@ model Session {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  userId          String   @unique
+  notifictionJson String
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
 }
 
 model VerificationToken {
