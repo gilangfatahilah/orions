@@ -35,8 +35,12 @@ export function TotalStocks({ data, previousMonthStock }: Readonly<ChartProps>) 
     return data.reduce((acc, curr) => acc + curr.value, 0)
   }, [data]);
 
-  const aggregatedStocks = ((totalStocks - previousMonthStock) / previousMonthStock) * 100;
-  const parsedAggregatedStocks = isNaN(aggregatedStocks) ? 0.00 : aggregatedStocks.toFixed(2);
+  const aggregatedStocks = React.useMemo(() => {
+    const result = ((totalStocks - previousMonthStock) / previousMonthStock) * 100;
+    return isNaN(result) ? 0.00 : result; 
+  }, [totalStocks, previousMonthStock]);
+  
+  const parsedAggregatedStocks = isNaN(aggregatedStocks) ? '0.00' : aggregatedStocks.toFixed(2);
 
   return (
     <Card className="flex flex-col max-h-[500px]">
@@ -92,21 +96,21 @@ export function TotalStocks({ data, previousMonthStock }: Readonly<ChartProps>) 
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-          {
-            aggregatedStocks < 0 ? (
-              <div className="flex items-center gap-2 font-medium leading-none">
-                Trending down by {parsedAggregatedStocks}% this month <TrendingDown className="h-4 w-4" />
-              </div>
-            ) : aggregatedStocks === 0 ? (
-              <div className="flex items-center gap-2 font-medium leading-none">
-                There&apos;s no transaction since last month <Sparkles className="h-4 w-4" /> 
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 font-medium leading-none">
-                Trending up by {parsedAggregatedStocks}% this month <TrendingUp className="h-4 w-4" />
-              </div>
-            )
-          }
+        {
+          aggregatedStocks < 0 ? (
+            <div className="flex items-center gap-2 font-medium leading-none">
+              Trending down by {parsedAggregatedStocks}% this month <TrendingDown className="h-4 w-4" />
+            </div>
+          ) : aggregatedStocks === 0 ? (
+            <div className="flex items-center gap-2 font-medium leading-none">
+              There&apos;s no transaction since last month <Sparkles className="h-4 w-4" />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 font-medium leading-none">
+              Trending up by {parsedAggregatedStocks}% this month <TrendingUp className="h-4 w-4" />
+            </div>
+          )
+        }
         <div className="leading-none text-muted-foreground">
           Showing latest total item stocks in warehouse.
         </div>

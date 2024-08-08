@@ -23,9 +23,11 @@ interface DashboardProps {
   sessionUser: string;
 }
 
-const DashboardOverview: React.FC<DashboardProps> = ({ monthlyItemSummary, totalItemSummary, cardSummary, sessionUser }) => {
+const DashboardOverview = ({ monthlyItemSummary, totalItemSummary, cardSummary, sessionUser }: DashboardProps) => {
   const overviewRef = React.useRef(null);
-  const previousMonthStock = monthlyItemSummary[monthlyItemSummary.length - 2]?.itemCount ?? 0;
+  const previousMonthStock = React.useMemo(() => {
+    return monthlyItemSummary[monthlyItemSummary.length - 2]?.itemCount ?? 0;
+  }, [monthlyItemSummary]);
 
   const handleDownload = () => {
     if (overviewRef.current) {
@@ -33,10 +35,10 @@ const DashboardOverview: React.FC<DashboardProps> = ({ monthlyItemSummary, total
     }
   }
 
-  const getFirstWord = (str: string): string => {
+  const getFirstWord = React.useCallback((str: string): string => {
     const words = str.split(' ');
     return words.length > 0 ? words[0] : '';
-  }
+  }, []);
 
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
