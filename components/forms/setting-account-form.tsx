@@ -61,10 +61,10 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
     variant: 'primary',
   });
 
-  const defaultValues = {
+  const defaultValues = React.useMemo(() => ({
     name: userName,
-    image: image
-  };
+    image: image,
+  }), [userName, image]);
 
   const form = useForm<SettingAccountFormValues>({
     resolver: zodResolver(formSchema),
