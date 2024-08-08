@@ -2,51 +2,9 @@
 
 import prisma from "@/lib/db";
 
-interface StockSummary {
-  itemName: string;
-  itemCode: string;
-  itemPrice: number;
-  stockIn: number;
-  stockOut: number;
-  firstMonthUnit: number;
-  finalMonthUnit: number;
-  itemPriceTotal: number;
-  month: string;
-  year: number;
-}
-
-export interface MonthlyItemCount {
-  month: string;
-  year: number;
-  itemCount: number;
-}
-
-export interface TotalItemSummary {
-  label: string;
-  value: number;
-  fill: string;
-}
-
-export interface CardSummary {
-  totalPrice: string;
-  priceDescription: string;
-  totalUser: number;
-  userDescription: string;
-  totalSupplier: number;
-  supplierDescription: string;
-  totalOutlet: number;
-  outletDescription: string;
-}
-
-interface DashboardSummary {
-  monthlyItemSummary: MonthlyItemCount[];
-  totalItemSummary: TotalItemSummary[];
-  cardSummary: CardSummary;
-}
-
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-export const getStockSummary = async (month?: string, year?: number): Promise<StockSummary[]> => {
+export const getStockSummary = async (month?: string, year?: number) => {
   const items = await prisma.item.findMany({
     include: {
       transactions: {
@@ -57,132 +15,93 @@ export const getStockSummary = async (month?: string, year?: number): Promise<St
     },
   });
 
-  const stockSummary: StockSummary[] = items.flatMap(item => {
+  return items.map(item => {
     const sortedTransactions = item.transactions.sort(
       (a, b) => a.transaction.transactionDate.getTime() - b.transaction.transactionDate.getTime()
     );
 
-    const firstTransactionDate = sortedTransactions.length > 0
-      ? sortedTransactions[0].transaction.transactionDate
-      : new Date();
-    const lastTransactionDate = new Date();
-
-    const monthlySummary: Record<string, StockSummary> = {};
-
+    const monthlySummary: Record<string, any> = {};
     let currentStock = 0;
-
-    for (let d = new Date(firstTransactionDate.getFullYear(), firstTransactionDate.getMonth(), 1); d <= lastTransactionDate; d.setMonth(d.getMonth() + 1)) {
-      const month = d.getMonth() + 1;
-      const year = d.getFullYear();
-      const key = `${item.id}-${year}-${month}`;
-
-      monthlySummary[key] = {
-        itemName: item.name,
-        itemCode: item.id,
-        itemPrice: item.price,
-        firstMonthUnit: currentStock,
-        stockIn: 0,
-        stockOut: 0,
-        finalMonthUnit: currentStock,
-        itemPriceTotal: item.price * currentStock,
-        month: monthNames[month - 1],
-        year,
-      };
-    }
 
     sortedTransactions.forEach(td => {
       const month = td.transaction.transactionDate.getMonth() + 1;
       const year = td.transaction.transactionDate.getFullYear();
       const key = `${item.id}-${year}-${month}`;
 
+      if (!monthlySummary[key]) {
+        monthlySummary[key] = {
+          itemName: item.name,
+          itemCode: item.id,
+          itemPrice: item.price,
+          firstMonthUnit: currentStock,
+          stockIn: 0,
+          stockOut: 0,
+          finalMonthUnit: currentStock,
+          itemPriceTotal: item.price * currentStock,
+          month: monthNames[month - 1],
+          year,
+        };
+      }
+
       if (td.transaction.type === 'RECEIVING') {
         monthlySummary[key].stockIn += td.quantity;
       } else if (td.transaction.type === 'ISSUING') {
         monthlySummary[key].stockOut += td.quantity;
       }
+
+      currentStock += td.transaction.type === 'RECEIVING' ? td.quantity : -td.quantity;
+      monthlySummary[key].finalMonthUnit = currentStock;
+      monthlySummary[key].itemPriceTotal = monthlySummary[key].itemPrice * currentStock;
     });
 
-    let previousKey: string | null = null;
-    for (let d = new Date(firstTransactionDate.getFullYear(), firstTransactionDate.getMonth(), 1); d <= lastTransactionDate; d.setMonth(d.getMonth() + 1)) {
-      const month = d.getMonth() + 1;
-      const year = d.getFullYear();
-      const key = `${item.id}-${year}-${month}`;
-
-      if (previousKey) {
-        monthlySummary[key].firstMonthUnit = monthlySummary[previousKey].finalMonthUnit;
-      }
-
-      monthlySummary[key].finalMonthUnit = monthlySummary[key].firstMonthUnit + monthlySummary[key].stockIn - monthlySummary[key].stockOut;
-      monthlySummary[key].itemPriceTotal = monthlySummary[key].itemPrice * monthlySummary[key].finalMonthUnit;
-
-      previousKey = key;
-    }
-
     return Object.values(monthlySummary);
-  });
-
-  if (month && year) {
-    const filteredSummaries = stockSummary.filter((item) => item.month === month && item.year === year);
-    return filteredSummaries;
-  }
-
-  return stockSummary;
+  }).flat();
 };
 
-export const getTotalItemsByMonth = async (): Promise<MonthlyItemCount[]> => {
-  // Retrieve the full stock summary data
+export const getTotalItemsByMonth = async () => {
   const stockSummaries = await getStockSummary();
-
-  // Get the current date and calculate the date 12 months ago
   const now = new Date();
   const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
-  // Filter summaries to include only the last 12 months
-  const filteredSummaries = stockSummaries.filter(summary => {
+  const itemCountByMonth: Record<string, any> = {};
+
+  stockSummaries.forEach(summary => {
     const summaryDate = new Date(summary.year, monthNames.indexOf(summary.month));
-    return summaryDate >= twelveMonthsAgo;
+    if (summaryDate >= twelveMonthsAgo) {
+      const key = `${summary.year}-${summary.month}`;
+      if (!itemCountByMonth[key]) {
+        itemCountByMonth[key] = {
+          month: summary.month,
+          year: summary.year,
+          itemCount: 0,
+        };
+      }
+      itemCountByMonth[key].itemCount += summary.finalMonthUnit;
+    }
   });
 
-  // Aggregate item counts by month and year
-  const itemCountByMonth: Record<string, MonthlyItemCount> = filteredSummaries.reduce((acc, summary) => {
-    const key = `${summary.year}-${summary.month}`;
-    if (!acc[key]) {
-      acc[key] = {
-        month: summary.month,
-        year: summary.year,
-        itemCount: 0,
-      };
-    }
-
-    acc[key].itemCount += summary.finalMonthUnit;
-    return acc;
-  }, {} as Record<string, MonthlyItemCount>);
-
-  // Convert the aggregated data to an array and sort by year and month
-  const sortedItemCountByMonth = Object.values(itemCountByMonth).sort((a, b) => {
+  return Object.values(itemCountByMonth).sort((a, b) => {
     if (a.year === b.year) {
       return monthNames.indexOf(a.month) - monthNames.indexOf(b.month);
     }
     return a.year - b.year;
   });
-
-  return sortedItemCountByMonth;
 };
 
-export const getTotalItemsSummary = async (): Promise<TotalItemSummary[]> => {
-  const dataItem = await prisma.item.findMany({
+export const getTotalItemsSummary = async () => {
+  const items = await prisma.item.findMany({
     select: {
       id: true,
       name: true,
       stock: {
         select: {
           quantity: true,
-        }
-      }
-    }
+        },
+      },
+    },
   });
 
-  const sortedItems = dataItem
+  const sortedItems = items
     .map((item) => ({
       label: item.name,
       value: item.stock?.quantity ?? 0,
@@ -198,34 +117,22 @@ export const getTotalItemsSummary = async (): Promise<TotalItemSummary[]> => {
     ...top5Items.map((item, index) => ({ ...item, fill: colors[index] })),
     { label: 'others', value: othersQuantity, fill: colors[5] },
   ];
-}
+};
 
-export const getCardSummary = async (): Promise<CardSummary> => {
-  const formatAmount = (amount: number): string => {
+export const getCardSummary = async () => {
+  const formatAmount = (amount: number) => {
     if (amount >= 1000000000) {
       return 'Rp ' + (amount / 1000000000).toFixed(1) + 'B';
     } else if (amount >= 1000000) {
       return 'Rp ' + (amount / 1000000).toFixed(1) + 'M';
-    } else {
-      return 'Rp ' + amount.toLocaleString();
     }
+    return 'Rp ' + amount.toLocaleString();
   };
 
-  
-  const countAggregate = (current: number, previous: number): string => {
-    const aggregate = current - previous;
-    return aggregate >= 0 ? `+${aggregate} from last month` : `${aggregate} last current month`
-  }
-
-  const formatDescription = (current: number, previous: number): string => {
-    if (previous === 0) {
-      return '+100% from last month';
-    }
-
-    const aggregatedData = ((current - previous) / previous) * 100;
-    const description = aggregatedData >= 0 ? `+${aggregatedData.toFixed(2)}% from last month` : `${aggregatedData.toFixed(2)}% from last month`;
-    return description;
-  }
+  const aggregate = (current: number, previous: number) => {
+    const diff = current - previous;
+    return diff >= 0 ? `+${diff} from last month` : `${diff} from last month`;
+  };
 
   const dataItem = await prisma.item.findMany({
     select: {
@@ -234,14 +141,16 @@ export const getCardSummary = async (): Promise<CardSummary> => {
       stock: {
         select: {
           quantity: true,
-        }
-      }
-    }
+        },
+      },
+    },
   });
 
-  const totalUser = await prisma.user.count();
-  const totalSupplier = await prisma.supplier.count();
-  const totalOutlet = await prisma.outlet.count();
+  const [totalUser, totalSupplier, totalOutlet] = await Promise.all([
+    prisma.user.count(),
+    prisma.supplier.count(),
+    prisma.outlet.count(),
+  ]);
 
   const now = new Date();
   const year = now.getFullYear();
@@ -253,49 +162,41 @@ export const getCardSummary = async (): Promise<CardSummary> => {
   const lastDayOfLastMonth = new Date(firstDayOfCurrentMonth);
   lastDayOfLastMonth.setDate(lastDayOfLastMonth.getDate() - 1);
 
-  const userLastMonth = await prisma.user.count({
-    where: {
-      createdAt: {
-        gte: firstDayOfLastMonth,
-        lt: firstDayOfCurrentMonth,
+  const [userLastMonth, supplierLastMonth, outletLastMonth, lastMonthData] = await Promise.all([
+    prisma.user.count({
+      where: {
+        createdAt: {
+          gte: firstDayOfLastMonth,
+          lt: firstDayOfCurrentMonth,
+        },
       },
-    },
-  });
-
-  const supplierLastMonth = await prisma.supplier.count({
-    where: {
-      createdAt: {
-        gte: firstDayOfLastMonth,
-        lt: firstDayOfCurrentMonth,
+    }),
+    prisma.supplier.count({
+      where: {
+        createdAt: {
+          gte: firstDayOfLastMonth,
+          lt: firstDayOfCurrentMonth,
+        },
       },
-    },
-  });
-
-  const outletLastMonth = await prisma.outlet.count({
-    where: {
-      createdAt: {
-        gte: firstDayOfLastMonth,
-        lt: firstDayOfCurrentMonth,
+    }),
+    prisma.outlet.count({
+      where: {
+        createdAt: {
+          gte: firstDayOfLastMonth,
+          lt: firstDayOfCurrentMonth,
+        },
       },
-    },
-  });
+    }),
+    getStockSummary(lastMonth, year),
+  ]);
 
-  const lastMonthData = await getStockSummary(lastMonth, year);
-  const lastMonthTotalPrice = lastMonthData.map((data) => data.itemPriceTotal).reduce((sum, item) => sum + item, 0);
+  const lastMonthTotalPrice = lastMonthData.reduce((sum, data) => sum + data.itemPriceTotal, 0);
+  const currentPrice = dataItem.reduce((sum, item) => sum + (item.price * (item.stock?.quantity || 0)), 0);
 
-  const priceList = dataItem.map((item) => {
-    if (item.stock?.quantity) {
-      return item.price * item.stock.quantity;
-    }
-    return 0;
-  });
-
-  const currentPrice = priceList.reduce((sum, item) => sum + item, 0);
-
-  const priceDescription = formatDescription(currentPrice, lastMonthTotalPrice);
-  const supplierDescription = countAggregate(totalSupplier, supplierLastMonth);
-  const outletDescription = countAggregate(totalOutlet, outletLastMonth);
-  const userDescription = countAggregate(totalUser, userLastMonth);
+  const priceDescription = aggregate(currentPrice, lastMonthTotalPrice);
+  const supplierDescription = aggregate(totalSupplier, supplierLastMonth);
+  const outletDescription = aggregate(totalOutlet, outletLastMonth);
+  const userDescription = aggregate(totalUser, userLastMonth);
 
   return {
     totalPrice: formatAmount(currentPrice),
@@ -305,15 +206,15 @@ export const getCardSummary = async (): Promise<CardSummary> => {
     totalOutlet,
     outletDescription,
     totalUser,
-    userDescription
+    userDescription,
   };
 };
 
-export const getDashboardSummary = async (): Promise<DashboardSummary> => {
+export const getDashboardSummary = async () => {
   const [monthlyItemSummary, totalItemSummary, cardSummary] = await Promise.all([
     getTotalItemsByMonth(),
     getTotalItemsSummary(),
-    getCardSummary()
+    getCardSummary(),
   ]);
 
   return {
