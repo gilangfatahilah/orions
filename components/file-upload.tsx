@@ -4,7 +4,7 @@ import { UploadDropzone } from '@uploadthing/react';
 import { Icons } from './icons';
 import Image from 'next/image';
 import { Button } from './ui/button';
-import { useToast } from './ui/use-toast';
+import { toast } from 'sonner';
 
 interface ImageUploadProps {
   onChange?: any;
@@ -17,7 +17,6 @@ export default function FileUpload({
   onRemove,
   value
 }: Readonly<ImageUploadProps>) {
-  const { toast } = useToast();
   const onDeleteFile = () => {
     onRemove('');
   };
@@ -76,11 +75,7 @@ export default function FileUpload({
               }
             }}
             onUploadError={(error: Error) => {
-              toast({
-                title: 'Error',
-                variant: 'destructive',
-                description: error.message
-              });
+              toast.error(error.message);
             }}
             onUploadBegin={() => {
               // Do something once upload begins

@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Icons } from '../icons';
-import { useToast } from '../ui/use-toast';
+import { toast } from 'sonner';
 import { createSupplier, deleteSupplier, updateSupplier } from '@/services/supplier.service';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
@@ -51,7 +51,6 @@ export const SupplierForm = (
   { initialData, user }: SupplierFormProps
 ) => {
   const router = useRouter();
-  const { toast } = useToast();
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [stayForm, setStayForm] = useState<boolean>(true);
@@ -81,58 +80,34 @@ export const SupplierForm = (
   const onSubmit = async (data: SupplierForms) => {
     try {
       setLoading(true);
-      if (initialData) {
-        const response = await updateSupplier(initialData.id,
+
+      const response = initialData
+        ?
+        await updateSupplier(initialData.id,
           {
             name: data.name,
             address: data.address,
             phone: `+62${data.phone}`,
             email: data.email ?? undefined
+          }, user)
+        :
+        await createSupplier(
+          {
+            name: data.name,
+            address: data.address,
+            phone: `+62${data.phone}`,
+            email: data.email ?? undefined,
           }, user);
 
-        if (!response) {
-          return toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'Error when trying to update Supplier, please check your connection and try again.'
-          })
-        }
-
-        router.push('/dashboard/supplier');
-        return toast({
-          title: 'Success!',
-          description: 'Supplier has been updated successfully.'
-        })
-      }
-
-      const response = await createSupplier(
-        {
-          name: data.name,
-          address: data.address,
-          phone: `+62${data.phone}`,
-          email: data.email ?? undefined,
-        }, user);
-
-      if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'Error when trying to create Supplier, please check your connection and try again.'
-        })
+      if (response) {
+        toast.success(`Success, Supplier has been ${initialData ? 'updated' : 'created'} successfully`);
       }
 
       if (stayForm) router.push('/dashboard/supplier');
 
-      return toast({
-        title: 'Success!',
-        description: 'Supplier has been created successfully.'
-      })
-
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false);
@@ -146,22 +121,18 @@ export const SupplierForm = (
       const response = await deleteSupplier(initialData?.id as string, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
+        toast.error('Something went wrong', {
+          description: 'There was a problem with your request'
         });
+
+        return;
       }
 
       router.push('/dashboard/supplier');
-      return toast({
-        title: "Success, supplier has been deleted."
-      })
+      return toast.success("Success, supplier has been deleted.")
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false);

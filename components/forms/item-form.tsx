@@ -30,7 +30,7 @@ import { AlertModal } from '../modal/alert-modal';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useToast } from '../ui/use-toast';
+import { toast } from 'sonner';
 import { createItem, updateItem, deleteItem } from '@/services/item.service';
 import { getCategory } from '@/services/category.service';
 import { NumericFormat } from 'react-number-format';
@@ -62,7 +62,6 @@ export const ItemForm = (
   { initialData, user }: ItemFormProps
 ) => {
   const router = useRouter();
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [stayForm, setStayForm] = useState<boolean>(true);
@@ -120,57 +119,28 @@ export const ItemForm = (
     try {
       setLoading(true);
 
-      if (initialData) {
-        const response = await updateItem(initialData.id, {
+      const response = initialData
+        ? await updateItem(initialData.id, {
           name: data.name,
           price: Number(data.price),
           image: data.image ?? null,
           categoryId: data.category,
-        }, user )
-
-        if (response) {
-          router.push('/dashboard/item');
-
-          return toast({
-            title: 'Success, item successfully updated.',
-            description: `item successfully updated with new data.`,
-          })
-        }
-
-        if (!response) {
-          return toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'Something went wrong with your request, please check your connection and try again.',
-          })
-        }
-      } else {
-        const response = await createItem({
+        }, user)
+        : await createItem({
           name: data.name,
           price: Number(data.price),
           image: data.image ?? undefined,
           categoryId: data.category,
         }, user);
 
-        if (!response) {
-          return toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'Something went wrong with your request, please check your connection and try again.',
-          })
-        }
-
-        if (stayForm) router.push('/dashboard/item');
-        return toast({
-          title: 'Success, New item was added.',
-          description: 'Create new item was done successfully.'
-        });
+      if (response) {
+        toast.success(`Success, Item has been ${initialData ? 'updated' : 'created'} successfully`);
       }
+
+      if (stayForm) router.push('/dashboard/item');
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false);
@@ -184,22 +154,18 @@ export const ItemForm = (
       const response = await deleteItem(initialData?.id as string, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
+        toast.error('Something went wrong', {
+          description: 'There was a problem with your request'
         });
+
+        return;
       }
 
       router.push('/dashboard/item');
-      return toast({
-        title: "Success, item has been deleted."
-      })
+      return toast.success("Success, item has been deleted.")
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false);
@@ -211,10 +177,10 @@ export const ItemForm = (
   };
 
   const handleChange = (event: string) => {
-      const value = event.replace(/,/g, '');
-    
-      const formattedNumber =  formatNumber(value);
-      return Number(formattedNumber)
+    const value = event.replace(/,/g, '');
+
+    const formattedNumber = formatNumber(value);
+    return Number(formattedNumber)
   };
 
   return (
@@ -362,17 +328,17 @@ export const ItemForm = (
             </div>
 
           </div>
-            {
-              !initialData && (<div className="flex justify-end items-center space-x-2 ml-1 mt-6">
-                <Checkbox id="stayForm" className='w-4 h-4' onCheckedChange={() => setStayForm(!stayForm)} />
-                <label
-                  htmlFor="stayForm"
-                  className="text-xs font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Stay on this form after submit.
-                </label>
-              </div>)
-            }
+          {
+            !initialData && (<div className="flex justify-end items-center space-x-2 ml-1 mt-6">
+              <Checkbox id="stayForm" className='w-4 h-4' onCheckedChange={() => setStayForm(!stayForm)} />
+              <label
+                htmlFor="stayForm"
+                className="text-xs font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Stay on this form after submit.
+              </label>
+            </div>)
+          }
 
           <div className='flex justify-end space-x-4'>
             <Link href={'/dashboard/item'}>

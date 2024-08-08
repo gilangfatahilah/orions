@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Icons } from '../icons';
-import { useToast } from '../ui/use-toast';
+import { toast } from 'sonner';
 import { createCategory, deleteCategory, updateCategory } from '@/services/category.service';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
@@ -47,7 +47,6 @@ export const CategoryForm = (
   { initialData, user }: CategoryFormProps
 ) => {
   const router = useRouter();
-  const { toast } = useToast();
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [stayForm, setStayForm] = useState<boolean>(true);
@@ -77,43 +76,25 @@ export const CategoryForm = (
         const response = await updateCategory(initialData.id, { name: data.name, code: data.code ?? undefined }, user);
 
         if (!response) {
-          return toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'Error when trying to create category, please check your connection and try again.'
-          })
+          return toast.error('Something went wrong', { description: 'Failed to update category.' });
         }
 
         router.push('/dashboard/category');
-        return toast({
-          title: 'Success!',
-          description: 'Category has been updated successfully.'
-        })
+        return toast.success('Success, category has been updated successfully.',)
       }
 
       const response = await createCategory({ name: data.name, code: data.code ?? undefined }, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'Error when trying to create category, please check your connection and try again.'
-        })
+        return toast.error('Something went wrong', { description: 'Failed to create category.' });
       }
 
-      if(stayForm) router.push('/dashboard/category');
+      if (stayForm) router.push('/dashboard/category');
 
-      return toast({
-        title: 'Success!',
-        description: 'Category has been created successfully.'
-      })
+      return toast.success('Success, category has been created successfully.')
 
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
+      toast.error('Something went wrong', { description: 'there was a problem with your request.' })
     } finally {
       setLoading(false);
     }
@@ -126,23 +107,13 @@ export const CategoryForm = (
       const response = await deleteCategory(initialData?.id as string, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
-        });
+        return toast.error('Something went wrong', { description: 'Failed to delete category.' })
       }
 
       router.push('/dashboard/category');
-      return toast({
-        title: "Success, category has been deleted."
-      })
+      return toast.success('Success, category deleted successfully.')
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
+      toast.error('Something went wrong', { description: 'there was a problem with your request.' })
     } finally {
       setLoading(false);
     }
@@ -226,7 +197,7 @@ export const CategoryForm = (
 
             {
               !initialData && (<div className="flex justify-end items-center space-x-2 ml-1 mt-6">
-                <Checkbox id="stayForm" className='w-4 h-4' onCheckedChange={() =>  setStayForm(!stayForm)} />
+                <Checkbox id="stayForm" className='w-4 h-4' onCheckedChange={() => setStayForm(!stayForm)} />
                 <label
                   htmlFor="stayForm"
                   className="text-xs font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from "@/components/ui/input"
 import { Icons } from "../icons"
-import { useToast } from "../ui/use-toast";
+import {toast} from 'sonner';
 import { resetPassword } from "@/services/auth.service";
 import LoadingButton from "../ui/loadingButton";
 
@@ -44,7 +44,6 @@ const formSchema = z.object({
 type formData = z.infer<typeof formSchema>;
 
 export const ResetPassword = ({ id }: { id: string }) => {
-  const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = React.useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = React.useState<boolean>(false);
@@ -68,24 +67,17 @@ export const ResetPassword = ({ id }: { id: string }) => {
       if (response) {
         router.push('/')
 
-        return toast({
-          title: 'Success, your password has been updated.',
-          description: 'Your password has successfully updated, Now you can sign in with your new password.'
-        });
+        return toast.success('Success, your password has been updated successfully.')
       }
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request, please check your connection and try again.'
-        });
+        return toast.error('Something went wrong', {
+          description: 'There was a problem updating your password.'
+        })
       }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request, please check your connection and try again.'
+      toast.error('something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false)

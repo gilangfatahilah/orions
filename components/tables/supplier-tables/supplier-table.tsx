@@ -35,7 +35,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Supplier } from '@/constants/data';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { createSeveralSupplier, deleteSeveralSupplier } from '@/services/supplier.service';
 import TableDropdown from '../table-dropdown';
 import ImportExcel from '@/components/file-import';
@@ -59,7 +59,6 @@ export function SupplierTable<TData extends Supplier, TValue>({
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
   const searchParams = useSearchParams();
   // Search params
   const page = searchParams?.get('page') ?? '1';
@@ -154,26 +153,22 @@ export function SupplierTable<TData extends Supplier, TValue>({
       const response = await deleteSeveralSupplier(idToDelete, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
+        toast.error('Something went wrong', {
+          description: 'There was a problem with your request'
         });
+
+        return;
       }
 
       // close and refresh
       setAlertOpen(false);
       router.refresh();
 
-      return toast({
-        title: `Success, ${idToDelete.length} suppliers has successfully deleted.`,
-      });
+      return toast.success(`Success, ${idToDelete.length} suppliers has successfully deleted.`);
 
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false);
@@ -193,10 +188,9 @@ export function SupplierTable<TData extends Supplier, TValue>({
       const isHeaderMatch = requiredHeaders.every(header => dataHeader.includes(header));
 
       if (!isHeaderMatch) {
-        toast({
-          variant: 'destructive',
-          title: 'Failed to import data, the header does not match with the table.'
-        })
+        toast.error('Something went wrong', {
+          description: 'Failed to import data, the column does not match!'
+        });
         return;
       }
 
@@ -220,22 +214,18 @@ export function SupplierTable<TData extends Supplier, TValue>({
         const response = await createSeveralSupplier(dataToImport, user);
 
         if (response) {
-          toast({
-            title: 'Import Success!'
-          })
+          toast.success('Success, data imported successfully')
           return;
         }
       }
 
-      toast({
-        variant: 'destructive',
-        title: 'Failed to import, the following data is duplicated.'
-      })
+      toast.error('Something went wrong', {
+        description: 'Failed to import data, the data was duplicated !'
+      });
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.'
-      })
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
+      });
     } finally {
       setLoading(false)
 

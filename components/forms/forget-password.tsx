@@ -26,7 +26,7 @@ import { Icons } from "../icons";
 import Link from "next/link";
 import { send } from "@/services/auth.service";
 import { getUserByEmail } from "@/services/user.service";
-import { useToast } from "../ui/use-toast";
+import { toast } from 'sonner';
 import LoadingButton from "../ui/loadingButton";
 
 const formSchema = z.object({
@@ -36,7 +36,6 @@ const formSchema = z.object({
 type formData = z.infer<typeof formSchema>;
 
 export const ForgetPassword = () => {
-  const { toast } = useToast();
   const [loading, setLoading] = React.useState<boolean>(false);
   const [email, setEmail] = React.useState<string>('');
   const [submitted, setSubmitted] = React.useState<boolean>(false);
@@ -55,11 +54,7 @@ export const ForgetPassword = () => {
       const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
       if (!emailExist) {
-        toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong',
-          description: 'Hmmm... that email doesn\'t look valid, please check your email and try again.'
-        });
+        toast.error('Something went wrong', { description: `email doesn't exist.` })
         return;
       }
 
@@ -67,31 +62,19 @@ export const ForgetPassword = () => {
       const subject = "Get Back To Your Account";
       const url = `${BASE_URL}/reset-password/${emailExist.id}`;
 
-      const response = await send(email, name, subject, url);
+      const sendMailPromise = send(email, name, subject, url);
 
-      if (response.accepted.length) {
-        setSubmitted(true);
-        toast({
-          title: 'Success, verification email sent successfully.',
-          description: 'Please click the verification link we sent you via email and don\'t forget to check your spam folder.'
-        });
-        return;
-      }
-
-      if (!response) {
-        toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request, please check your connection and try again.'
-        });
-        return;
-      }
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request, please check your connection and try again.'
+      await toast.promise(sendMailPromise, {
+        loading: 'Sending verification email...',
+        success: `Verification email was sent to ${email}`,
+        error: 'Failed to send verification email. There was a problem with your request.',
       });
+
+      const response = await sendMailPromise;
+
+      if (response.accepted.length) setSubmitted(true);
+    } catch (error) {
+      toast.error('Something went wrong', { description: 'there was a with your request' })
     } finally {
       setLoading(false);
     }

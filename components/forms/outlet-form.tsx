@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Icons } from '../icons';
-import { useToast } from '../ui/use-toast';
+import {toast} from 'sonner';
 import { createOutlet, deleteOutlet, updateOutlet } from '@/services/outlet.service';
 import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
@@ -51,7 +51,6 @@ export const OutletForm = (
   { initialData, user }: OutletFormProps
 ) => {
   const router = useRouter();
-  const { toast } = useToast();
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [stayForm, setStayForm] = useState<boolean>(true);
@@ -81,58 +80,28 @@ export const OutletForm = (
   const onSubmit = async (data: OutletForms) => {
     try {
       setLoading(true);
-      if (initialData) {
-        const response = await updateOutlet(initialData.id,
-          {
-            name: data.name,
-            address: data.address,
-            phone: `+62${data.phone}`,
-            email: data.email ?? undefined
-          }, user);
+      const response = initialData 
+      ? await updateOutlet(initialData.id, {
+        name: data.name,
+        address: data.address,
+        phone: `+62${data.phone}`,
+        email: data.email ?? undefined
+      }, user)
+      : await createOutlet({
+        name: data.name,
+        address: data.address,
+        phone: `+62${data.phone}`,
+        email: data.email ?? null,
+      }, user); 
 
-        if (!response) {
-          return toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'Error when trying to update Outlet, please check your connection and try again.'
-          })
-        }
-
-        router.push('/dashboard/outlet');
-        return toast({
-          title: 'Success!',
-          description: 'Outlet has been updated successfully.'
-        })
-      }
-
-      const response = await createOutlet(
-        {
-          name: data.name,
-          address: data.address,
-          phone: `+62${data.phone}`,
-          email: data.email ?? null,
-        }, user);
-
-      if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'Error when trying to create Outlet, please check your connection and try again.'
-        })
+      if (response) {
+        toast.success(`Success, Outlet has been ${initialData ? 'updated' : 'created'} successfully`);
       }
 
       if (stayForm) router.push('/dashboard/outlet');
-
-      return toast({
-        title: 'Success!',
-        description: 'Outlet has been created successfully.'
-      })
-
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false);
@@ -146,22 +115,18 @@ export const OutletForm = (
       const response = await deleteOutlet(initialData?.id as string, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
+        toast.error('Something went wrong', {
+          description: 'There was a problem with your request'
         });
+
+        return;
       }
 
       router.push('/dashboard/outlet');
-      return toast({
-        title: "Success, outlet has been deleted."
-      })
+      return toast.success("Success, outlet has been deleted.")
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false);

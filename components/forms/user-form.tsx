@@ -106,46 +106,43 @@ export const UserForm = (
       setLoading(true);
       const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
       const image = data.image ?? null;
-  
+
       const actionPromise = initialData
-        ? updateUser(initialData.id, {
-            email: data.email,
-            name: data.name,
-            role: data.role,
-            image: data.image ?? null,
-          }, sessionUser)
-        : createUser({
-            email: data.email,
-            name: data.name,
-            role: data.role,
-            image: image as string,
-          }, sessionUser);
-  
-      await toast.promise(actionPromise, {
-        loading: 'Please wait...',
-        success: initialData ? 'User successfully updated.' : 'User successfully created',
-        error: 'Uh oh! Something went wrong. Please check your connection and try again.',
-      });
-  
+        ? await updateUser(initialData.id, {
+          email: data.email,
+          name: data.name,
+          role: data.role,
+          image: data.image ?? null,
+        }, sessionUser)
+        : await createUser({
+          email: data.email,
+          name: data.name,
+          role: data.role,
+          image: image as string,
+        }, sessionUser);
+
+      if (actionPromise) {
+        toast.success(`Success, user has been ${initialData ? 'updated' : 'created'} successfully`)
+      }
+
       if (!initialData) {
-        const actionResponse = await actionPromise; // Await the promise to get the response
         const email = data.email;
         const name = data.name;
         const subject = 'Invitation user on Orion';
         const role = data.role;
         const userImage = data.image ?? undefined;
-        const url = `${BASE_URL}/reset-password/${actionResponse?.id}`;
-        
+        const url = `${BASE_URL}/reset-password/${actionPromise?.id}`;
+
         const sendMailPromise = sendInvitationMail(email, name, subject, role, sessionEmail as string, url, userImage);
-  
+
         await toast.promise(sendMailPromise, {
           loading: 'Sending invitation email...',
           success: `Invitation email was sent to ${data.email}`,
           error: 'Failed to send invitation email. There was a problem with your request.',
         });
-  
-        const sendMailResponse = await sendMailPromise; // Await the promise to get the response
-  
+
+        const sendMailResponse = await sendMailPromise;
+
         if (sendMailResponse.accepted.length) {
           router.push('/dashboard/user');
         } else {

@@ -12,7 +12,7 @@ import { History } from '@/constants/data';
 import { MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { deleteHistory } from '@/services/history.service';
 import { useSession } from 'next-auth/react';
 
@@ -24,7 +24,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const { data: session } = useSession();
 
   const router = useRouter();
-  const { toast } = useToast();
   const isStaff = session?.user.role === 'Staff';
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -34,17 +33,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       setLoading(true);
       await deleteHistory(data.id);
 
-      toast({
-        title: "Success, History has been deleted."
-      })
+      toast.success("Success, History has been deleted.")
 
       setOpen(false)
       router.refresh();
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: "Uh oh! Something went wrong.",
-        description: "Sorry, failed to delete user please check your connection and try again.",
+      toast.error('Something went wrong', {
+        description: 'there was a problem with your request.',
       })
     } finally {
       setLoading(false);

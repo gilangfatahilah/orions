@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { exportCSV, exportPDF, exportToExcel } from '@/lib/fileExport';
-import { useToast } from '../ui/use-toast';
+import {toast} from 'sonner';
 import { formatDate } from '@/lib/formatter';
 
 interface TableDropdownProps {
@@ -26,17 +26,14 @@ interface TableDropdownProps {
 }
 
 const TableDropdown = ({ onDelete, addToReport, data, tableName }: TableDropdownProps) => {
-  const { toast } = useToast();
 
   const onExportExcel = async () => {
     try {
       await exportToExcel(data, tableName, tableName);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error failed to export data table.',
-        description: 'Error when exporting data table to xlsx, please check your connection and try again.'
-      })
+      toast.error('Something went wrong', {
+        description: 'There was a problem exporting to Excel'
+      });
     }
   };
 

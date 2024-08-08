@@ -36,7 +36,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Category } from '@/constants/data';
 import { createSeveralCategory, deleteSeveralCategory } from '@/services/category.service';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import ImportExcel from '@/components/file-import';
 import TableDropdown from '../table-dropdown';
 
@@ -58,7 +58,6 @@ export function CategoryTable<TData extends Category, TValue>({
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
   const searchParams = useSearchParams();
   // Search params
   const page = searchParams?.get('page') ?? '1';
@@ -151,27 +150,23 @@ export function CategoryTable<TData extends Category, TValue>({
       const response = await deleteSeveralCategory(idToDelete, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
+        toast.error('Something went wrong', {
+          description: 'There was a problem with your request'
         });
+
+        return;
       }
 
       // close and refresh
       setAlertOpen(false);
       router.refresh();
 
-      return toast({
-        title: `Success, ${idToDelete.length} categories has successfully deleted.`,
-      });
+      return toast.success(`Success, ${idToDelete.length} categories has successfully deleted.`);
 
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
+      })
     } finally {
       setLoading(false);
     }
@@ -190,10 +185,10 @@ export function CategoryTable<TData extends Category, TValue>({
       const isHeaderMatch = requiredHeaders.every(header => dataHeader.includes(header));
 
       if (!isHeaderMatch) {
-        toast({
-          variant: 'destructive',
-          title: 'Failed to import data, the header does not match with the table.'
-        })
+        toast.error('Something went wrong', {
+          description: 'Failed to import data, the column does not match!'
+        });
+
         return;
       }
 
@@ -213,22 +208,18 @@ export function CategoryTable<TData extends Category, TValue>({
         const response = await createSeveralCategory(dataToImport, user);
 
         if (response) {
-          toast({
-            title: 'Import Success!'
-          })
+          toast.success('Success, data imported successfully')
           return;
         }
       }
 
-      toast({
-        variant: 'destructive',
-        title: 'Failed to import, the following data is duplicated.'
-      })
+      toast.error('Something went wrong', {
+        description: 'Failed to import data, the data was duplicated !'
+      });
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.'
-      })
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
+      });
     } finally {
       setLoading(false)
 

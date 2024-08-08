@@ -13,7 +13,7 @@ import { Supplier } from '@/constants/data';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner'
 import { deleteSupplier } from '@/services/supplier.service';
 import { useSession } from 'next-auth/react';
 interface CellActionProps {
@@ -24,7 +24,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const { data: session } = useSession();
 
   const router = useRouter();
-  const { toast } = useToast();
   const isStaff = session?.user.role === 'Staff';
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -34,17 +33,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       setLoading(true);
       await deleteSupplier(data.id, session?.user.name as string);
 
-      toast({
-        title: "Success, supplier has been deleted."
-      })
+      toast.success("Success, supplier has been deleted.")
 
       setOpen(false)
       router.refresh();
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: "Uh oh! Something went wrong.",
-        description: "Sorry, failed to delete user please check your connection and try again.",
+      toast.error('Something went wrong', {
+        description: 'there was a problem with your request.',
       })
     } finally {
       setLoading(false);

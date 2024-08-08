@@ -36,7 +36,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Item } from '@/constants/data';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { createSeveralItem, deleteSeveralItem } from '@/services/item.service';
 import { formatCurrency, parseCurrency } from '@/lib/formatter';
 import ImportExcel from '@/components/file-import';
@@ -59,7 +59,6 @@ export function ItemTable<TData extends Item, TValue>({
 }: Readonly<DataTableProps<TData, TValue>>) {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
   const searchParams = useSearchParams();
   // Search params
   const page = searchParams?.get('page') ?? '1';
@@ -154,26 +153,22 @@ export function ItemTable<TData extends Item, TValue>({
       const response = await deleteSeveralItem(idToDelete, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
+        toast.error('Something went wrong', {
+          description: 'There was a problem with your request'
         });
+
+        return;
       }
 
       // close and refresh
       setAlertOpen(false);
       router.refresh();
 
-      return toast({
-        title: `Success, ${idToDelete.length} items has successfully deleted.`,
-      });
+      return toast.success(`Success, ${idToDelete.length} items has successfully deleted.`);
 
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
       });
     } finally {
       setLoading(false);
@@ -189,14 +184,13 @@ export function ItemTable<TData extends Item, TValue>({
       setLoading(true);
 
       const dataHeader = Object.keys(excelData[0]);
-      const requiredHeaders = ["name", "category", "price" ]
+      const requiredHeaders = ["name", "category", "price"]
       const isHeaderMatch = requiredHeaders.every(header => dataHeader.includes(header));
 
       if (!isHeaderMatch) {
-        toast({
-          variant: 'destructive',
-          title: 'Failed to import data, the header does not match with the table.'
-        })
+        toast.error('Something went wrong', {
+          description: 'Failed to import data, the column does not match!'
+        });
         return;
       }
 
@@ -218,22 +212,18 @@ export function ItemTable<TData extends Item, TValue>({
         const response = await createSeveralItem(dataToImport, user);
 
         if (response) {
-          toast({
-            title: 'Import Success!'
-          })
+          toast.success('Success, data imported successfully')
           return;
         }
       }
 
-      toast({
-        variant: 'destructive',
-        title: 'Failed to import, the following data is duplicated.'
+      toast.error('Something went wrong', {
+        description: 'Failed to import data, the data was duplicated !',
       })
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.'
-      })
+      toast.error('Something went wrong', {
+        description: 'There was a problem with your request'
+      });
     } finally {
       setLoading(false)
 

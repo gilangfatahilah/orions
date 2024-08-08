@@ -47,7 +47,8 @@ const formSchema = z.object({
 type SettingAccountFormValues = z.infer<typeof formSchema>;
 
 const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps) => {
-  const { data: session, update } = useSession()
+  const { data: session, update } = useSession();
+
   const [loading, setLoading] = React.useState<boolean>(false);
   const [open, setOpen] = React.useState<boolean>(false);
   const [modal, setModal] = React.useState<{
@@ -69,6 +70,13 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
     resolver: zodResolver(formSchema),
     defaultValues,
   });
+
+  React.useEffect(() => {
+    form.reset(defaultValues);
+  }, [defaultValues, form]);
+
+  const watchedName = form.watch('name');
+  const watchedImage = form.watch('image');
 
   const onSubmit = async (data: SettingAccountFormValues) => {
     try {
@@ -225,7 +233,12 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
               </div>
             </CardContent>
             <CardFooter className='flex justify-end'>
-              <LoadingButton label='Save' loading={loading} className='w-full md:w-1/6 mt-4' />
+              <LoadingButton
+                label='Save'
+                loading={loading}
+                disabled={watchedName === userName && watchedImage === image}
+                className='w-full md:w-1/12 mt-4'
+              />
             </CardFooter>
           </Card>
 

@@ -6,9 +6,10 @@ interface ButtonProps {
   label: string;
   loading: boolean;
   className?: string;
+  disabled?: boolean;
 }
 
-const LoadingButton = ({ loading, label, className }: ButtonProps) => {
+const LoadingButton = ({ loading, label, className, disabled = false }: ButtonProps) => {
   return (
     <>
       {
@@ -17,7 +18,7 @@ const LoadingButton = ({ loading, label, className }: ButtonProps) => {
             <Icons.spinner className="mr-2 w-4 h-4 animate-spin" /> Please wait
           </Button>
         ) : (
-          <Button disabled={false} className={`ml-auto ${className ?? ''}`} type="submit">
+          <Button disabled={disabled} className={`ml-auto ${className ?? ''}`} type="submit">
             {label}
           </Button>
         )

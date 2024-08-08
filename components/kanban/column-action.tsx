@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { useTaskStore } from '@/lib/store';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { Input } from '../ui/input';
@@ -38,7 +38,6 @@ export function ColumnActions({
   const [editDisable, setIsEditDisable] = React.useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
 
   return (
     <>
@@ -47,9 +46,7 @@ export function ColumnActions({
           e.preventDefault();
           setIsEditDisable(!editDisable);
           updateCol(id, name);
-          toast({
-            title: 'Name Updated',
-            variant: 'default',
+          toast('Name updated', {
             description: `${title} updated to ${name}`
           });
         }}
@@ -110,9 +107,9 @@ export function ColumnActions({
 
                 setShowDeleteDialog(false);
                 removeCol(id);
-                toast({
-                  description: 'This column has been deleted.'
-                });
+                toast.success(
+                  'This column has been deleted.'
+                );
               }}
             >
               Delete

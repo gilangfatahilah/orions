@@ -28,7 +28,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Icons } from '../icons';
 import { useForm } from 'react-hook-form';
-import { useToast } from '../ui/use-toast';
+import { toast } from 'sonner';
 import { createTransaction, TransactionParams } from '@/services/transaction.service';
 import * as z from 'zod';
 import { getItemById, getItems } from '@/services/item.service';
@@ -102,7 +102,6 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
     defaultValues,
   });
 
-  const { toast } = useToast();
   const watchedItem = form.watch('item');
   const [loading, setLoading] = React.useState<boolean>(false);
   const [items, setItems] = React.useState<Option[]>([]);
@@ -201,9 +200,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
       const stockData = itemStock.find(stock => stock.id === itemId);
 
       const errorToast = () => {
-        return toast({
-          variant: 'destructive',
-          title: 'Failed to add item',
+        return toast.error('Failed to add item', {
           description: 'The quantity exceeds the available stock',
         });
       }
@@ -248,10 +245,9 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
         }
       }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Failed to add item, please try again',
-      });
+      toast.error('Something went wrong', {
+        description: 'there was a problem with your request.',
+      })
     }
   };
 
@@ -310,15 +306,12 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
       const response = await createTransaction(dataToAssign);
 
       if (response) {
-        toast({
-          title: 'Success add transaction.'
-        })
+        toast.success('Success add transaction.')
       }
 
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Failed to add new transaction, please check your connection and try again'
+      toast.error('Something went wrong', {
+        description: 'there was a problem with your request.',
       })
     } finally {
       setLoading(false);
@@ -418,7 +411,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                         field={field}
                         form={form}
                         name="supplier"
-                        />
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -439,7 +432,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                         field={field}
                         form={form}
                         name="outlet"
-                        />
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -477,11 +470,11 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                 <FormItem>
                   <FormLabel>Item</FormLabel>
                   <Combobox
-                        options={items}
-                        field={field}
-                        form={form}
-                        name="item"
-                        />
+                    options={items}
+                    field={field}
+                    form={form}
+                    name="item"
+                  />
                   <FormMessage />
                 </FormItem>
               )}

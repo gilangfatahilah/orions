@@ -35,7 +35,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { History } from '@/constants/data';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { deleteSeveralHistory } from '@/services/history.service';
 import { formatDate } from '@/lib/formatter';
 import TableDropdown from '../table-dropdown';
@@ -56,7 +56,6 @@ export function HistoryTable<TData extends History, TValue>({
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
-  const { toast } = useToast();
   const searchParams = useSearchParams();
   // Search params
   const page = searchParams?.get('page') ?? '1';
@@ -146,7 +145,7 @@ export function HistoryTable<TData extends History, TValue>({
     date: formatDate(data.original.createdAt),
   }))
 
-  const onFilterDate = ({from, to}: {from: string, to: string}): void => {
+  const onFilterDate = ({ from, to }: { from: string, to: string }): void => {
     router.push(`${pathname}?${createQueryString({
       startDate: from,
       endDate: to
@@ -160,27 +159,21 @@ export function HistoryTable<TData extends History, TValue>({
       const response = await deleteSeveralHistory(idToDelete);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
-        });
+        return toast.error('Something went wrong', {
+          description: 'There was a problem deleting category'
+        })
       }
 
       // close and refresh
       setAlertOpen(false);
       router.refresh();
 
-      return toast({
-        title: `Success, ${idToDelete.length} histories has successfully deleted.`,
-      });
+      return toast.success(
+        `Success, ${idToDelete.length} histories has successfully deleted.`,
+      );
 
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
+      toast.error('Something went wrong', { description: 'There was a problem with your request' })
     } finally {
       setLoading(false);
     }

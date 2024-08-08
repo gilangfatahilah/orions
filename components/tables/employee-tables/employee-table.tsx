@@ -40,7 +40,7 @@ import { CellAction } from './cell-action';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { deleteSeveralUser } from '@/services/user.service';
-import { useToast } from '@/components/ui/use-toast';
+import {toast} from 'sonner';
 import TableDropdown from '../table-dropdown';
 import { formatDate } from '@/lib/formatter';
 import { Badge } from '@/components/ui/badge';
@@ -60,7 +60,6 @@ export function EmployeeTable({
   user,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: Readonly<DataTableProps>) {
-  const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -269,27 +268,21 @@ export function EmployeeTable({
       const response = await deleteSeveralUser(idToDelete, user);
 
       if (!response) {
-        return toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: 'There was a problem with your request.'
-        });
+        return toast.error('Something went wrong', {
+          description: 'there was a problem with your request.',
+        })
       }
 
       // close and refresh
       setAlertOpen(false);
       router.refresh();
 
-      return toast({
-        title: `Success, ${idToDelete.length} users has successfully deleted.`,
-      });
+      return toast.success(`Success, ${idToDelete.length} users has successfully deleted.`);
 
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
+      toast.error('Something went wrong', {
+        description: 'there was a problem with your request.',
+      })
     } finally {
       setLoading(false);
     }
