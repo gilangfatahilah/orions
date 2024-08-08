@@ -9,7 +9,6 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 import React from 'react';
-import { Icons } from '@/components/icons';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -250,7 +249,7 @@ export function SupplierTable<TData extends Supplier, TValue>({
         description='Do you want to delete all of the selected suppliers ? This action can&apos;t be undone'
         isOpen={alertOpen}
         onClose={() => setAlertOpen(false)}
-        onConfirm={onConfirmDelete}
+        onConfirm={onConfirmDelete as () => Promise<void>}
         loading={loading}
       />
 

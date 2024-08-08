@@ -247,7 +247,7 @@ export function ItemTable<TData extends Item, TValue>({
         description='Do you want to delete all of the selected items ? This action can&apos;t be undone'
         isOpen={alertOpen}
         onClose={() => setAlertOpen(false)}
-        onConfirm={onConfirmDelete}
+        onConfirm={onConfirmDelete as () => Promise<void>}
         loading={loading}
       />
 

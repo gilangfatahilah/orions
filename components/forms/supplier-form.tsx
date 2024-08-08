@@ -173,7 +173,7 @@ export const SupplierForm = (
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onConfirm={onDelete}
+        onConfirm={onDelete as () => Promise<void>}
         loading={loading}
         description={`Are you sure you want to delete supplier ${initialData?.name}`}
       />

@@ -44,6 +44,13 @@ CREATE TABLE "Session" (
 );
 
 -- CreateTable
+CREATE TABLE "Notification" (
+    "userId" TEXT NOT NULL,
+    "notifictionJson" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
 CREATE TABLE "VerificationToken" (
     "identifier" TEXT NOT NULL,
     "token" TEXT NOT NULL,
@@ -141,6 +148,9 @@ CREATE TABLE "Transaction" (
     "totalPrice" INTEGER NOT NULL,
     "transactionDate" TIMESTAMP(3) NOT NULL,
     "letterCode" TEXT NOT NULL,
+    "userName" TEXT NOT NULL,
+    "outletDetail" TEXT,
+    "supplierDetail" TEXT,
     "supplierId" TEXT,
     "userId" TEXT NOT NULL,
     "outletId" TEXT,
@@ -155,6 +165,7 @@ CREATE TABLE "TransactionDetail" (
     "id" TEXT NOT NULL,
     "transactionId" TEXT NOT NULL,
     "itemId" TEXT NOT NULL,
+    "itemDetail" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
 
     CONSTRAINT "TransactionDetail_pkey" PRIMARY KEY ("id")
@@ -165,6 +176,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Session_sessionToken_key" ON "Session"("sessionToken");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Notification_userId_key" ON "Notification"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Stock_itemId_key" ON "Stock"("itemId");
@@ -189,6 +203,9 @@ ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Item" ADD CONSTRAINT "Item_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;

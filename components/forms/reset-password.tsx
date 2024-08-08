@@ -23,7 +23,6 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Icons } from "../icons"
 import { useToast } from "../ui/use-toast";
@@ -83,8 +82,6 @@ export const ResetPassword = ({ id }: { id: string }) => {
         });
       }
     } catch (error) {
-      console.log(error);
-
       toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.',

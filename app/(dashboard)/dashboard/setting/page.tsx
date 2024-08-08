@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -14,8 +13,6 @@ import {
   SelectContent,
   SelectItem
 } from "@/components/ui/select"
-import { Label } from '@/components/ui/label';
-import { Input } from "@/components/ui/input";
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';

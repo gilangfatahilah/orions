@@ -242,7 +242,7 @@ export function CategoryTable<TData extends Category, TValue>({
         description='Do you want to delete all of the selected categories ? This action can&apos;t be undone'
         isOpen={alertOpen}
         onClose={() => setAlertOpen(false)}
-        onConfirm={onConfirmDelete}
+        onConfirm={onConfirmDelete as () => Promise<void>}
         loading={loading}
       />
 

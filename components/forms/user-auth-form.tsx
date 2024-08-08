@@ -52,7 +52,7 @@ export default function UserAuthForm() {
 
       router.push('/');
     }
-  }, [searchParams, toast, router]);
+  }, [searchParams, router]);
 
   const handleCredentialSubmit = async (data: credentialFormData) => {
     const { email, password } = data;
@@ -64,8 +64,6 @@ export default function UserAuthForm() {
         password,
         redirect: false,
       });
-
-      console.log(response);
 
       if (response?.error === 'Configuration' || response?.error === 'CredentialsSignin') {
         return toast.error('Invalid email or password !', {

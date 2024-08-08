@@ -149,18 +149,3 @@ export const getTransactionDetail = async (id: string) => {
     }
   });
 };
-
-export const addTransactionReport = async (data: TransactionReportParams[]) => {
-  return await prisma.transactionReport.createMany({
-    data: data.map((d) => ({
-      type: d.type,
-      totalPrice: d.totalPrice,
-      transactionDate: d.transactionDate,
-      letterCode: d.letterCode,
-      user: d.user,
-      supplier: d.supplier ?? null,
-      outlet: d.outlet ?? null,
-      detail: d.detail,
-    }))
-  })
-} 

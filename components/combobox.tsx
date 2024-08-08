@@ -18,7 +18,6 @@ interface ComboboxProps {
 
 export function Combobox({ field, form, options, name }: Readonly<ComboboxProps>) {
   const handleSelect = (value: string) => {
-    console.log('called');
     form.setValue(name, value);
     field.onChange(value);
   };
