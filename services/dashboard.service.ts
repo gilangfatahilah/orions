@@ -2,6 +2,29 @@
 
 import prisma from "@/lib/db";
 
+export interface MonthlyItemCount {
+  month: string;
+  year: number;
+  itemCount: number;
+}
+
+export interface TotalItemSummary {
+  label: string;
+  value: number;
+  fill: string;
+}
+
+export interface CardSummary {
+  totalPrice: string;
+  priceDescription: string;
+  totalUser: number;
+  userDescription: string;
+  totalSupplier: number;
+  supplierDescription: string;
+  totalOutlet: number;
+  outletDescription: string;
+}
+
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export const getStockSummary = async (month?: string, year?: number) => {
