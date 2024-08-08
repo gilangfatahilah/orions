@@ -2,7 +2,7 @@
 'use client'
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
+import { CreditCard, Truck, Store, Users  } from 'lucide-react';
 import { Overview } from '@/components/overview';
 import { TotalStocks } from '@/components/totalStocks';
 import { Button } from '@/components/ui/button';
@@ -16,8 +16,6 @@ import {
 import { CardSummary, MonthlyItemCount, TotalItemSummary } from '@/services/dashboard.service';
 import { generatePDF } from '@/lib/fileExport';
 import { formatDate } from '@/lib/formatter';
-import { Icons } from './icons';
-
 interface DashboardProps {
   monthlyItemSummary: MonthlyItemCount[];
   totalItemSummary: TotalItemSummary[];
@@ -62,7 +60,7 @@ const DashboardOverview: React.FC<DashboardProps> = ({ monthlyItemSummary, total
                 <CardTitle className="text-sm font-medium">
                   Total Price Value
                 </CardTitle>
-                <Icons.billing className='w-4 h-4 text-muted-foreground' />
+                <CreditCard className='w-4 h-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{cardSummary.totalPrice}</div>
@@ -76,7 +74,7 @@ const DashboardOverview: React.FC<DashboardProps> = ({ monthlyItemSummary, total
                 <CardTitle className="text-sm font-medium">
                   Total Supplier
                 </CardTitle>
-                <Icons.supplier className='w-4 h-4 text-muted-foreground' />
+                <Truck className='w-4 h-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{cardSummary.totalSupplier}</div>
@@ -88,7 +86,7 @@ const DashboardOverview: React.FC<DashboardProps> = ({ monthlyItemSummary, total
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Outlet</CardTitle>
-                <Icons.outlet className='w-4 h-4 text-muted-foreground' />
+                <Store className='w-4 h-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{cardSummary.totalOutlet}</div>
@@ -102,7 +100,7 @@ const DashboardOverview: React.FC<DashboardProps> = ({ monthlyItemSummary, total
                 <CardTitle className="text-sm font-medium">
                   Total User
                 </CardTitle>
-                <Icons.users className='w-4 h-4 text-muted-foreground' />
+                <Users className='w-4 h-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{cardSummary.totalUser}</div>

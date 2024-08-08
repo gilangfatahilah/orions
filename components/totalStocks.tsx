@@ -17,7 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { Icons } from "./icons"
+import { TrendingDown, TrendingUp, Sparkles } from "lucide-react"
 
 interface ChartProps {
   data: { label: string, value: number, fill: string }[]
@@ -95,15 +95,15 @@ export function TotalStocks({ data, previousMonthStock }: Readonly<ChartProps>) 
           {
             aggregatedStocks < 0 ? (
               <div className="flex items-center gap-2 font-medium leading-none">
-                Trending down by {parsedAggregatedStocks}% this month <Icons.trendingDown className="h-4 w-4" />
+                Trending down by {parsedAggregatedStocks}% this month <TrendingDown className="h-4 w-4" />
               </div>
             ) : aggregatedStocks === 0 ? (
               <div className="flex items-center gap-2 font-medium leading-none">
-                There&apos;s no transaction since last month <Icons.sparkles className="h-4 w-4" /> 
+                There&apos;s no transaction since last month <Sparkles className="h-4 w-4" /> 
               </div>
             ) : (
               <div className="flex items-center gap-2 font-medium leading-none">
-                Trending up by {parsedAggregatedStocks}% this month <Icons.trendingUp className="h-4 w-4" />
+                Trending up by {parsedAggregatedStocks}% this month <TrendingUp className="h-4 w-4" />
               </div>
             )
           }
