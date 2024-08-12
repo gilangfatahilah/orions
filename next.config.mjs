@@ -13,7 +13,11 @@ const nextConfig = {
 const withPWA = nextPwa({
   dest: 'public',
   register: true,
+  disable: false,
   skipWaiting: true,
+  fallbacks: {
+    document: '/offline'
+  }
 });
 
 const config = withPWA({

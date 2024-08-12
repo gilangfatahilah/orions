@@ -35,6 +35,8 @@ const NotificationSwitcher = () => {
           applicationServerKey: urlB64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_KEY!),
         });
 
+        console.log(process.env.NEXT_PUBLIC_VAPID_KEY!);
+
         await registerNotification(session?.user.id as string, JSON.stringify(subscription));
       
         toast.success("Success, enabled notification.")
