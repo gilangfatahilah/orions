@@ -32,7 +32,7 @@ export function ProfileCard() {
             </p>
             <div className="flex items-center pt-2 gap-1">
               <Github className="h-4 w-4 opacity-70" />{" "}
-              <Link href={"https://github.com/gilangfatahilah"} className="text-xs font-normal text-muted-foreground hover:text-primary">
+              <Link href={"https://gilangf.vercel.app"} className="text-xs font-normal text-muted-foreground hover:text-primary">
                 @gilangfatahilah
               </Link>
             </div>

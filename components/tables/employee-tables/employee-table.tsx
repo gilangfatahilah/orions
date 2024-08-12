@@ -87,10 +87,10 @@ export function EmployeeTable({
         const allSelectableRows = table.getFilteredRowModel().rows.filter(
           row => {
             if (role === 'Manager') {
-              return row.original.role !== 'Manager' && row.original.role !== 'Superadmin';
+              return row.original.role !== 'Manager' && row.original.role !== 'Admin';
             }
 
-            return row.original.role !== 'Superadmin';
+            return row.original.role !== 'Admin';
           }
         );
 
@@ -107,7 +107,7 @@ export function EmployeeTable({
         );
       },
       cell: ({ row }) => {
-        const rolesToDisable = role === 'Manager' ? ['Manager', 'Superadmin'] : ['Superadmin'];
+        const rolesToDisable = role === 'Manager' ? ['Manager', 'Admin'] : ['Admin'];
 
         return (
           <Checkbox
@@ -146,7 +146,7 @@ export function EmployeeTable({
       accessorKey: 'role',
       header: 'ROLE',
       cell: ({ row }) => {
-        if (row.original.role === 'Superadmin') {
+        if (row.original.role === 'Admin') {
           return (
             <Badge variant={'emerald'}>
               {row.original.role}
@@ -171,19 +171,23 @@ export function EmployeeTable({
       accessorKey: 'createdAt',
       header: 'JOINED',
       cell: ({ row }) => {
-        return formatDate(row.original.createdAt);
+        if (row.original.joinedAt){
+          return formatDate(row.original.joinedAt);
+        }
+
+        return 'Not joined yet';
       }
     },
     {
       id: 'actions',
       header: '•••',
       cell: ({ row }) => {
-        const isSuperadmin = row.original.role === 'Superadmin';
+        const isAdmin = row.original.role === 'Admin';
         const isManager = row.original.role === 'Manager';
-        const isUserSuperadmin = role === 'Superadmin';
+        const isUserAdmin = role === 'Admin';
         const isUserManager = role === 'Manager';
 
-        if ((isUserSuperadmin && isSuperadmin) || (isUserManager && (isManager || isSuperadmin))) {
+        if ((isUserAdmin && isAdmin) || (isUserManager && (isManager || isAdmin))) {
           return null;
         }
 
@@ -258,7 +262,7 @@ export function EmployeeTable({
     name: data.original.name,
     role: data.original.role,
     email: data.original.email,
-    joined: formatDate(data.original.createdAt),
+    joined: formatDate(data.original.joinedAt as Date) ?? 'Not joined yet',
   }));
 
   const onConfirmDelete = async () => {

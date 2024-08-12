@@ -136,17 +136,17 @@ export function GeneralSummary<TData extends Summary, TValue>({
       {
         searchKey && (
 
-          <div className="flex justify-between items-center space-x-4 mb-2">
+          <div className="flex-col md:flex-row gap-2 md:gap-0 md:justify-between items-center space-y-2 md:space-y-0 md:space-x-4 mb-2">
             <Input
               placeholder='Search Item'
               value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ''}
               onChange={(event: any) =>
                 table.getColumn(searchKey)?.setFilterValue(event.target.value)
               }
-              className="w-1/3 md:max-w-sm"
+              className="w-full md:w-1/3 md:max-w-sm"
             />
 
-            <div className='w-1/3 flex items-center gap-2'>
+            <div className='w-full md:w-1/3 flex items-center gap-2'>
               <Select
                 value={selectedMonth.toString()}
                 onValueChange={(value) => setSelectedMonth(Number(value))}

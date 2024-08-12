@@ -20,12 +20,15 @@ import BreadCrumb from '@/components/breadcrumb';
 import { Heading } from '@/components/ui/heading';
 import { auth } from '@/auth';
 import SettingAccountForm from '@/components/forms/setting-account-form';
+import { getUserById } from '@/services/user.service';
 
 const breadcrumbItems = [{ title: 'Setting', link: '/dashboard/setting' }]
 
 const SettingPage = async () => {
   const session = await auth();
   const user = session?.user;
+
+  const dataUser = await getUserById(user?.id as string);
 
   return (
     <ScrollArea className='h-full' >
@@ -37,8 +40,10 @@ const SettingPage = async () => {
 
         <SettingAccountForm
           id={user?.id as string}
-          userName={user?.name as string}
-          email={user?.email as string}
+          userName={dataUser?.name as string}
+          email={dataUser?.email as string}
+          password={dataUser?.password as string}
+          role={dataUser?.role as string}
           image={user?.image}
         />
 

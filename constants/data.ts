@@ -15,7 +15,7 @@ export type Employee = {
   email: string,
   role: string,
   image: string | null,
-  createdAt: Date,
+  joinedAt: Date | null,
 };
 
 export type Category = {

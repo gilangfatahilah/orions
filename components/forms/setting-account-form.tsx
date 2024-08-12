@@ -36,17 +36,20 @@ interface SettingAccountProps {
   id: string;
   userName: string;
   email: string;
+  password: string;
+  role: string;
   image?: string;
 }
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Name must be at least 1 character.' }),
   image: z.string().nullable(),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
 });
 
 type SettingAccountFormValues = z.infer<typeof formSchema>;
 
-const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps) => {
+const SettingAccountForm = ({ id, userName, email, image, password, role }: SettingAccountProps) => {
   const { data: session, update } = useSession();
 
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -64,7 +67,8 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
   const defaultValues = React.useMemo(() => ({
     name: userName,
     image: image,
-  }), [userName, image]);
+    password: '',
+  }), [userName, image, password]);
 
   const form = useForm<SettingAccountFormValues>({
     resolver: zodResolver(formSchema),
@@ -77,6 +81,7 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
 
   const watchedName = form.watch('name');
   const watchedImage = form.watch('image');
+  const watchedPassword = form.watch('password');
 
   const onSubmit = async (data: SettingAccountFormValues) => {
     try {
@@ -222,10 +227,40 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Button id="password" className='md:w-1/6' onClick={handleChangePassword}>
-                    Reset password
-                  </Button>
+                  {
+                    role === 'Admin' ? (
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <div className='relative'>
+                                <Icons.lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Input
+                                  type="password"
+                                  placeholder="Enter your password"
+                                  disabled={loading}
+                                  className='pl-10'
+                                  {...field}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ) :
+                      (
+                        <>
+                          <Label htmlFor="password">Password</Label>
+                          <Button id="password" className='md:w-1/6' onClick={handleChangePassword}>
+                            Reset password
+                          </Button>
+                        </>
+                      )
+                  }
                   <p className="text-sm text-muted-foreground">
                     Change your password to improve the security of your account.
                   </p>
@@ -236,7 +271,7 @@ const SettingAccountForm = ({ id, userName, email, image }: SettingAccountProps)
               <LoadingButton
                 label='Save'
                 loading={loading}
-                disabled={watchedName === userName && watchedImage === image}
+                disabled={watchedName === userName && watchedImage === image && watchedPassword === ''}
                 className='w-full md:w-1/12 mt-4'
               />
             </CardFooter>

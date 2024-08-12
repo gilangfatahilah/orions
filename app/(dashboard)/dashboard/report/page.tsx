@@ -13,6 +13,7 @@ import BreadCrumb from "@/components/breadcrumb";
 import { GeneralSummary } from '@/components/tables/report-tables/general-table';
 import { TransactionHistoryTable } from '@/components/tables/transaction-tables/history-table';
 import { auth } from '@/auth';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const breadcrumbItems = [{ title: 'Report', link: '/dashboard/report' }];
 
@@ -81,27 +82,27 @@ const ReportPage = async ({ searchParams }: paramsProps) => {
   const pageCount = Math.ceil(totalCount / pageLimit);
 
   return (
-    <div className="flex-1 space-y-4 p-8">
-      <BreadCrumb items={breadcrumbItems} />
-      <div className='flex items-center justify-between'>
-        <Heading title='Report' description='View and track report&apos;s summary here.' />
+      <div className="flex-1 space-y-4 p-8">
+        <BreadCrumb items={breadcrumbItems} />
+        <div className='flex items-center justify-between'>
+          <Heading title='Report' description='View and track report&apos;s summary here.' />
+        </div>
+
+        <Tabs defaultValue="general">
+          <TabsList className="grid w-full md:w-1/4 mb-2 grid-cols-2">
+            <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="history">Transaction</TabsTrigger>
+          </TabsList>
+          <Separator />
+
+          <TabsContent value="general">
+            <GeneralSummary searchKey='itemName' user={user as string} />
+          </TabsContent>
+          <TabsContent value="history">
+            <TransactionHistoryTable data={transaction} columns={columns} pageCount={pageCount} />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="general">
-        <TabsList className="grid w-full md:w-1/4 mb-2 grid-cols-2">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="history">Transaction</TabsTrigger>
-        </TabsList>
-        <Separator />
-
-        <TabsContent value="general">
-          <GeneralSummary searchKey='itemName' user={user as string} />
-        </TabsContent>
-        <TabsContent value="history">
-          <TransactionHistoryTable data={transaction} columns={columns} pageCount={pageCount} />
-        </TabsContent>
-      </Tabs>
-    </div>
   )
 }
 

@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { Employee } from '@/constants/data';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash, Mails } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -72,6 +72,15 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                   <Edit className="mr-2 h-4 w-4" /> Update
                 </DropdownMenuItem>
               </Link>
+
+              {
+                data.joinedAt === null && (
+                  <DropdownMenuItem>
+                    <Mails className="mr-2 h-4 w-4" /> Resend Email
+                  </DropdownMenuItem>
+                )
+              }
+
               <DropdownMenuItem className='text-red-600' onClick={() => setOpen(true)}>
                 <Trash className="mr-2 h-4 w-4" /> Delete
               </DropdownMenuItem>

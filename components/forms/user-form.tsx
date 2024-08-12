@@ -312,11 +312,11 @@ export const UserForm = (
                             )
                           }
                           {
-                            role === 'Superadmin' && (
+                            role === 'Admin' && (
                               <SelectGroup className='px-2'>
                                 <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>Role</SelectLabel>
-                                <SelectItem value='Superadmin'>
-                                  Superadmin
+                                <SelectItem value='Admin'>
+                                  Admin
                                 </SelectItem>
                                 <SelectItem value='Manager'>
                                   Manager

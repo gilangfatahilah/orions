@@ -85,7 +85,6 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
 
   return (
     <ScrollArea className="h-full">
-
       <div className="flex-1 space-y-4 p-8">
         <BreadCrumb items={breadcrumbItems} />
         <div className='flex items-center justify-between'>
@@ -97,6 +96,7 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
             <TabsTrigger value="transaction">Transaction</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
+
           <Separator />
 
           <TabsContent value="transaction">
@@ -111,7 +111,6 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
         </Tabs>
       </div>
     </ScrollArea>
-
   )
 }
 

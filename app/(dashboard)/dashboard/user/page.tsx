@@ -45,7 +45,6 @@ export default async function page({ searchParams }: paramsProps) {
             OR: [
               { name: { contains: search, mode: 'insensitive' } },
               { email: { contains: search, mode: 'insensitive' } },
-              { role: { contains: search, mode: 'insensitive' } },
             ],
           }
           : {}
@@ -58,7 +57,7 @@ export default async function page({ searchParams }: paramsProps) {
       email: true,
       role: true,
       image: true,
-      createdAt: true,
+      joinedAt: true,
     },
     orderBy: {
       createdAt: 'desc',

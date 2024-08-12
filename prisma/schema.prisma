@@ -14,13 +14,25 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum TransactionType {
+  ISSUING
+  RECEIVING
+}
+
+enum Role {
+  Admin
+  Manager
+  Staff
+}
+
 model User {
   id           String        @id @default(cuid())
   name         String
   email        String        @unique
   password     String?
-  role         String
+  role         Role
   image        String?
+  joinedAt     DateTime?
   accounts     Account[]
   sessions     Session[]
   Transaction  Transaction[]
@@ -175,11 +187,6 @@ model Transaction {
   supplier        Supplier?           @relation(fields: [supplierId], references: [id], onDelete: SetNull)
   outlet          Outlet?             @relation(fields: [outletId], references: [id], onDelete: SetNull)
   detail          TransactionDetail[]
-}
-
-enum TransactionType {
-  ISSUING
-  RECEIVING
 }
 
 model TransactionDetail {

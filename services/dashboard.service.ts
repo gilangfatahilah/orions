@@ -38,7 +38,7 @@ export const getStockSummary = async (month?: string, year?: number) => {
     },
   });
 
-  return items.map(item => {
+  const data =  items.map(item => {
     const sortedTransactions = item.transactions.sort(
       (a, b) => a.transaction.transactionDate.getTime() - b.transaction.transactionDate.getTime()
     );
@@ -76,9 +76,14 @@ export const getStockSummary = async (month?: string, year?: number) => {
       monthlySummary[key].finalMonthUnit = currentStock;
       monthlySummary[key].itemPriceTotal = monthlySummary[key].itemPrice * currentStock;
     });
-
     return Object.values(monthlySummary);
   }).flat();
+
+  if (month && year) {
+    return data.filter((d) => d.year === year && d.month === month);
+  }
+
+  return data;
 };
 
 export const getTotalItemsByMonth = async () => {
@@ -87,11 +92,13 @@ export const getTotalItemsByMonth = async () => {
   const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
   const itemCountByMonth: Record<string, any> = {};
+  const cumulativeItemUnits: Record<string, number> = {};
 
   stockSummaries.forEach(summary => {
     const summaryDate = new Date(summary.year, monthNames.indexOf(summary.month));
     if (summaryDate >= twelveMonthsAgo) {
       const key = `${summary.year}-${summary.month}`;
+
       if (!itemCountByMonth[key]) {
         itemCountByMonth[key] = {
           month: summary.month,
@@ -99,7 +106,13 @@ export const getTotalItemsByMonth = async () => {
           itemCount: 0,
         };
       }
-      itemCountByMonth[key].itemCount += summary.finalMonthUnit;
+
+      if (!cumulativeItemUnits[summary.itemCode]) {
+        cumulativeItemUnits[summary.itemCode] = 0;
+      }
+
+      cumulativeItemUnits[summary.itemCode] += summary.finalMonthUnit;
+      itemCountByMonth[key].itemCount = cumulativeItemUnits[summary.itemCode];
     }
   });
 
@@ -156,6 +169,16 @@ export const getCardSummary = async () => {
     const diff = current - previous;
     return diff >= 0 ? `+${diff} from last month` : `${diff} from last month`;
   };
+
+  const priceAggregate = (current: number, previous: number) => {
+    const diff =(((current - previous) / previous) * 100).toFixed(2) + '%';
+
+    if (diff.startsWith('-') || diff.startsWith('0')){
+      return `${diff} from last month`;
+    }else {
+      return `+${diff} from last month`
+    }
+  }
 
   const dataItem = await prisma.item.findMany({
     select: {
@@ -216,7 +239,8 @@ export const getCardSummary = async () => {
   const lastMonthTotalPrice = lastMonthData.reduce((sum, data) => sum + data.itemPriceTotal, 0);
   const currentPrice = dataItem.reduce((sum, item) => sum + (item.price * (item.stock?.quantity || 0)), 0);
 
-  const priceDescription = aggregate(currentPrice, lastMonthTotalPrice);
+
+  const priceDescription =   priceAggregate(currentPrice, lastMonthTotalPrice);
   const supplierDescription = aggregate(totalSupplier, supplierLastMonth);
   const outletDescription = aggregate(totalOutlet, outletLastMonth);
   const userDescription = aggregate(totalUser, userLastMonth);

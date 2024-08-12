@@ -155,7 +155,7 @@ export function TransactionHistoryTable<TData extends TransactionDetail, TValue>
   return (
     <>
 
-      <div className='w-full flex items-center gap-4 mb-2 justify-between'>
+      <div className='w-full flex-col md:flex-row items-center gap-4 mb-2 justify-between space-y-2 md:space-y-0'>
         <Input
           placeholder="Search everything..."
           value={globalFilter}
@@ -173,7 +173,7 @@ export function TransactionHistoryTable<TData extends TransactionDetail, TValue>
           className="w-full md:max-w-sm"
         />
 
-        <div className='flex gap-2 flex-wrap items-center'>
+        <div className='w-full flex gap-2 flex-wrap items-center justify-between md:justify-start '>
           <CalendarDateRangePicker onSelectDate={onFilterDate} />
 
           <div className={selectedData.length ? 'block' : 'hidden'}>
