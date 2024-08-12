@@ -136,14 +136,14 @@ export function GeneralSummary<TData extends Summary, TValue>({
       {
         searchKey && (
 
-          <div className="flex-col md:flex-row gap-2 md:gap-0 md:justify-between items-center space-y-2 md:space-y-0 md:space-x-4 mb-2">
+          <div className="md:flex gap-2 md:gap-0 md:justify-between items-center space-y-2 md:space-y-0 md:space-x-4 mb-2">
             <Input
               placeholder='Search Item'
               value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ''}
               onChange={(event: any) =>
                 table.getColumn(searchKey)?.setFilterValue(event.target.value)
               }
-              className="w-full md:w-1/3 md:max-w-sm"
+              className="w-full md:w-1/3"
             />
 
             <div className='w-full md:w-1/3 flex items-center gap-2'>
@@ -154,7 +154,7 @@ export function GeneralSummary<TData extends Summary, TValue>({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a month" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='overflow-y-scroll'>
                   {monthNames.map((month, index) => (
                     <SelectItem key={index} value={index.toString()}>{month}</SelectItem>
                   ))}
@@ -168,7 +168,7 @@ export function GeneralSummary<TData extends Summary, TValue>({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a year" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='overflow-y-scroll'>
                   {Array.from({ length: 25 }, (_, i) => now.getFullYear() - i).map((year) => (
                     <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
                   ))}

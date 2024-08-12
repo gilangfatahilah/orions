@@ -2,6 +2,10 @@
 import prisma from "@/lib/db"
 import { User } from '@prisma/client';
 
+interface Person {
+  role: 'Admin' | 'Manager' | 'Staff';
+}
+
 export const getUserByEmail = async (email: string): Promise<User | null> => {
   return await prisma.user.findUnique({
     where: { email: email },
@@ -14,7 +18,7 @@ export const getUserById = async (id: string): Promise<User | null> => {
   })
 };
 
-export const createUser = async (data: { name: string, email: string, role: string, image?: string }, user: string): Promise<User | null> => {
+export const createUser = async (data: { name: string, email: string, role: Person['role'], image?: string }, user: string): Promise<User | null> => {
   return await prisma.user.create({
     data: {
       ...data,

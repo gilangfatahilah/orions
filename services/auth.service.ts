@@ -19,9 +19,21 @@ export const credentialsSignIn = async (email: string, password: string) => {
 };
 
 export const resetPassword = async (id: string, password: string) => {
+  const currentStatus = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      joinedAt: true,
+    }
+  })
+
   return await prisma.user.update({
     where: { id },
-    data: { password },
+    data: {
+      password,
+      joinedAt: (currentStatus?.joinedAt === null
+        || currentStatus?.joinedAt === undefined)
+        ? new Date() : currentStatus?.joinedAt,
+    },
   })
 }
 

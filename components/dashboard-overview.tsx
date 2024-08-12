@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 'use client'
 import React from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreditCard, Truck, Store, Users  } from 'lucide-react';
 import { Overview } from '@/components/overview';
 import { TotalStocks } from '@/components/totalStocks';
@@ -50,12 +49,7 @@ const DashboardOverview = ({ monthlyItemSummary, totalItemSummary, cardSummary, 
           <Button onClick={handleDownload}>Download</Button>
         </div>
       </div>
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview" className="space-y-4" ref={overviewRef}>
+        <div className="space-y-4" ref={overviewRef}>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -128,8 +122,7 @@ const DashboardOverview = ({ monthlyItemSummary, totalItemSummary, cardSummary, 
               <TotalStocks data={totalItemSummary} previousMonthStock={previousMonthStock} />
             </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
     </div>
   )
 }

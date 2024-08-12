@@ -29,6 +29,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Icons } from '../icons';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { sendNotification } from '@/services/notification.service';
 import { createTransaction, TransactionParams } from '@/services/transaction.service';
 import * as z from 'zod';
 import { getItemById, getItems } from '@/services/item.service';
@@ -40,6 +41,7 @@ import { getOutlets } from '@/services/outlet.service';
 import { Transaction } from '@/constants/data';
 import { TransactionTable } from '../tables/transaction-tables/form-table';
 import { Combobox } from '../combobox';
+import { useSession } from 'next-auth/react';
 
 interface TransactionFormProps {
   user: {
@@ -87,6 +89,8 @@ const formSchema = z.object({
 type TransactionFormValues = z.infer<typeof formSchema>
 
 const TransactionForm = ({ user }: TransactionFormProps) => {
+  const {data: session} = useSession();
+
   const defaultValues: TransactionFormValues = {
     type: 'RECEIVING',
     supplier: '',
@@ -303,9 +307,24 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
         }))
       }
 
-      const response = await createTransaction(dataToAssign);
+      const createPromise = createTransaction(dataToAssign);
+
+      await toast.promise(createPromise, {
+        loading: "Create transaction...",
+        success: "Success, Transaction created successfully.",
+        error: "Error creating transaction",
+      });
+
+      const response = await createPromise;
 
       if (response) {
+        await sendNotification(
+          "New Transaction has been created",
+          user.id,
+          session?.user.image ?? 'https://utfs.io/f/5de801e3-2397-4b3a-9be3-08a53e3ddbb9-lwrhgx.png',
+          session?.user.name as string,
+        )
+
         toast.success('Success add transaction.')
       }
 

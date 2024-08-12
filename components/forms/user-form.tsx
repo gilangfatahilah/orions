@@ -34,14 +34,13 @@ import { sendInvitationMail } from '@/services/auth.service';
 import Link from 'next/link';
 import LoadingButton from '../ui/loadingButton';
 
-export const IMG_MAX_LIMIT = 1;
 const formSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
   name: z
     .string()
     .min(5, { message: 'Product Name must be at least 5 characters' }),
   image: z.string().nullable(),
-  role: z.string().min(1, { message: 'Please select a role' })
+  role: z.enum(["Admin", "Manager", "Staff"])
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -51,10 +50,10 @@ interface UserFormProps {
     id: string;
     name: string | null;
     email: string;
-    role: string;
+    role: "Admin" | "Manager" | "Staff";
     image: string | null;
   }
-  role: string;
+  role: "Admin" | "Manager" | "Staff";
   sessionEmail?: string;
   sessionUser: string;
 }
@@ -69,31 +68,18 @@ export const UserForm = (
   const description = initialData ? 'This action will update the user data, you can delete the user also by click the trash button.' : 'This action will add a new user, the new user will be invited via email that included in this form.';
   const action = initialData ? 'Save changes' : 'Create user';
 
-  const renderPlaceholderWithIcon = (value?: string) => (
-    <div className="flex items-center gap-4">
-      <Icons.role className="w-4 h-4 text-gray-400" />
-      {
-        value ? (
-          <span>{value}</span>
-        ) : (
-          <span className='text-gray-400'>Select a role</span>
-        )
-      }
-    </div>
-  );
-
   const defaultValues = initialData
-    ? {
+  ? {
       name: initialData.name ?? '',
-      email: initialData.email ?? '',
+      email: initialData.email,
       image: initialData.image === 'unknown' ? null : initialData.image,
-      role: initialData.role ?? '',
+      role: initialData.role,
     }
-    : {
+  : {
       name: '',
       email: '',
       image: null,
-      role: '',
+      role: 'Staff' as "Admin" | "Manager" | "Staff",
     };
 
   const form = useForm<ProductFormValues>({
@@ -289,13 +275,13 @@ export const UserForm = (
                     <Select
                       disabled={loading}
                       onValueChange={field.onChange}
-                      value={field.value === '' ? undefined : field.value}
-                      defaultValue={field.value === '' ? undefined : field.value}
+                      value={field.value}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue>
-                            {field.value === '' ? renderPlaceholderWithIcon() : renderPlaceholderWithIcon(field.value)}
+                            {field.value}
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>

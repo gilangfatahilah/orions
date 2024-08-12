@@ -73,10 +73,10 @@ model Session {
 }
 
 model Notification {
-  userId          String   @unique
-  notifictionJson String
-  user            User     @relation(fields: [userId], references: [id])
-  createdAt       DateTime @default(now())
+  userId           String   @unique
+  notificationJson String
+  user             User     @relation(fields: [userId], references: [id])
+  createdAt        DateTime @default(now())
 }
 
 model VerificationToken {

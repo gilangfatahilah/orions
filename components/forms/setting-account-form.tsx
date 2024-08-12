@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertModal } from '../modal/alert-modal';
 import * as z from 'zod';
+import * as bcrypt from 'bcryptjs';
 import { send } from '@/services/auth.service';
 import FileUpload from '../file-upload';
 import { updateUserNoHistory } from '@/services/user.service';
@@ -44,7 +45,7 @@ interface SettingAccountProps {
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Name must be at least 1 character.' }),
   image: z.string().nullable(),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+  password: z.string().optional(),
 });
 
 type SettingAccountFormValues = z.infer<typeof formSchema>;
@@ -67,7 +68,8 @@ const SettingAccountForm = ({ id, userName, email, image, password, role }: Sett
   const defaultValues = React.useMemo(() => ({
     name: userName,
     image: image,
-    password: '',
+    password: undefined,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [userName, image, password]);
 
   const form = useForm<SettingAccountFormValues>({
@@ -87,10 +89,16 @@ const SettingAccountForm = ({ id, userName, email, image, password, role }: Sett
     try {
       setLoading(true);
 
-      const body = {
+      const hashedPassword = await bcrypt.hash(data.password as string, 10);
+
+      const body = session?.user.role !== 'Admin' ? {
         name: data.name,
         image: data.image,
-      }
+      } : {
+        name: data.name,
+        image: data.image,
+        password: hashedPassword
+      };
 
       const response = await updateUserNoHistory(id, body);
 
@@ -271,7 +279,7 @@ const SettingAccountForm = ({ id, userName, email, image, password, role }: Sett
               <LoadingButton
                 label='Save'
                 loading={loading}
-                disabled={watchedName === userName && watchedImage === image && watchedPassword === ''}
+                disabled={watchedName === userName && watchedImage === image && !watchedPassword}
                 className='w-full md:w-1/12 mt-4'
               />
             </CardFooter>

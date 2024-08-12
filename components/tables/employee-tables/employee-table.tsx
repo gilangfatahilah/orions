@@ -262,7 +262,7 @@ export function EmployeeTable({
     name: data.original.name,
     role: data.original.role,
     email: data.original.email,
-    joined: formatDate(data.original.joinedAt as Date) ?? 'Not joined yet',
+    joined: formatDate(data.original.joinedAt as Date) ?? 'Not Joined Yet',
   }));
 
   const onConfirmDelete = async () => {

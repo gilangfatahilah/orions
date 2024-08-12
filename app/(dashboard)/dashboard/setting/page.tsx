@@ -13,14 +13,13 @@ import {
   SelectContent,
   SelectItem
 } from "@/components/ui/select"
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import BreadCrumb from '@/components/breadcrumb';
 import { Heading } from '@/components/ui/heading';
 import { auth } from '@/auth';
 import SettingAccountForm from '@/components/forms/setting-account-form';
 import { getUserById } from '@/services/user.service';
+import NotificationSwitcher from '@/components/notificationSwitcher';
 
 const breadcrumbItems = [{ title: 'Setting', link: '/dashboard/setting' }]
 
@@ -49,39 +48,20 @@ const SettingPage = async () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-            <CardDescription>Manage your notification preferences.</CardDescription>
+            <CardTitle>Appearances</CardTitle>
+            <CardDescription>Manage your appearance preferences.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="grid gap-1.5">
-                  <p className="font-medium">Email Notifications</p>
+                  <p className="font-medium">Transaction Notification</p>
                   <p className="text-sm text-muted-foreground">
-                    Receive email notifications for important updates.
+                    Receive a notification when new transaction was added.
                   </p>
                 </div>
-                <Switch id="email-notifications" defaultChecked />
+                <NotificationSwitcher />
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <div className="grid gap-1.5">
-                  <p className="font-medium">Desktop Notifications</p>
-                  <p className="text-sm text-muted-foreground">
-                    Receive desktop notifications for real-time updates.
-                  </p>
-                </div>
-                <Switch id="desktop-notifications" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Appearance</CardTitle>
-            <CardDescription>Customize the visual appearance of the application.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="grid gap-1.5">
                   <p className="font-medium">Theme</p>
@@ -97,13 +77,6 @@ const SettingPage = async () => {
                     <SelectItem value="system">System</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <div className="grid gap-1.5">
-                  <p className="font-medium">Font Size</p>
-                  <p className="text-sm text-muted-foreground">Adjust the font size for better readability.</p>
-                </div>
-                <Slider id="font-size" min={12} max={20} step={2} defaultValue={[16]} aria-label="Font Size" />
               </div>
             </div>
           </CardContent>

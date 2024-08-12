@@ -5,6 +5,10 @@ import { getUserById } from '@/services/user.service';
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation';
 
+interface Roles {
+  role: "Admin" | "Manager" | "Staff"
+}
+
 const EditUserPage = async ({ params }: { params: { id: string } }) => {
   const breadcrumbItems = [
     { title: 'User', link: '/dashboard/user' },
@@ -32,7 +36,7 @@ const EditUserPage = async ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <UserForm initialData={data} role={role as string} sessionUser={name as string}/>
+      <UserForm initialData={data} role={role as Roles['role']} sessionUser={name as string}/>
     </div>
   )
 }

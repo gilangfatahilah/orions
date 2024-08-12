@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { deleteUser } from '@/services/user.service';
 import { useSession } from 'next-auth/react';
+import { sendInvitationMail } from '@/services/auth.service';
 
 interface CellActionProps {
   data: Employee;
@@ -28,6 +29,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const isStaff = session?.user.role === 'Staff';
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [resend, setResend] = useState(false);
 
   const onConfirm = async () => {
     try {
@@ -47,6 +49,49 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     }
   };
 
+  const onResend = async () => {
+    try {
+      setLoading(true);
+      const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+      const payload = {
+        email: data.email,
+        name: data.name,
+        subject: 'Invitation user on Orion',
+        role: data.role,
+        image: data.image ?? undefined,
+        url: `${BASE_URL}/reset-password/${data.id}`
+      }
+
+      const sendMailPromise = sendInvitationMail(
+        payload.email,
+        payload.name,
+        payload.subject,
+        payload.role,
+        session?.user.email as string,
+        payload.url,
+        payload.image
+      );
+
+      await toast.promise(sendMailPromise, {
+        loading: 'Sending invitation email...',
+        success: `Invitation email was sent to ${data.email}`,
+        error: 'Failed to send invitation email. There was a problem with your request.',
+      });
+
+      const sendMailResponse = await sendMailPromise;
+      if (sendMailResponse.accepted.length) {
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error('Something went wrong', {
+        description: 'there was a problem with your request.',
+      })
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       <AlertModal
@@ -54,6 +99,15 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         onClose={() => setOpen(false)}
         onConfirm={onConfirm}
         loading={loading}
+      />
+
+      <AlertModal
+        isOpen={resend}
+        onClose={() => setResend(false)}
+        onConfirm={onResend}
+        loading={loading}
+        description={`Do you want to send verification email on ${data.email}`}
+        variant='primary'
       />
       {
         !isStaff && (
@@ -75,7 +129,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
               {
                 data.joinedAt === null && (
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setResend(true)}>
                     <Mails className="mr-2 h-4 w-4" /> Resend Email
                   </DropdownMenuItem>
                 )

@@ -4,6 +4,10 @@ import { UserForm } from '@/components/forms/user-form';
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation';
 
+interface Roles {
+  role: 'Admin' | 'Manager' | 'Staff'
+}
+
 const AddUser = async () => {
   const breadcrumbItems = [
     { title: 'User', link: '/dashboard/user' },
@@ -21,7 +25,7 @@ const AddUser = async () => {
   return (
     <div className="flex-1 space-y-4 p-8">
       <BreadCrumb items={breadcrumbItems} />
-      <UserForm role={role as string} sessionEmail={email as string} sessionUser={name as string} />
+      <UserForm role={role as Roles['role']} sessionEmail={email as string} sessionUser={name as string} />
     </div>
   )
 }

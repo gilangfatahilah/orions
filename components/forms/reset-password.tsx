@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from "@/components/ui/input"
 import { Icons } from "../icons"
-import {toast} from 'sonner';
+import { toast } from 'sonner';
 import { resetPassword } from "@/services/auth.service";
 import LoadingButton from "../ui/loadingButton";
 
@@ -61,7 +61,7 @@ export const ResetPassword = ({ id }: { id: string }) => {
     try {
       setLoading(true);
 
-      const hashedPassword = await bcrypt.hash(data.password, 10)
+      const hashedPassword = await bcrypt.hash(data.password, 10);
       const response = await resetPassword(id, hashedPassword);
 
       if (response) {
