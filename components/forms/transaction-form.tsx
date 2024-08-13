@@ -324,8 +324,6 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
           session?.user.image ?? 'https://utfs.io/f/5de801e3-2397-4b3a-9be3-08a53e3ddbb9-lwrhgx.png',
           session?.user.name as string,
         )
-
-        toast.success('Success add transaction.')
       }
 
     } catch (error) {
