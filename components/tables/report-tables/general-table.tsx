@@ -26,11 +26,7 @@ import { Summary } from '@/constants/data';
 import { formatCurrency } from '@/lib/formatter';
 import { getStockSummary } from '@/services/report.service';
 import TableDropdown from '../table-dropdown';
-import { Icons } from '@/components/icons';
-import ReportDocument from '@/components/report/generalReport';
-import dynamic from 'next/dynamic';
 
-const PDFDownloadLink = dynamic(() => import('@/components/report/pdfDownloader'), { ssr: false });
 
 interface DataTableProps<TData extends Summary, TValue> {
   searchKey?: string;
@@ -125,9 +121,9 @@ export function GeneralSummary<TData extends Summary, TValue>({
   const currentDate = () => {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
-    const month = (today.getMonth() + 1); 
+    const month = (today.getMonth() + 1);
     const year = today.getFullYear();
-  
+
     return `${day} ${monthNames[month]}, ${year}`;
   }
 
@@ -174,18 +170,15 @@ export function GeneralSummary<TData extends Summary, TValue>({
                   ))}
                 </SelectContent>
               </Select>
-              <PDFDownloadLink
-                document={<ReportDocument
-                  data={dataPdf}
-                  period={`${monthNames[selectedMonth]} ${selectedYear}`}
-                  user={user}
-                  date={currentDate()}
-                />}
-                fileName={`General report - ${selectedMonth} ${selectedYear}`}
-              >
-                <Icons.download className='w-4 h-4' />
-              </PDFDownloadLink>
-              <TableDropdown data={dataToExport} tableName={`General Report ${monthNames[selectedMonth]} - ${selectedYear}`} />
+              <TableDropdown
+                data={dataToExport}
+                tableName={`General Report ${monthNames[selectedMonth]} - ${selectedYear}`}
+                period={`${monthNames[selectedMonth]} ${selectedYear}`}
+                customPdfData={dataPdf}
+                user={user}
+                date={currentDate()}
+                customPdf
+              />
             </div>
           </div>
         )

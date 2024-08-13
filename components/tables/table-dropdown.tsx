@@ -1,4 +1,5 @@
 import React from 'react'
+import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button"
 import { Icons } from '../icons'
 import {
@@ -14,18 +15,26 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from 'sonner';
+import ReportDocument, { ReportItem } from '@/components/report/generalReport';
 import { exportCSV, exportPDF, exportToExcel } from '@/lib/fileExport';
-import {toast} from 'sonner';
 import { formatDate } from '@/lib/formatter';
+
+const PDFDownloadLink = dynamic(() => import('@/components/report/pdfDownloader'), { ssr: false });
 
 interface TableDropdownProps {
   onDelete?: () => void;
   addToReport?: () => void;
   data: Record<string, string | number>[];
   tableName: string;
+  period?: string;
+  user?: string;
+  date?: string;
+  customPdf?: boolean;
+  customPdfData?: ReportItem[];
 }
 
-const TableDropdown = ({ onDelete, addToReport, data, tableName }: TableDropdownProps) => {
+const TableDropdown = ({ onDelete, addToReport, data, tableName, user, period, date, customPdf, customPdfData }: TableDropdownProps) => {
 
   const onExportExcel = async () => {
     try {
@@ -69,10 +78,30 @@ const TableDropdown = ({ onDelete, addToReport, data, tableName }: TableDropdown
                 <Icons.spreadsheet className="mr-2 h-4 w-4" />
                 <span>CSV</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onExportPDF}>
-                <Icons.spreadsheet className="mr-2 h-4 w-4" />
-                <span>PDF</span>
-              </DropdownMenuItem>
+              {
+                customPdf ? (
+                  <DropdownMenuItem>
+                    <PDFDownloadLink
+                      document={<ReportDocument
+                        data={customPdfData!}
+                        period={period!}
+                        user={user!}
+                        date={date!}
+                      />}
+                      fileName={tableName}
+                      className='flex'
+                    >
+                      <Icons.spreadsheet className="mr-2 h-4 w-4" />
+                      PDF
+                    </PDFDownloadLink>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={onExportPDF}>
+                    <Icons.spreadsheet className="mr-2 h-4 w-4" />
+                    <span>PDF</span>
+                  </DropdownMenuItem>
+                )
+              }
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>

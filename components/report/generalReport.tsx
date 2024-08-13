@@ -2,7 +2,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 
-interface ReportItem {
+export interface ReportItem {
   name: string;
   startStock: number;
   stockIn: number;

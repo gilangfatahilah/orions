@@ -13,8 +13,6 @@ import BreadCrumb from "@/components/breadcrumb";
 import { GeneralSummary } from '@/components/tables/report-tables/general-table';
 import { TransactionHistoryTable } from '@/components/tables/transaction-tables/history-table';
 import { auth } from '@/auth';
-import { ScrollArea } from '@/components/ui/scroll-area';
-
 const breadcrumbItems = [{ title: 'Report', link: '/dashboard/report' }];
 
 type paramsProps = {
