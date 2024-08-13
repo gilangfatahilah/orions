@@ -20,7 +20,6 @@ export const deleteNotification = async (userId: string) => {
 
 export const sendNotification = async (
   message: string,
-  userId: string,
   icon: string,
   name: string
 ) => {
@@ -35,26 +34,41 @@ export const sendNotification = async (
     vapidKeys.private,
   );
 
-  const data = await prisma.notification.findUnique({
-    where: { userId }
-  })
+  const data = await prisma.notification.findMany({
+    where: {
+      user: {
+        role: {
+          in: ["Admin", "Manager"]
+        }
+      }
+    },
+
+    select: {
+      notificationJson: true,
+    }
+  });
+
 
   if (!data) {
     throw new Error('User doesn\'t not enabled notification');
-  }else {
-    try {
-      await webpush.sendNotification(
-        JSON.parse(data.notificationJson),
-        JSON.stringify({
-          message: name,
-          icon,
-          body: message,
-        })
-      );
+  } else {
+    await Promise.all(
+      data.map(async (notification) => {
+        try {
+          await webpush.sendNotification(
+            JSON.parse(notification.notificationJson),
+            JSON.stringify({
+              message: name,
+              icon,
+              body: message,
+            })
+          );
 
-      return "{}"
-    } catch (error) {
-      return JSON.stringify({ error: "failed to send notification" })
-    }
+          return { success: true };
+        } catch (error) {
+          return { error: "Failed to send notification" };
+        }
+      })
+    )
   }
 }
