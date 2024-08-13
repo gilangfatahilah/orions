@@ -319,7 +319,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
 
       if (response) {
         await sendNotification(
-          "New Transaction has been created",
+          "Just added new transaction",
           user.id,
           session?.user.image ?? 'https://utfs.io/f/5de801e3-2397-4b3a-9be3-08a53e3ddbb9-lwrhgx.png',
           session?.user.name as string,

@@ -30,16 +30,14 @@ const NotificationSwitcher = () => {
     if ("serviceWorker" in navigator) {
       try {
         const registration = await navigator.serviceWorker.getRegistration();
-        const subscription = await registration?.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlB64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_KEY!),
-        });
 
-        console.log(process.env.NEXT_PUBLIC_VAPID_KEY!);
+        if (registration){
+          generateSubscribeEndpoint(registration);
+        }else {
+          const newRegistration = await navigator.serviceWorker.register("/sw.js");
 
-        await registerNotification(session?.user.id as string, JSON.stringify(subscription));
-      
-        toast.success("Success, enabled notification.")
+          generateSubscribeEndpoint(newRegistration);
+        }
       } catch (error) {
         toast.error("Error during subscription.");
       }
@@ -47,6 +45,24 @@ const NotificationSwitcher = () => {
       toast.error("Service workers are not supported in this browser");
     }
   };
+
+  const generateSubscribeEndpoint = async(newRegistration: ServiceWorkerRegistration) => {
+    try {
+      const applicationServerKey = urlB64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_KEY!);
+
+      const options = {
+        applicationServerKey,
+        userVisibleOnly: true,
+      }
+  
+      const subscription = await newRegistration.pushManager.subscribe(options);
+      await registerNotification(session?.user.id as string, JSON.stringify(subscription));
+
+      toast.success("Success, enabled notification.")
+    } catch (error) {
+      toast.error("Failed to enabled notification");
+    }
+  }
 
   const removeNotification = async () => {
     try {      
