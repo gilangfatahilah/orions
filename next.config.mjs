@@ -15,7 +15,8 @@ const withPWA = nextPwa({
   register: true,
   fallbacks: {
     document: '/offline'
-  }
+  },
+  buildExcludes: [/app-build-manifest\.json$/],
 });
 
 const config = withPWA({
