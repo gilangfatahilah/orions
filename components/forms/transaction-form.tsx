@@ -345,7 +345,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                 name="transactionDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Transaction date</FormLabel>
+                    <FormLabel>Transaction Date</FormLabel>
                     <Popover>
                       <PopoverTrigger disabled={loading} asChild>
                         <Button
@@ -380,7 +380,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Transaction type</FormLabel>
+                    <FormLabel>Transaction Type</FormLabel>
                     <Select
                       disabled={loading}
                       onValueChange={field.onChange}
@@ -460,7 +460,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
                 name="letter"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Letter Code</FormLabel>
                     <FormControl>
                       <div className='relative'>
                         <Icons.pens className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
