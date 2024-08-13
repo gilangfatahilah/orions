@@ -6,13 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem
-} from "@/components/ui/select"
 import { ScrollArea } from '@/components/ui/scroll-area';
 import BreadCrumb from '@/components/breadcrumb';
 import { Heading } from '@/components/ui/heading';
@@ -20,6 +13,7 @@ import { auth } from '@/auth';
 import SettingAccountForm from '@/components/forms/setting-account-form';
 import { getUserById } from '@/services/user.service';
 import NotificationSwitcher from '@/components/notificationSwitcher';
+import ThemeOptions from '@/components/themeOptions';
 
 const breadcrumbItems = [{ title: 'Setting', link: '/dashboard/setting' }]
 
@@ -62,22 +56,7 @@ const SettingPage = async () => {
                 </div>
                 <NotificationSwitcher />
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <div className="grid gap-1.5">
-                  <p className="font-medium">Theme</p>
-                  <p className="text-sm text-muted-foreground">Choose the color theme for the application.</p>
-                </div>
-                <Select>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Theme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <ThemeOptions />
             </div>
           </CardContent>
         </Card>

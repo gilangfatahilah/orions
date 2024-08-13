@@ -92,7 +92,6 @@ export const getTotalItemsByMonth = async () => {
   const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
   const itemCountByMonth: Record<string, any> = {};
-  const cumulativeItemUnits: Record<string, number> = {};
 
   stockSummaries.forEach(summary => {
     const summaryDate = new Date(summary.year, monthNames.indexOf(summary.month));
@@ -107,15 +106,12 @@ export const getTotalItemsByMonth = async () => {
         };
       }
 
-      if (!cumulativeItemUnits[summary.itemCode]) {
-        cumulativeItemUnits[summary.itemCode] = 0;
-      }
-
-      cumulativeItemUnits[summary.itemCode] += summary.finalMonthUnit;
-      itemCountByMonth[key].itemCount = cumulativeItemUnits[summary.itemCode];
+      // Add the finalMonthUnit of the current summary to the total count for that month
+      itemCountByMonth[key].itemCount += summary.finalMonthUnit;
     }
   });
 
+  // Sort the results by year and month
   return Object.values(itemCountByMonth).sort((a, b) => {
     if (a.year === b.year) {
       return monthNames.indexOf(a.month) - monthNames.indexOf(b.month);
@@ -123,6 +119,7 @@ export const getTotalItemsByMonth = async () => {
     return a.year - b.year;
   });
 };
+
 
 export const getTotalItemsSummary = async () => {
   const items = await prisma.item.findMany({
