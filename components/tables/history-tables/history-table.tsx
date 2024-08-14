@@ -39,17 +39,20 @@ import { toast } from 'sonner';
 import { deleteSeveralHistory } from '@/services/history.service';
 import { formatDate } from '@/lib/formatter';
 import TableDropdown from '../table-dropdown';
+import { CellAction } from './cell-action';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { CalendarDateRangePicker } from '@/components/date-range-picker';
+import { useSession } from 'next-auth/react';
 
 interface DataTableProps<TData extends History, TValue> {
-  columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageSizeOptions?: number[];
   pageCount: number;
 }
 
 export function HistoryTable<TData extends History, TValue>({
-  columns,
   data,
   pageCount,
   pageSizeOptions = [10, 20, 30, 40, 50]
@@ -57,6 +60,7 @@ export function HistoryTable<TData extends History, TValue>({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const {data: session} = useSession();
   // Search params
   const page = searchParams?.get('page') ?? '1';
   const pageAsNumber = Number(page);
@@ -73,6 +77,118 @@ export function HistoryTable<TData extends History, TValue>({
 
   /* this can be used to get the selectedrows 
   console.log("value", table.getFilteredSelectedRowModel()); */
+
+  const columns: ColumnDef<History>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => {
+        return(
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          disabled={session?.user.role !== 'Admin'}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      )},
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          disabled={session?.user.role !== 'Admin'}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false
+    },
+    {
+      accessorKey: 'name',
+      header: 'NAME'
+    },
+    {
+      accessorKey: 'field',
+      header: 'FIELD'
+    },
+    {
+      accessorKey: 'oldValue',
+      header: 'FROM',
+      cell: ({ row }) => {
+        if (row.original.field === 'Price') {
+          const formatCurrency = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+          })
+          const price = parseInt(row.original.oldValue)
+  
+          return formatCurrency.format(price);
+        } else if (row.original.field === 'Image') {
+          return (
+            <Avatar>
+              <AvatarImage src={row.original.oldValue} alt={row.original.field} />
+              <AvatarFallback> {row.original.field?.substring(0, 1).toUpperCase()} </AvatarFallback>
+            </Avatar>
+          )
+        }
+  
+        return row.original.oldValue;
+      }
+    },
+    {
+      accessorKey: 'newValue',
+      header: 'TO',
+      cell: ({ row }) => {
+        if (row.original.field === 'Price') {
+          const formatCurrency = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+          })
+          const price = parseInt(row.original.newValue)
+  
+          return formatCurrency.format(price);
+        } else if (row.original.field === 'Image') {
+          return (
+            <Avatar>
+              <AvatarImage src={row.original.newValue} alt={row.original.field} />
+              <AvatarFallback> {row.original.field?.substring(0, 1).toUpperCase()} </AvatarFallback>
+            </Avatar>
+          )
+        }
+  
+        return row.original.newValue;
+      }
+    },
+    {
+      accessorKey: 'modifiedBy',
+      header: 'MODIFIED BY',
+      cell: ( {row} ) => {
+        return (
+          <Badge>
+            {row.original.modifiedBy}
+          </Badge>
+        )
+      }
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'DATE',
+      cell: ({ row }) => {
+        return formatDate(row.original.createdAt);
+      }
+    },
+    {
+      id: 'actions',
+      header: '•••',
+      cell: ({ row }) => {
+        if (session?.user.role !== 'Admin') {
+          return null;
+        }
+
+        return (
+          <CellAction data={row.original} />
+        )
+      }
+    }
+  ];
 
   // Create query string
   const createQueryString = React.useCallback(

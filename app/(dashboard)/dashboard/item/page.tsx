@@ -7,7 +7,6 @@ import {
 import BreadCrumb from '@/components/breadcrumb';
 import { ItemTable } from '@/components/tables/item-tables/item-table';
 import { columns } from '@/components/tables/item-tables/columns';
-import { columns as historyColumns } from '@/components/tables/history-tables/columns';
 import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
@@ -162,7 +161,6 @@ export default async function page({ searchParams }: paramsProps) {
         <TabsContent value="history">
 
           <HistoryTable
-            columns={historyColumns}
             data={history}
             pageCount={historyPageCount}
           />

@@ -4,7 +4,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import { columns as historyColumns } from '@/components/tables/history-tables/columns';
 import { HistoryTable } from "@/components/tables/history-tables/history-table";
 import BreadCrumb from '@/components/breadcrumb';
 import { EmployeeTable } from '@/components/tables/employee-tables/employee-table';
@@ -159,7 +158,6 @@ export default async function page({ searchParams }: paramsProps) {
         <TabsContent value="history">
 
           <HistoryTable
-            columns={historyColumns}
             data={history}
             pageCount={historyPageCount}
           />

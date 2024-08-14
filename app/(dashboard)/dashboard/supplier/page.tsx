@@ -4,7 +4,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import { columns as historyColumns } from '@/components/tables/history-tables/columns';
 import { HistoryTable } from "@/components/tables/history-tables/history-table";
 import BreadCrumb from '@/components/breadcrumb';
 import { columns } from '@/components/tables/supplier-tables/columns';
@@ -161,7 +160,6 @@ const totalCount = await prisma.supplier.count();
         <TabsContent value="history">
 
           <HistoryTable
-            columns={historyColumns}
             data={history}
             pageCount={historyPageCount}
           />
