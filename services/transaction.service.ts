@@ -63,7 +63,27 @@ export const createTransaction = async (
     })
 
     if (!currentStock) {
-      throw new Error(`Stock for item with ID ${item.id} not found.`);
+      throw new Error(`Stock not found.`);
+    }
+
+    if (type === 'ISSUING') {
+      const lastReceivingTransaction = await prisma.transaction.findFirst({
+        where: {
+          type: 'RECEIVING',
+          detail: {
+            some: {
+              itemId: item.id,
+            }
+          }
+        },
+        orderBy: {
+          transactionDate: 'asc'
+        },
+      });
+
+      if (lastReceivingTransaction && new Date(date) < new Date(lastReceivingTransaction.transactionDate)) {
+        throw new Error(`Transaction date cannot be earlier than the last receiving date.`);
+      }
     }
 
     const newQuantity = type === 'RECEIVING'

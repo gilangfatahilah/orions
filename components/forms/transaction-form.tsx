@@ -326,9 +326,8 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
       }
 
     } catch (error) {
-      toast.error('Something went wrong', {
-        description: 'there was a problem with your request.',
-      })
+      // @ts-ignore
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
