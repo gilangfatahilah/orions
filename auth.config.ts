@@ -43,6 +43,7 @@ export const authConfig = {
         }
       },
 
+      //@ts-ignore
       async authorize(credentials) {
 
         const user = await prisma.user.findUnique({
@@ -54,7 +55,6 @@ export const authConfig = {
         if (!user) return null;
 
         const passwordMatch = await bcrypt.compare(credentials.password as string, user.password as string);
-        console.log(passwordMatch);
         
         if (!passwordMatch) return null;
 
@@ -64,6 +64,7 @@ export const authConfig = {
           email: user.email,
           role: user.role,
           image: user.image,
+          colorScheme: user.colorScheme,
         }
       }
     }),
@@ -75,6 +76,7 @@ export const authConfig = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.image = token.image as string;
+        session.user.colorScheme = token.colorScheme as string;
       }
       return session;
     },
@@ -84,6 +86,7 @@ export const authConfig = {
         token.id = user.id;
         token.role = user.role;
         token.image = user.image;
+        token.colorScheme = user.colorScheme;
       }
       
       if (account?.provider === 'google' && profile?.picture) {
@@ -95,6 +98,7 @@ export const authConfig = {
         token.role = session.user.role;
         token.image = session.user.image;
         token.name = session.user.name;
+        token.colorScheme = session.user.colorScheme;
       };
       
       return token;

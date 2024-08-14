@@ -18,7 +18,7 @@ interface ChartData {
 const chartConfig = {
   itemCount: {
     label: "Stock",
-    color: "#2761D9",
+    color: "bg-primary",
   },
 } satisfies ChartConfig
 
@@ -46,9 +46,9 @@ export const Overview: React.FC<OverviewProps> = ({ data }) => {
         />
         <ChartTooltip
           cursor={false}
-          content={<ChartTooltipContent hideLabel />}
+          content={<ChartTooltipContent color="#fff" hideLabel />}
         />
-        <Bar dataKey="itemCount" fill="#2761D9" radius={8}>
+        <Bar dataKey="itemCount" className="fill-primary" radius={8}>
           <LabelList
             position="top"
             offset={12}

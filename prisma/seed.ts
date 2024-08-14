@@ -16,6 +16,7 @@ async function main() {
       password: password,
       role: 'Admin',
       image: null,
+      colorScheme: null,
       joinedAt: new Date(),
     },
   });

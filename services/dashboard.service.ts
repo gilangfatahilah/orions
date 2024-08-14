@@ -144,7 +144,7 @@ export const getTotalItemsSummary = async () => {
   const top5Items = sortedItems.slice(0, 5);
   const othersQuantity = sortedItems.slice(5).reduce((sum, item) => sum + item.value, 0);
 
-  const colors = ['#2463EB', '#60A8FB', '#3B86F7', '#91C6FE', '#BDDCFE', '#5AB2FF'];
+  const colors = ['#E23670', '#E88C30', '#AF57DB', '#2EB88A', '#2662D9', '#60432F'];
 
   return [
     ...top5Items.map((item, index) => ({ ...item, fill: colors[index] })),

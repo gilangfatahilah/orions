@@ -37,13 +37,12 @@ export default async function RootLayout({
   
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} overflow-hidden`}>
+      <body className={`${inter.className} overflow-hidden ${session?.user.colorScheme ?? 'theme-neutral'}`}>
         <NextTopLoader color='#2761D9' showSpinner={false} />
         <Providers session={session}>
           {children}
           <Toaster expand={true} richColors />
         </Providers>
-
         <Pwa />
       </body>
     </html>

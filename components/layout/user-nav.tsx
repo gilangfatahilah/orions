@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { signOutAuth } from '@/services/auth.service';
 
-import { LogOut, User2Icon, Settings } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -78,18 +78,13 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <Link href={'/dashboard/profile'}>
-            <DropdownMenuItem>
-              Profile
-              <DropdownMenuShortcut><User2Icon className='w-4 h-4' /></DropdownMenuShortcut>
-            </DropdownMenuItem>
-            </Link>
+            <Link href={'/dashboard/setting'}>
             <DropdownMenuItem>
               Settings
               <DropdownMenuShortcut><Settings className='w-4 h-4' /></DropdownMenuShortcut>
             </DropdownMenuItem>
+            </Link>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOutClick}>
             Sign Out
             <DropdownMenuShortcut>
