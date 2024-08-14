@@ -88,20 +88,19 @@ const SettingAccountForm = ({ id, userName, email, image, password, role }: Sett
   const onSubmit = async (data: SettingAccountFormValues) => {
     try {
       setLoading(true);
-
-      const hashedPassword = await bcrypt.hash(data.password as string, 10);
-
-      const body = session?.user.role !== 'Admin' ? {
+  
+      const body: any = {
         name: data.name,
         image: data.image,
-      } : {
-        name: data.name,
-        image: data.image,
-        password: hashedPassword
       };
-
+  
+      if (session?.user.role === 'Admin' && data.password) {
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        body.password = hashedPassword;
+      }
+  
       const response = await updateUserNoHistory(id, body);
-
+  
       if (response) {
         await update({
           user: {
@@ -109,11 +108,13 @@ const SettingAccountForm = ({ id, userName, email, image, password, role }: Sett
             ...body,
           }
         });
-
+  
         toast.success('Success, your account has been updated.');
       }
-
+  
     } catch (error) {
+      console.error(error);
+  
       toast.error('Something went wrong', {
         description: 'There was a problem, please try again.',
       })
@@ -121,6 +122,7 @@ const SettingAccountForm = ({ id, userName, email, image, password, role }: Sett
       setLoading(false);
     }
   };
+  
 
   const onChangePassword = async () => {
     try {
