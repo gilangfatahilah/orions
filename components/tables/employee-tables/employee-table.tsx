@@ -88,6 +88,8 @@ export function EmployeeTable({
           row => {
             if (role === 'Manager') {
               return row.original.role !== 'Manager' && row.original.role !== 'Admin';
+            }else if (role === 'Staff') {
+              return row.original.role !== 'Staff' && row.original.role !== 'Manager' && row.original.role !== 'Admin';
             }
 
             return row.original.role !== 'Admin';
@@ -107,8 +109,13 @@ export function EmployeeTable({
         );
       },
       cell: ({ row }) => {
-        const rolesToDisable = role === 'Manager' ? ['Manager', 'Admin'] : ['Admin'];
-
+        const rolesMap: { [key in 'Manager' | 'Staff' | 'Admin']: string[] } = {
+          Manager: ['Manager', 'Admin'],
+          Staff: ['Manager', 'Admin', 'Staff'],
+          Admin: ['Admin'],
+        };
+        
+        const rolesToDisable = rolesMap[role as 'Manager' | 'Staff' | 'Admin'];
         return (
           <Checkbox
             checked={row.getIsSelected()}

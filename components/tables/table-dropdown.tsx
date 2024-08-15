@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import ReportDocument, { ReportItem } from '@/components/report/generalReport';
 import { exportCSV, exportPDF, exportToExcel } from '@/lib/fileExport';
 import { formatDate } from '@/lib/formatter';
+import { useSession } from 'next-auth/react';
 
 const PDFDownloadLink = dynamic(() => import('@/components/report/pdfDownloader'), { ssr: false });
 
@@ -35,6 +36,8 @@ interface TableDropdownProps {
 }
 
 const TableDropdown = ({ onDelete, addToReport, data, tableName, user, period, date, customPdf, customPdfData }: TableDropdownProps) => {
+  const { data: session } = useSession();
+
 
   const onExportExcel = async () => {
     try {
@@ -106,7 +109,7 @@ const TableDropdown = ({ onDelete, addToReport, data, tableName, user, period, d
           </DropdownMenuPortal>
         </DropdownMenuSub>
         {
-          onDelete !== undefined && (
+          session?.user.role !== 'Staff' && onDelete !== undefined && (
             <DropdownMenuItem className='text-red-600' onClick={() => onDelete()}>
               Delete
               <DropdownMenuShortcut>
