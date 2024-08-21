@@ -42,6 +42,8 @@ import { Transaction } from '@/constants/data';
 import { TransactionTable } from '../tables/transaction-tables/form-table';
 import { Combobox } from '../combobox';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Checkbox } from '../ui/checkbox';
 
 interface TransactionFormProps {
   user: {
@@ -89,7 +91,7 @@ const formSchema = z.object({
 type TransactionFormValues = z.infer<typeof formSchema>
 
 const TransactionForm = ({ user }: TransactionFormProps) => {
-  const {data: session} = useSession();
+  const { data: session } = useSession();
 
   const defaultValues: TransactionFormValues = {
     type: 'RECEIVING',
@@ -106,6 +108,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
     defaultValues,
   });
 
+  const router = useRouter();
   const watchedItem = form.watch('item');
   const [loading, setLoading] = React.useState<boolean>(false);
   const [items, setItems] = React.useState<Option[]>([]);
@@ -113,6 +116,7 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
   const [outlets, setOutlets] = React.useState<Option[]>([]);
   const [itemList, setItemList] = React.useState<Transaction[]>([]);
   const [itemStock, setItemStock] = React.useState<ItemStock[]>([]);
+  const [stayForm, setStayForm] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const fetchOptions = async () => {
@@ -318,11 +322,14 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
       const response = await createPromise;
 
       if (response) {
+        
         await sendNotification(
           "Just added new transaction",
           session?.user.image ?? 'https://utfs.io/f/5de801e3-2397-4b3a-9be3-08a53e3ddbb9-lwrhgx.png',
           session?.user.name as string,
-        )
+        );
+
+        if (!stayForm) return router.push('/dashboard/transaction'); 
       }
 
     } catch (error) {
@@ -338,217 +345,239 @@ const TransactionForm = ({ user }: TransactionFormProps) => {
       <form onSubmit={form.handleSubmit(handleSubmit)} className='w-full flex flex-col justify-between space-y-8'>
 
         <div className='w-full md:grid md:grid-cols-4 gap-8'>
-            <div className='col-span-2 flex flex-col gap-4'>
-              <FormField
-                control={form.control}
-                name="transactionDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Transaction Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger disabled={loading} asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <Icons.calendar className="mr-2 h-4 w-4" />
-                          {field.value ? formatDate(field.value) : <span>Pick a date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormItem>
-                )}
-              />
+          <div className='col-span-2 flex flex-col gap-4'>
+            <FormField
+              control={form.control}
+              name="transactionDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Transaction Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger disabled={loading} asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        <Icons.calendar className="mr-2 h-4 w-4" />
+                        {field.value ? formatDate(field.value) : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Transaction Type</FormLabel>
-                    <Select
-                      disabled={loading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue>
-                            {renderPlaceholderWithIcon('type', field.value)}
-                          </SelectValue>
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectGroup className='px-2'>
-                          <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>
-                            Select transaction type
-                          </SelectLabel>
-                          <SelectItem value='RECEIVING'>
-                            Receiving
-                          </SelectItem>
-                          <SelectItem value='ISSUING'>
-                            Issuing
-                          </SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {
-                form.watch('type') === 'RECEIVING' && (
-                  <FormField
-                    control={form.control}
-                    name="supplier"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Supplier</FormLabel>
-                        <Combobox
-                          options={suppliers}
-                          field={field}
-                          form={form}
-                          name="supplier"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )
-              }
-
-              {
-                form.watch('type') === 'ISSUING' && (
-                  <FormField
-                    control={form.control}
-                    name="outlet"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Outlet</FormLabel>
-                        <Combobox
-                          options={outlets}
-                          field={field}
-                          form={form}
-                          name="outlet"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )
-              }
-
-              <FormField
-                control={form.control}
-                name="letter"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Letter Code</FormLabel>
-                    <FormControl>
-                      <div className='relative'>
-                        <Icons.pens className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
-                        <Input
-                          type="text"
-                          placeholder="Enter transaction letter code"
-                          disabled={loading}
-                          className='pl-10'
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='item'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Item</FormLabel>
-                    <Combobox
-                      options={items}
-                      field={field}
-                      form={form}
-                      name="item"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity</FormLabel>
-                    <FormControl>
-                      <div className='relative'>
-                        <Icons.numberUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
-                        <Input
-                          type="number"
-                          placeholder="Enter item quantity"
-                          disabled={loading || form.watch('item') === ''}
-                          className='pl-10'
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                        />
-                      </div>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              {
-                watchedItem && watchedItem.length > 0 && (
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onAddItem();
-                    }}
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Transaction Type</FormLabel>
+                  <Select
                     disabled={loading}
-                    variant={'outline'}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
                   >
-                    Add item
-                  </Button>
-                )
-              }
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue>
+                          {renderPlaceholderWithIcon('type', field.value)}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectGroup className='px-2'>
+                        <SelectLabel className='ml-2 mb-1 pb-1 text-base border-muted border-b-[1px] text-muted-foreground'>
+                          Select transaction type
+                        </SelectLabel>
+                        <SelectItem value='RECEIVING'>
+                          Receiving
+                        </SelectItem>
+                        <SelectItem value='ISSUING'>
+                          Issuing
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {
+              form.watch('type') === 'RECEIVING' && (
+                <FormField
+                  control={form.control}
+                  name="supplier"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Supplier</FormLabel>
+                      <Combobox
+                        options={suppliers}
+                        field={field}
+                        form={form}
+                        name="supplier"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )
+            }
+
+            {
+              form.watch('type') === 'ISSUING' && (
+                <FormField
+                  control={form.control}
+                  name="outlet"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Outlet</FormLabel>
+                      <Combobox
+                        options={outlets}
+                        field={field}
+                        form={form}
+                        name="outlet"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )
+            }
+
+            <FormField
+              control={form.control}
+              name="letter"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Letter Code</FormLabel>
+                  <FormControl>
+                    <div className='relative'>
+                      <Icons.pens className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                      <Input
+                        type="text"
+                        placeholder="Enter transaction letter code"
+                        disabled={loading}
+                        className='pl-10'
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='item'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Item</FormLabel>
+                  <Combobox
+                    options={items}
+                    field={field}
+                    form={form}
+                    name="item"
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantity</FormLabel>
+                  <FormControl>
+                    <div className='relative'>
+                      <Icons.numberUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                      <Input
+                        type="number"
+                        placeholder="Enter item quantity"
+                        disabled={loading || form.watch('item') === ''}
+                        className='pl-10'
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {
+              watchedItem && watchedItem.length > 0 && (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onAddItem();
+                  }}
+                  disabled={loading}
+                  variant={'outline'}
+                >
+                  Add item
+                </Button>
+              )
+            }
+          </div>
+
+          <div className='w-full grid grid-rows-3 col-span-2'>
+            <div className='row-span-2'>
+              <div className='w-full flex justify-between items-center'>
+
+              <FormLabel>List item</FormLabel>
+
+              <Button size='icon' onClick={() => form.reset()}>
+                <Icons.refresh className='w-4 h-4' />
+              </Button>
+              </div>
+
+              <TransactionTable data={itemList} onUpdateQuantity={onUpdateQuantity} onRemoveRow={onRemoveItem} />
             </div>
 
-            <div className='w-full grid grid-rows-3 col-span-2'>
-              <div className='row-span-2'>
-                <FormLabel>List item</FormLabel>
-                <TransactionTable data={itemList} onUpdateQuantity={onUpdateQuantity} onRemoveRow={onRemoveItem} />
-              </div>
-              <div className='row-span-1 flex justify-end items-end'>
-                <Button className='w-full md:w-1/5' type='submit'>
-                  Submit
-                </Button>
-              </div>
+            <div className="flex justify-end items-center space-x-2 ml-1 mt-6 self-end">
+              <Checkbox id="stayForm" className='w-4 h-4' onCheckedChange={() => setStayForm(!stayForm)} />
+              <label
+                htmlFor="stayForm"
+                className="text-xs font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Stay on this form after submit.
+              </label>
             </div>
+
+            <div className='row-span-1 flex gap-2 justify-end items-end mt-4'>
+              <Button className='w-full md:w-1/5' variant={'outline'} onClick={() => router.back()}>
+                Cancel
+              </Button>
+
+              <Button className='w-full md:w-1/5' type='submit'>
+                Submit
+              </Button>
+            </div>
+          </div>
         </div>
 
       </form>
     </Form>
-
   )
 }
 

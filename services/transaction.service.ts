@@ -36,7 +36,7 @@ export const createTransaction = async (
   { type, supplierId, outletId, date, total, letterCode, items, userId, user }:
     TransactionParams): Promise<Transaction | null> => {
 
-  const getItemSource = supplierId ? await getSupplierById(supplierId!) : getOutletById(outletId!);
+  const getItemSource = supplierId ? await getSupplierById(supplierId) : getOutletById(outletId!);
 
   if (!getItemSource) {
     throw new Error('Failed to get data supplier / outlet');

@@ -1,18 +1,14 @@
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
 import prisma from "@/lib/db";
 import { columns } from "@/components/tables/transaction-tables/column";
 import BreadCrumb from "@/components/breadcrumb";
-import TransactionForm from "@/components/forms/transaction-form";
 import { auth } from '@/auth';
+import { buttonVariants } from '@/components/ui/button';
 import { Heading } from "@/components/ui/heading";
-import { Separator } from "@/components/ui/separator";
 import { TransactionHistoryTable } from "@/components/tables/transaction-tables/history-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Link from "next/link";
+import { cn } from '@/lib/utils';
+import { Icons } from "@/components/icons";
 
 type paramsProps = {
   searchParams: {
@@ -23,12 +19,6 @@ type paramsProps = {
 const breadcrumbItems = [{ title: 'Transaction', link: '/dashboard/transaction' }]
 
 const transactionPage = async ({ searchParams }: paramsProps) => {
-  const session = await auth();
-  const userSession = {
-    id: session?.user.id ?? '',
-    name: session?.user.name ?? '',
-  }
-
   const page = Number(searchParams.page) || 1;
   const pageLimit = Number(searchParams.limit) || 10;
   const offset = (page - 1) * pageLimit;
@@ -89,26 +79,18 @@ const transactionPage = async ({ searchParams }: paramsProps) => {
         <BreadCrumb items={breadcrumbItems} />
         <div className='flex items-center justify-between'>
           <Heading title='Transaction' description='Manage your transaction here.' />
+
+          <Link href={'/dashboard/transaction/create'}
+            className={cn(buttonVariants({ variant: 'default' }))}
+          >
+            <Icons.add className="mr-2 h-4 w-4" /> Transaction
+          </Link>
         </div>
 
-        <Tabs defaultValue="transaction">
-          <TabsList className="grid w-full md:w-1/4 mb-2 grid-cols-2">
-            <TabsTrigger value="transaction">Transaction</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-          </TabsList>
-
-          <Separator />
-
-          <TabsContent value="transaction">
-            <TransactionForm user={userSession} />
-          </TabsContent>
-          <TabsContent value="history">
-            <TransactionHistoryTable
-              data={transaction}
-              columns={columns}
-              pageCount={pageCount} />
-          </TabsContent>
-        </Tabs>
+        <TransactionHistoryTable
+          data={transaction}
+          columns={columns}
+          pageCount={pageCount} />
       </div>
     </ScrollArea>
   )

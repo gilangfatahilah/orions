@@ -12,13 +12,13 @@ import {
 interface ChartData {
   month: string;
   year: number;
-  itemCount: number;  
+  itemCount: number;
 }
 
 const chartConfig = {
   itemCount: {
     label: "Stock",
-    color: "bg-primary",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
 
@@ -46,9 +46,9 @@ export const Overview: React.FC<OverviewProps> = ({ data }) => {
         />
         <ChartTooltip
           cursor={false}
-          content={<ChartTooltipContent color="#fff" hideLabel />}
+          content={<ChartTooltipContent hideLabel />}
         />
-        <Bar dataKey="itemCount" className="fill-primary" radius={8}>
+        <Bar dataKey="itemCount" fill="hsl(var(--primary))" radius={8}>
           <LabelList
             position="top"
             offset={12}
