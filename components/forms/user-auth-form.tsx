@@ -38,8 +38,8 @@ export default function UserAuthForm() {
   const credentialForm = useForm<credentialFormData>({
     resolver: zodResolver(credentialSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: 'publicguest@mailnesia.com',
+      password: 'sAWp3uaDt7ZFnNG',
     }
   });
 

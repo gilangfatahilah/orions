@@ -3,7 +3,7 @@ import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient()
 const parsePassword = async () => {
-  return await bcrypt.hash('adminkey', 10);
+  return await bcrypt.hash(process.env.SEED_USER_PASSWORD!, 10);
 };
 
 async function main() {
